@@ -18,7 +18,6 @@ function RouteFallback() {
   return (
     <main className="routeFallback" aria-live="polite">
       <span className="routeFallbackSpinner" aria-hidden="true" />
-      <p>VoyHaven Travel yükleniyor…</p>
     </main>
   );
 }

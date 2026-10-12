@@ -427,6 +427,26 @@
   text-align: right;
 }
 
+.travelSectionHeading.travelShowcaseIntro {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+.travelShowcaseIntro h2 {
+  max-width: 980px;
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.65rem);
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.travelSectionHeading.travelShowcaseIntro > p {
+  max-width: 760px;
+  font-size: 1rem;
+  text-align: start;
+}
+
 .travelShowcaseStatus {
   min-height: 180px;
   display: flex;

@@ -1193,16 +1193,9 @@ function Travel({ hotelsOnly = false }) {
 
       <section className="travelRoutesSection" aria-live="polite">
         <div className="travelContainer">
-          <div className="travelSectionHeading">
-            <div>
-              <span>{t("travelPage.runtime.liveAvailability")} · 5★</span>
-              <h2>5★ {t("travelPage.runtime.hotels")}</h2>
-            </div>
-            <p>
-              {showcaseState === "loading"
-                ? t("travelPage.runtime.searching")
-                : `${showcaseHotels.length} ${t("travelPage.runtime.resultsSuffix")}`}
-            </p>
+          <div className="travelSectionHeading travelShowcaseIntro">
+            <h2>{t("brand.journeyTitle")}</h2>
+            <p>{t("brand.journeyDescription")}</p>
           </div>
 
           {showcaseState === "loading" && (

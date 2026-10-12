@@ -46,7 +46,7 @@ function PaymentCard({ method }) {
 }
 
 function Footer() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const seoCopy = copy[language];
   const currentYear = new Date().getFullYear();
 
@@ -125,7 +125,7 @@ function Footer() {
       </div>
 
       <div className="container footerBottom">
-        <p>© {currentYear} {siteConfig.brandName}. Travel platform.</p>
+        <p>© {currentYear} {siteConfig.brandName}. {t("brand.allRightsReserved")}</p>
       </div>
     </footer>
   );

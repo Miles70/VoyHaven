@@ -1,4 +1,6 @@
 import { trackTravel } from '../services/analytics';
+import { DestinationDiscovery, HotelResultControls, TravelQuestions } from "../components/TravelDiscovery";
+import { defaultHotelFilters, filterHotelResults, hotelCurrencies } from "../services/hotelDiscovery.js";
 import Flights from "./Flights";
 import CategoryPage from "./CategoryPage";
 import VoyHavenLogo from "../components/Brand/VoyHavenLogo";
@@ -332,6 +334,7 @@ function Travel({ hotelsOnly = false }) {
     Math.min(Math.max(Number(homeSearchParams.get("adults")) || 2, 1), 5),
   );
   const [results, setResults] = useState([]);
+  const [resultFilters, setResultFilters] = useState({ ...defaultHotelFilters });
   const [showcaseHotels, setShowcaseHotels] = useState([]);
   const [showcaseState, setShowcaseState] = useState("idle");
   const [showcaseError, setShowcaseError] = useState("");
@@ -351,6 +354,9 @@ function Travel({ hotelsOnly = false }) {
   const [prebook, setPrebook] = useState(null);
   const { t, language } = useLanguage();
   const activeServiceKey = "travelPage.services.hotels";
+  const visibleResults = useMemo(() => filterHotelResults(results, resultFilters), [results, resultFilters]);
+  const resultCurrencies = hotelCurrencies(results);
+  const filterCurrency = resultCurrencies.length === 1 ? resultCurrencies[0] : null;
 
   function customerHotelError(error, fallbackKey = "travelPage.runtime.noAvailability") {
     const message = String(error?.message || "");
@@ -607,6 +613,7 @@ function Travel({ hotelsOnly = false }) {
     setSearchState("loading");
     setSearchError("");
     setResults([]);
+    setResultFilters({ ...defaultHotelFilters });
     setCatalogOffset(0);
     setHasMoreHotels(false);
     setLoadMoreError("");
@@ -1005,6 +1012,8 @@ function Travel({ hotelsOnly = false }) {
         </div>
       </section>
 
+      {!hotelsOnly && <DestinationDiscovery hotels={showcaseHotels} checkin={checkin} checkout={checkout} adults={adults} />}
+
       {results.length > 0 && (
         <section className="travelHotelResults" aria-live="polite">
           <div className="travelContainer">
@@ -1016,8 +1025,10 @@ function Travel({ hotelsOnly = false }) {
               <p>{results.length} {t("travelPage.runtime.resultsSuffix")}</p>
             </div>
 
+            <HotelResultControls filters={resultFilters} onChange={setResultFilters} currency={filterCurrency} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
+            {!visibleResults.length && <p className="travelFilterEmpty" role="status">{t("discovery.empty")}</p>}
             <div className="travelHotelGrid">
-              {results.map((hotel) => (
+              {visibleResults.map((hotel) => (
                 <article className="travelHotelCard" key={hotel.hotelId}>
                   <Link
                     className="travelHotelMedia"
@@ -1309,6 +1320,7 @@ function Travel({ hotelsOnly = false }) {
           )}
         </div>
       </section>
+      {!hotelsOnly && <TravelQuestions />}
     </main>
   );
 }

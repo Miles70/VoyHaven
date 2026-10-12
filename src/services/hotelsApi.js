@@ -61,6 +61,14 @@ export function getHotelDetails(hotelId) {
   });
 }
 
+export function getHotelReviews(hotelId, language, offset = 0) {
+  return hotelRequest(`/${encodeURIComponent(hotelId)}/reviews?${new URLSearchParams({ language, offset: String(offset) })}`);
+}
+
+export function getHotelInformation(hotelId, language) {
+  return hotelRequest(`/${encodeURIComponent(hotelId)}/information?${new URLSearchParams({ language })}`);
+}
+
 export function listIndexedVideoHotels(limit = 40) {
   const query = new URLSearchParams({ limit: String(limit) });
   return hotelRequest(`/video-showcase?${query.toString()}`, {

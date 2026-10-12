@@ -10,6 +10,7 @@ import rateLimit from "express-rate-limit";
 import {
   assertBookingReady,
   getNuiteeHotel,
+  getNuiteeReviews,
   getNuiteeStatus,
   listNuiteeHotels,
   prebookNuiteeRate,
@@ -25,6 +26,9 @@ import { TravelBooking } from "../models/TravelBooking.js";
 import { getPublicCryptoPaymentConfig } from "../config/cryptoPayment.js";
 import { verifyTravelCryptoPayment } from "../services/travelPaymentVerification.js";
 import crypto from "node:crypto";
+import { normalizeHotelReviews } from "../../../shared/hotelContent.js";
+
+const reviewCache = new Map();
 
 export const hotelsRouter = Router();
 
@@ -192,7 +196,7 @@ function normalizeRatesResult(result) {
           offerId: room.offerId,
           suggestedSellingPrice: { amount: roundMoney(total), currency: room.offerRetailRate.currency },
           conditions: normalizeOfferConditions(room),
-          rates: (room.rates || []).map(rate => ({ name: rate.name })),
+          rates: (room.rates || []).map(rate => ({ name: rate.name, ...(rate.mappedRoomId !== null && rate.mappedRoomId !== undefined && /^[A-Za-z0-9_-]{1,100}$/.test(String(rate.mappedRoomId)) ? { mappedRoomId: String(rate.mappedRoomId) } : {}) })),
         }];
       }),
     })),
@@ -351,6 +355,39 @@ hotelsRouter.get(
     }
   },
 );
+
+hotelsRouter.get("/:hotelId/reviews", searchLimiter, async (request, response, next) => {
+  try {
+    const hotelId = requiredText(request.params.hotelId, "hotelId", 100);
+    const language = optionalText(request.query.language || "en", 5).toLowerCase();
+    if (!/^[A-Za-z0-9_-]+$/.test(hotelId) || !["en", "tr", "ru", "ar", "zh", "es", "pt", "fr", "de", "it"].includes(language)) throw requestError("Invalid hotel or language.");
+    const offset = boundedInteger(request.query.offset, 0, 0, 4990);
+    const key = `${hotelId}:${language}:${offset}`;
+    let cached = reviewCache.get(key);
+    if (!cached || cached.expires < Date.now()) {
+      if (reviewCache.size >= 200) reviewCache.delete(reviewCache.keys().next().value);
+      const pending = getNuiteeReviews(hotelId, language, offset).then((payload) => {
+        const rows = normalizeHotelReviews(payload);
+        return { reviews: rows.slice(0, 6), nextOffset: rows.length > 6 ? offset + 6 : null, language };
+      }).catch((error) => { reviewCache.delete(key); throw error; });
+      cached = { pending, expires: Date.now() + 3600000 };
+      reviewCache.set(key, cached);
+    }
+    response.set("Cache-Control", "public, max-age=3600");
+    response.json(await cached.pending);
+  } catch (error) { next(error); }
+});
+
+hotelsRouter.get("/:hotelId/information", translationLimiter, async (request, response, next) => {
+  try {
+    const hotelId = requiredText(request.params.hotelId, "hotelId", 100);
+    const language = optionalText(request.query.language || "en", 5).toLowerCase();
+    if (!/^[A-Za-z0-9_-]+$/.test(hotelId) || !["en", "tr", "ru", "ar", "zh", "es", "pt", "fr", "de", "it"].includes(language)) throw requestError("Invalid hotel or language.");
+    const result = await getLocalizedHotelDescription(hotelId, language, "information");
+    response.set("Cache-Control", "private, max-age=3600");
+    response.json({ information: result.description, language: result.language });
+  } catch (error) { next(error); }
+});
 
 hotelsRouter.get("/:hotelId", searchLimiter, async (request, response, next) => {
   try {

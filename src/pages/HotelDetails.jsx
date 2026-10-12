@@ -1,6 +1,8 @@
 import Seo from "../components/Seo/Seo";
 import { appPolicy } from "../../seo/app-policy.js";
 import HotelFacts from "../components/HotelFacts";
+import HotelGuestContent from "../components/HotelGuestContent";
+import RoomExtras from "../components/RoomExtras";
 import { copy as seoCopy } from "../../seo/copy.js";
 import { extraFacilityKeys } from "../../shared/hotelPresentation.js";
 import RateConditions from "../components/RateConditions";
@@ -695,6 +697,7 @@ function HotelDetails() {
                 </p>
               )}
             </section>
+            <HotelGuestContent key={`${hotelId}:${language}`} hotel={hotel} hotelId={hotelId} />
           </div>
 
           <aside className="hotelDetailBooking">
@@ -738,6 +741,7 @@ function HotelDetails() {
                       </div>
                       <span>{totalStayLabel}</span>
                       <RateConditions conditions={offer.conditions} />
+                      {(offer.rates || []).map((rate, index) => <RoomExtras key={`${rate.mappedRoomId}:${index}`} rate={rate} rooms={hotel.rooms} translateFacilities={(values) => textList(values.filter((value) => facilityKeys.has(String(typeof value === "string" ? value : value?.name || "").trim().toLowerCase())), t)} />)}
                       <b>
                         {money(
                           offer.suggestedSellingPrice.amount,

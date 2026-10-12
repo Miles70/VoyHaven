@@ -105,7 +105,7 @@ async function generateTranslations(source) {
           model: getModel(),
           store: false,
           instructions: [
-            "Translate the supplied hotel description naturally and accurately.",
+            "Translate the supplied hotel text naturally and accurately.",
             "Preserve every factual statement, proper noun, distance, service and restriction.",
             "Do not invent amenities or marketing claims.",
             "Remove supplier HTML and return plain readable prose.",
@@ -175,11 +175,12 @@ async function generateTranslations(source) {
   return run;
 }
 
-export async function getLocalizedHotelDescription(hotelId, language) {
+export async function getLocalizedHotelDescription(hotelId, language, contentKind = "description") {
   const safeLanguage = LANGUAGES.includes(language) ? language : "en";
   const payload = await getNuiteeHotel(hotelId);
   const hotel = unwrapHotel(payload);
-  const source = cleanText(hotel?.description || hotel?.hotelDescription);
+  const source = cleanText(contentKind === "information" ? hotel?.hotelImportantInformation : hotel?.description || hotel?.hotelDescription);
+  const cacheId = contentKind === "information" ? `${hotelId}:information` : hotelId;
 
   if (!source) {
     return { hotelId, language: safeLanguage, description: "", cached: true };
@@ -195,7 +196,7 @@ export async function getLocalizedHotelDescription(hotelId, language) {
   }
 
   const sourceHash = crypto.createHash("sha256").update(source).digest("hex");
-  const cached = await HotelTranslation.findOne({ hotelId, sourceHash }).lean();
+  const cached = await HotelTranslation.findOne({ hotelId: cacheId, sourceHash }).lean();
   const cachedDescription = cleanText(cached?.translations?.[safeLanguage], 5_000);
 
   if (cachedDescription) {
@@ -209,7 +210,7 @@ export async function getLocalizedHotelDescription(hotelId, language) {
 
   const translations = await generateTranslations(source);
   await HotelTranslation.findOneAndUpdate(
-    { hotelId },
+    { hotelId: cacheId },
     {
       $set: {
         sourceHash,

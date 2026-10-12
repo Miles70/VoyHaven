@@ -2,14 +2,14 @@
   display: block;
   width: auto;
   height: auto;
-  aspect-ratio: 310 / 72;
+  aspect-ratio: 1720 / 370;
   object-fit: contain;
   flex-shrink: 0;
 }
 
 .headerVoyHavenLogo {
-  width: 130px;
-  max-width: min(32vw, 130px);
+  width: 150px;
+  max-width: min(32vw, 150px);
 }
 
 .heroVoyHavenLogo {
@@ -18,7 +18,7 @@
 }
 
 .footerVoyHavenLogo {
-  background: #fff;
+  background: #03152e;
   padding: 8px 12px;
   border-radius: 12px;
   box-sizing: border-box;
@@ -28,8 +28,8 @@
 
 @media (max-width: 620px) {
   .headerVoyHavenLogo {
-    width: 125px;
-    max-width: min(38vw, 125px);
+    width: 140px;
+    max-width: min(38vw, 140px);
   }
 
   .heroVoyHavenLogo {

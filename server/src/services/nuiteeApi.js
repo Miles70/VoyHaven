@@ -205,6 +205,13 @@ export function getNuiteeHotel(hotelId) {
   });
 }
 
+export function getNuiteeReviews(hotelId, language, offset = 0) {
+  return requestNuitee(getSettings().dataBaseUrl, "/data/reviews", {
+    query: { hotelId, language, offset, limit: 7, getSentiment: false },
+    retries: 1,
+  });
+}
+
 export function searchNuiteeRates(body) {
   return requestNuitee(getSettings().dataBaseUrl, "/hotels/rates", {
     method: "POST",

@@ -16,6 +16,7 @@ import hotelDetailTranslations from "./hotelDetailTranslations";
 import travelRuntimeTranslations from "./travelRuntimeTranslations";
 import brandTranslations from "./brandTranslations";
 import discoveryTranslations from "./discoveryTranslations";
+import hotelFactsTranslations from "./hotelFactsTranslations";
 
 function withTravelTranslations(baseTranslations, language) {
   const payment = travelPaymentTranslations[language] || travelPaymentTranslations.en;
@@ -25,6 +26,7 @@ function withTravelTranslations(baseTranslations, language) {
     ...baseTranslations,
     brand: brandTranslations[language] || brandTranslations.en,
     discovery: discoveryTranslations[language] || discoveryTranslations.en,
+    hotelFacts: hotelFactsTranslations[language] || hotelFactsTranslations.en,
     auth,
     hotelRate: hotelRateTranslations[language],
     rateConditions: rateConditionsTranslations[language] || rateConditionsTranslations.en,

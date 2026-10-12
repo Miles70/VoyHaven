@@ -1,5 +1,6 @@
 import Seo from "../components/Seo/Seo";
 import { appPolicy } from "../../seo/app-policy.js";
+import HotelFacts from "../components/HotelFacts";
 import { copy as seoCopy } from "../../seo/copy.js";
 import { extraFacilityKeys } from "../../shared/hotelPresentation.js";
 import RateConditions from "../components/RateConditions";
@@ -589,6 +590,8 @@ function HotelDetails() {
             </div>
           )}
         </section>
+
+        <HotelFacts hotel={hotel} />
 
         <HotelStaySearch key={JSON.stringify([hotelId, checkin, checkout, adults])}
           checkin={checkin} checkout={checkout} adults={adults} t={t}

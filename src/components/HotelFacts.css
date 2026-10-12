@@ -1,0 +1,8 @@
+.hotelFacts { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; padding: 20px 24px; margin: 0 0 24px; border: 1px solid #dce5f3; border-radius: 18px; background: #fff; color: var(--color-navy); }
+.hotelFactsTimes { display: flex; align-items: center; gap: 14px; }
+.hotelFactsTimeValues { display: flex; flex-wrap: wrap; gap: 12px 28px; font-size: .9rem; }
+.hotelFactsTimeValues strong { margin-inline-start: 8px; }
+.hotelFacts small { display: block; margin-top: 7px; color: var(--color-text-secondary); font-size: .75rem; }
+.hotelFacts a { display: inline-flex; align-items: center; gap: 8px; padding: 11px 14px; border-radius: 10px; background: #edf3ff; color: var(--color-blue); font-size: .9rem; font-weight: 700; }
+.hotelFacts a:focus-visible { outline: 3px solid var(--color-blue); outline-offset: 4px; }
+@media (max-width: 540px) { .hotelFacts { padding: 18px; } .hotelFactsTimeValues { gap: 10px; flex-direction: column; } }

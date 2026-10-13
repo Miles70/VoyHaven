@@ -4,15 +4,15 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import "./LanguageSwitcher.css";
 
 const languages = [
-  { code: "tr", flag: "🇹🇷", label: "Türkçe" },
   { code: "en", flag: "🇬🇧", label: "English" },
-  { code: "es", flag: "🇪🇸", label: "Español" },
-  { code: "pt", flag: "🇧🇷", label: "Português (Brasil)" },
-  { code: "fr", flag: "🇫🇷", label: "Français" },
   { code: "de", flag: "🇩🇪", label: "Deutsch" },
-  { code: "it", flag: "🇮🇹", label: "Italiano" },
+  { code: "fr", flag: "🇫🇷", label: "Français" },
   { code: "ru", flag: "🇷🇺", label: "Русский" },
+  { code: "es", flag: "🇪🇸", label: "Español" },
   { code: "ar", flag: "🇸🇦", label: "العربية" },
+  { code: "tr", flag: "🇹🇷", label: "Türkçe" },
+  { code: "pt", flag: "🇧🇷", label: "Português (Brasil)" },
+  { code: "it", flag: "🇮🇹", label: "Italiano" },
   { code: "zh", flag: "🇨🇳", label: "中文" },
 ];
 
@@ -22,7 +22,7 @@ function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
 
   const activeLanguage =
-    languages.find((item) => item.code === language) || languages[1];
+    languages.find((item) => item.code === language) || languages[0];
 
   useEffect(() => {
     function handleClickOutside(event) {

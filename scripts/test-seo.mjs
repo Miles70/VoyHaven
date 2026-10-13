@@ -30,6 +30,9 @@ for (const page of pages) {
  assert.equal((html.match(/<link rel="canonical"/g) || []).length, 1);
  assert.ok(html.includes(`href="${SITE_URL}${page.path}"`));
  assert.ok(html.includes(`lang="${page.lang}"`));
+ assert.ok(!/rotavoy/i.test(html));
+ assert.ok(html.includes('property="og:site_name" content="VoyHaven"'));
+ assert.ok(html.includes(`property="og:url" content="${SITE_URL}${page.path}"`));
  assert.ok(html.includes(`dir="${page.lang === 'ar' ? 'rtl' : 'ltr'}"`));
  assert.ok(html.includes('<h1>') && html.includes('application/ld+json'));
  assert.equal((html.match(/hreflang=/g) || []).length, 11);
@@ -56,6 +59,11 @@ for (const page of pages) {
  if (page.kind === 'route') assert.ok(withoutScripts.includes(page.route.from) && withoutScripts.includes(page.route.to));
 }
 assert.equal(await readFile('dist/google2fd19590f23b16c5.html', 'utf8'), await readFile('public/google2fd19590f23b16c5.html', 'utf8'));
+assert.equal(SITE_URL, 'https://voyhaven.com');
+const shell = await readFile('index.html', 'utf8');
+assert.ok(!/rotavoy/i.test(shell));
+assert.ok(!shell.match(/<div id="root">([\s\S]*?)<\/div>/)[1].replace(/<noscript>[\s\S]*?<\/noscript>/, '').trim());
+assert.ok((await readFile('dist/robots.txt', 'utf8')).includes('Sitemap: https://voyhaven.com/sitemap.xml'));
 const index = await readFile('dist/sitemap.xml', 'utf8');
 assert.ok(index.includes('<sitemapindex'));
 let locations = [];
@@ -69,6 +77,30 @@ for (const path of paths) assert.ok(locations.includes(SITE_URL + path));
 assert.ok(locations.every(url => !url.includes('?') && !/checkout|account|admin/.test(url)));
 const published = hotels.map(h => h.id);
 const config = JSON.parse(await readFile('vercel.json', 'utf8'));
+// Migration must cover every published URL without redirecting new-domain
+// traffic or interrupting old-origin checkout callbacks.
+const migrationRedirect = (host, path, query = '') => {
+ for (const rule of config.redirects) {
+  if (!rule.has.some(condition => condition.type === 'host' && condition.value === host) || !rule.missing.every(condition => !new URLSearchParams(query).has(condition.key))) continue;
+  if (rule.source === path) return rule;
+  const locale = path.match(/^\/(tr|en|de|fr|ru|ar|es|pt|it|zh)(?:\/(.*))?$/);
+  if (locale && rule.source.startsWith('/:lang(')) return { ...rule, destination: rule.destination.replace(':lang', locale[1]).replace('/:path*', locale[2] ? '/' + locale[2] : '') };
+  const hotel = path.match(/^\/travel\/hotels\/(lp[a-z0-9]+)$/);
+  if (hotel && rule.source.startsWith('/travel/hotels/:hotelId(')) return { ...rule, destination: rule.destination.replace(':hotelId', hotel[1]) };
+ }
+};
+for (const host of ['rotavoy.com', 'www.rotavoy.com']) {
+ for (const path of paths) {
+  const rule = migrationRedirect(host, path);
+  assert.equal(rule?.destination, SITE_URL + path, `Missing migration ${host}${path}`);
+  assert.equal(rule.permanent, true);
+ }
+ for (const path of ['/about','/contact','/support','/privacy','/terms','/refund']) assert.equal(migrationRedirect(host, path)?.destination, SITE_URL + path);
+ assert.equal(migrationRedirect(host, '/')?.destination, SITE_URL + '/');
+ for (const path of ['/travel/checkout','/flights/checkout','/account','/admin','/not-a-page','/google2fd19590f23b16c5.html']) assert.equal(migrationRedirect(host, path), undefined);
+ for (const key of ['reference','bookingReference','prebookId','payment_intent','payment_intent_client_secret','redirect_status','transactionId','secretKey','token','sessionId','bookingId','clientSecret','lang','checkin','departure','offerId']) assert.equal(migrationRedirect(host, '/en', `${key}=private`), undefined);
+}
+for (const host of ['voyhaven.com','www.voyhaven.com','example.vercel.app']) for (const path of paths) assert.equal(migrationRedirect(host, path), undefined);
 for (const key of searchKeys) {
  assert.ok(config.headers.some(rule => rule.has.some(match => match.type === 'query' && match.key === key) && rule.headers.some(header => header.key === 'X-Robots-Tag' && header.value.includes('noindex'))));
  assert.ok(appPolicy('/hotels', `${key}=example`, published).noIndex);
@@ -100,6 +132,8 @@ for (const path of ['/account','/travel/checkout','/flights/checkout','/flights?
  assert.equal(r.headers['X-Robots-Tag'], 'noindex, follow');
  assert.ok(r.body.includes('content="noindex, follow"'));
  assert.equal((r.body.match(/rel="canonical"/g) || []).length, 1);
+ assert.ok(r.body.includes('property="og:site_name" content="VoyHaven"'));
+ assert.ok(!/rotavoy/i.test(r.body));
 }
 assert.equal((await request('/flights')).status, 308);
 assert.equal((await request('/flights?lang=tr')).headers['Cache-Control'], 'private, no-store');

@@ -15,6 +15,7 @@
     "check": "npm run lint && npm run build && npm run server:test",
     "security:check": "node scripts/audit-high.mjs",
     "check:readiness": "npm --prefix server run check:readiness",
+    "test:nearby-scroll": "node scripts/test-nearby-scroll.mjs",
     "test:hotel-ui": "node scripts/test-hotel-ui.mjs",
     "test:hotel-e2e": "node scripts/test-hotel-e2e.mjs",
     "test:analytics-e2e": "node scripts/test-analytics-e2e.mjs",

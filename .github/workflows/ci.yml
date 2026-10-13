@@ -68,6 +68,9 @@ jobs:
       - name: Test multilingual SEO in browser
         run: npm run test:seo-e2e
 
+      - name: Test nearby search result scrolling
+        run: npm run test:nearby-scroll
+
       - name: Test desktop and mobile hotel flow
         run: npm run test:hotel-e2e
 

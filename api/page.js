@@ -1,3 +1,4 @@
+import { SITE_URL } from '../seo/model.js';
 import { readFile } from 'node:fs/promises';
 import { appPolicy } from '../seo/app-policy.js';
 import { escapeHtml } from '../seo/html.js';
@@ -7,7 +8,7 @@ async function loadAssets() {
  return assets;
 }
 export default async function handler(request, response) {
- const url = new URL(request.url, 'https://www.rotavoy.com');
+ const url = new URL(request.url, SITE_URL);
  const rawPath = request.query?.path ?? url.searchParams.get('path') ?? url.pathname.replace(/^\//, '');
  const path = '/' + (Array.isArray(rawPath) ? rawPath.join('/') : rawPath);
  url.searchParams.delete('path');
@@ -15,7 +16,7 @@ export default async function handler(request, response) {
   const [template, manifest] = await loadAssets();
   const policy = appPolicy(path, url.searchParams.toString(), manifest.hotels);
   if (policy.redirect) { response.setHeader('Location', policy.redirect); response.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600'); return response.status(308).end(); }
-  const html = template.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(policy.title)}</title>`).replace(/<meta\s+name="description"[\s\S]*?>/i, '').replace(/<link\s+rel="canonical"[\s\S]*?>/i, '').replace('</head>', `<meta name="description" content="${escapeHtml(policy.description)}"><meta name="robots" content="${policy.noIndex ? 'noindex, follow' : 'index, follow'}"><link rel="canonical" href="${escapeHtml(policy.canonical)}"></head>`);
+  const html = template.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(policy.title)}</title>`).replace(/<meta\s+name="description"[\s\S]*?>/i, '').replace(/<link\s+rel="canonical"[\s\S]*?>/i, '').replace(/<meta\s+(?:property="og:[^"]*"|name="twitter:[^"]*")[\s\S]*?>/gi, '').replace('</head>', `<meta name="description" content="${escapeHtml(policy.description)}"><meta name="robots" content="${policy.noIndex ? 'noindex, follow' : 'index, follow'}"><link rel="canonical" href="${escapeHtml(policy.canonical)}"><meta property="og:site_name" content="VoyHaven"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(policy.title)}"><meta property="og:description" content="${escapeHtml(policy.description)}"><meta property="og:url" content="${escapeHtml(policy.canonical)}"><meta name="twitter:card" content="summary"></head>`);
   response.setHeader('Content-Type', 'text/html; charset=utf-8');
   // Query pages may include personal references: never put them into a shared cache.
   response.setHeader('Cache-Control', url.search ? 'private, no-store' : 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400');

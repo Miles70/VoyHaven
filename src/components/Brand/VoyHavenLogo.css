@@ -1,0 +1,39 @@
+.voyhavenLogoImage {
+  display: block;
+  width: auto;
+  height: auto;
+  aspect-ratio: 1720 / 370;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.headerVoyHavenLogo {
+  width: 150px;
+  max-width: min(32vw, 150px);
+}
+
+.heroVoyHavenLogo {
+  width: 290px;
+  max-width: 100%;
+}
+
+.footerVoyHavenLogo {
+  box-sizing: border-box;
+  width: 230px;
+  max-width: 100%;
+}
+
+@media (max-width: 620px) {
+  .headerVoyHavenLogo {
+    width: 140px;
+    max-width: min(38vw, 140px);
+  }
+
+  .heroVoyHavenLogo {
+    width: 235px;
+  }
+
+  .footerVoyHavenLogo {
+    width: 205px;
+  }
+}

@@ -1,10 +1,12 @@
 import { trackTravel } from '../services/analytics';
+import { DestinationDiscovery, HotelResultControls, TravelQuestions } from "../components/TravelDiscovery";
+import { defaultHotelFilters, filterHotelResults, hotelCurrencies } from "../services/hotelDiscovery.js";
 import Flights from "./Flights";
 import CategoryPage from "./CategoryPage";
-import RotavoyLogo from "../components/Brand/RotavoyLogo";
+import VoyHavenLogo from "../components/Brand/VoyHavenLogo";
 import { withHotelDistances } from "../services/hotelDistance.js";
 import { getCurrentCoordinates } from "../services/geolocation.js";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
@@ -332,6 +334,7 @@ function Travel({ hotelsOnly = false }) {
     Math.min(Math.max(Number(homeSearchParams.get("adults")) || 2, 1), 5),
   );
   const [results, setResults] = useState([]);
+  const [resultFilters, setResultFilters] = useState({ ...defaultHotelFilters });
   const [showcaseHotels, setShowcaseHotels] = useState([]);
   const [showcaseState, setShowcaseState] = useState("idle");
   const [showcaseError, setShowcaseError] = useState("");
@@ -340,10 +343,23 @@ function Travel({ hotelsOnly = false }) {
   const [loadMoreState, setLoadMoreState] = useState("idle");
   const [loadMoreError, setLoadMoreError] = useState("");
   const completedSearch = useRef(null);
+  const resultsRef = useRef(null);
+  const scrollToNearbyResults = useRef(false);
   const [nearbyCoordinates, setNearbyCoordinates] = useState(null);
   const [nearbyRadius, setNearbyRadius] = useState(10000);
   const [locating, setLocating] = useState(false);
   const [searchState, setSearchState] = useState("idle");
+  useEffect(() => {
+    if (searchState !== "success" || !scrollToNearbyResults.current) return;
+    scrollToNearbyResults.current = false;
+    const frame = requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+        block: "start",
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [searchState]);
   const [searchError, setSearchError] = useState("");
   const [prebookState, setPrebookState] = useState("idle");
   const [prebookError, setPrebookError] = useState("");
@@ -351,6 +367,9 @@ function Travel({ hotelsOnly = false }) {
   const [prebook, setPrebook] = useState(null);
   const { t, language } = useLanguage();
   const activeServiceKey = "travelPage.services.hotels";
+  const visibleResults = useMemo(() => filterHotelResults(results, resultFilters), [results, resultFilters]);
+  const resultCurrencies = hotelCurrencies(results);
+  const filterCurrency = resultCurrencies.length === 1 ? resultCurrencies[0] : null;
 
   function customerHotelError(error, fallbackKey = "travelPage.runtime.noAvailability") {
     const message = String(error?.message || "");
@@ -387,7 +406,7 @@ function Travel({ hotelsOnly = false }) {
     return () => document.removeEventListener("visibilitychange", startPlayback);
   }, []);
 
-  useEffect(() => {
+  const runInitialSearch = useEffectEvent(() => {
     if (
       homeSearchParams.get("auto") !== "1" ||
       autoSearchStarted.current
@@ -397,14 +416,16 @@ function Travel({ hotelsOnly = false }) {
 
     autoSearchStarted.current = true;
     runSearch();
-  }, []);
+  });
+  useEffect(() => { runInitialSearch(); }, []);
 
+  const refreshShowcaseHotels = useEffectEvent(options => loadFiveStarShowcase(options));
   useEffect(() => {
-    loadFiveStarShowcase();
+    refreshShowcaseHotels();
 
     const refreshShowcase = () => {
       if (document.visibilityState === "visible") {
-        loadFiveStarShowcase({ silent: true });
+        refreshShowcaseHotels({ silent: true });
       }
     };
 
@@ -603,10 +624,12 @@ function Travel({ hotelsOnly = false }) {
 
     trackTravel('hotel_search', { destination: location.destination || 'Konum yakını', checkin, checkout, adults });
     completedSearch.current = null;
+    scrollToNearbyResults.current = location.latitude !== undefined;
     setLoadMoreState("idle");
     setSearchState("loading");
     setSearchError("");
     setResults([]);
+    setResultFilters({ ...defaultHotelFilters });
     setCatalogOffset(0);
     setHasMoreHotels(false);
     setLoadMoreError("");
@@ -643,6 +666,7 @@ function Travel({ hotelsOnly = false }) {
       setHasMoreHotels(hotelIds.length < Number(catalog?.total || 0));
       setSearchState("success");
     } catch (error) {
+      scrollToNearbyResults.current = false;
       setSearchState("error");
       setSearchError(customerHotelError(error));
     }
@@ -804,11 +828,11 @@ function Travel({ hotelsOnly = false }) {
           playsInline
           preload="auto"
           onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
-          poster="/images/rotavoy-travel-beach-poster.webp"
+          poster="/images/voyhaven-travel-beach-poster.webp"
           aria-hidden="true"
           tabIndex={-1}
         >
-          <source src="/images/rotavoy-travel-beach.mp4" type="video/mp4" />
+          <source src="/images/voyhaven-travel-beach.mp4" type="video/mp4" />
         </video>
 
         <div className="travelHeroGlow travelHeroGlow--one" />
@@ -818,7 +842,7 @@ function Travel({ hotelsOnly = false }) {
           <div className="travelIntro">
             <div className="travelBrandBlock">
               <div>
-                <RotavoyLogo className="heroRotavoyLogo" />
+                <VoyHavenLogo className="heroVoyHavenLogo" />
                 <small>{t("travelPage.onlineTravelAgency")}</small>
               </div>
             </div>
@@ -1005,8 +1029,10 @@ function Travel({ hotelsOnly = false }) {
         </div>
       </section>
 
+      {!hotelsOnly && <DestinationDiscovery hotels={showcaseHotels} checkin={checkin} checkout={checkout} adults={adults} />}
+
       {results.length > 0 && (
-        <section className="travelHotelResults" aria-live="polite">
+        <section ref={resultsRef} className="travelHotelResults" aria-live="polite">
           <div className="travelContainer">
             <div className="travelResultsHeading">
               <div>
@@ -1016,8 +1042,10 @@ function Travel({ hotelsOnly = false }) {
               <p>{results.length} {t("travelPage.runtime.resultsSuffix")}</p>
             </div>
 
+            <HotelResultControls filters={resultFilters} onChange={setResultFilters} currency={filterCurrency} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
+            {!visibleResults.length && <p className="travelFilterEmpty" role="status">{t("discovery.empty")}</p>}
             <div className="travelHotelGrid">
-              {results.map((hotel) => (
+              {visibleResults.map((hotel) => (
                 <article className="travelHotelCard" key={hotel.hotelId}>
                   <Link
                     className="travelHotelMedia"
@@ -1193,16 +1221,9 @@ function Travel({ hotelsOnly = false }) {
 
       <section className="travelRoutesSection" aria-live="polite">
         <div className="travelContainer">
-          <div className="travelSectionHeading">
-            <div>
-              <span>{t("travelPage.runtime.liveAvailability")} · 5★</span>
-              <h2>5★ {t("travelPage.runtime.hotels")}</h2>
-            </div>
-            <p>
-              {showcaseState === "loading"
-                ? t("travelPage.runtime.searching")
-                : `${showcaseHotels.length} ${t("travelPage.runtime.resultsSuffix")}`}
-            </p>
+          <div className="travelSectionHeading travelShowcaseIntro">
+            <h2>{t("brand.journeyTitle")}</h2>
+            <p>{t("brand.journeyDescription")}</p>
           </div>
 
           {showcaseState === "loading" && (
@@ -1316,6 +1337,7 @@ function Travel({ hotelsOnly = false }) {
           )}
         </div>
       </section>
+      {!hotelsOnly && <TravelQuestions />}
     </main>
   );
 }

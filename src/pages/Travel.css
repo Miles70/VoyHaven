@@ -14,7 +14,7 @@
   isolation: isolate;
   overflow: hidden;
   padding: 36px 0 110px;
-  background: var(--color-navy) url("/images/rotavoy-travel-beach-poster.webp") center 52% / cover no-repeat;
+  background: var(--color-navy) url("/images/voyhaven-travel-beach-poster.webp") center 52% / cover no-repeat;
   color: #12353c;
 }
 
@@ -425,6 +425,26 @@
   font-size: 0.9rem;
   line-height: 1.7;
   text-align: right;
+}
+
+.travelSectionHeading.travelShowcaseIntro {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+.travelShowcaseIntro h2 {
+  max-width: 980px;
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.65rem);
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.travelSectionHeading.travelShowcaseIntro > p {
+  max-width: 760px;
+  font-size: 1rem;
+  text-align: start;
 }
 
 .travelShowcaseStatus {
@@ -1403,3 +1423,39 @@
   .travelSearchShell .categoryPage--embedded,
   .travelSearchShell .flightsPage--embedded .flightsHero { padding: 24px 20px; }
 }
+
+/* Discovery uses the existing provider showcase, without extra catalog calls. */
+.travelDiscoverySection { padding: 56px 0 30px; background: #fff; }
+.travelDiscoveryHeading h2 { margin: 0 0 12px; color: var(--color-navy); font-size: clamp(1.65rem, 2.5vw, 2.2rem); letter-spacing: -0.035em; line-height: 1.2; }
+.travelDiscoveryHeading p { margin: 0; color: var(--color-text-secondary); line-height: 1.7; max-width: 650px; }
+.travelDestinationGrid { margin-top: 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.travelDestinationCard { position: relative; min-height: 210px; overflow: hidden; border-radius: 22px; background: var(--color-navy); display: flex; align-items: end; isolation: isolate; }
+.travelDestinationCard > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform .3s ease; }
+.travelDestinationCard::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(7,27,58,.06) 20%, rgba(7,27,58,.92)); }
+.travelDestinationCard:hover > img { transform: scale(1.04); }
+.travelDestinationCard > div { padding: 24px; width: 100%; color: #fff; }
+.travelDestinationCard span { display: flex; align-items: center; gap: 8px; font-size: 1.3rem; font-weight: 800; }
+.travelDestinationCard small { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: #fff; font-size: .85rem; }
+.travelDiscoveryCaption { margin: 12px 0 0; font-size: .75rem; color: var(--color-text-secondary); }
+.travelQuestionsSection { padding: 64px 0; background: #f6f8ff; border-top: 1px solid #e5ebf5; }
+.travelQuestionsLayout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 48px; align-items: start; }
+.travelQuestionsSupport { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; color: var(--color-blue); font-weight: 700; }
+.travelQuestionList details { border-bottom: 1px solid #dce5f3; padding: 20px 0; }
+.travelQuestionList details:first-child { padding-top: 0; }
+.travelQuestionList summary { cursor: pointer; color: var(--color-navy); font-weight: 700; line-height: 1.5; }
+.travelQuestionList p { color: var(--color-text-secondary); margin: 12px 0 0; line-height: 1.8; }
+.travelResultControls { padding: 22px; margin-bottom: 26px; border: 1px solid #dce5f3; border-radius: 20px; background: #fff; }
+.travelFilterFields { display: grid; grid-template-columns: 1.25fr .65fr .8fr 1fr 1.25fr; gap: 14px; }
+.travelFilterFields label { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.travelFilterFields label > span { color: var(--color-navy); font-size: .8rem; font-weight: 700; }
+.travelFilterFields input, .travelFilterFields select { width: 100%; min-width: 0; height: 44px; border: 1px solid #cad8eb; border-radius: 10px; background: #f9fbff; padding: 0 10px; color: var(--color-navy); font: inherit; font-size: .85rem; }
+.travelFilterSummary { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; }
+.travelFilterSummary p { margin: 0; font-size: .8rem; color: var(--color-text-secondary); line-height: 1.6; }
+.travelFilterSummary button { border: 0; background: #edf3ff; color: var(--color-blue); border-radius: 9px; padding: 10px 14px; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+.travelFilterEmpty { padding: 28px; background: #fff; border-radius: 16px; color: var(--color-text-secondary); line-height: 1.7; }
+.travelDestinationCard:focus-visible, .travelQuestionsSupport:focus-visible, .travelQuestionList summary:focus-visible, .travelFilterFields input:focus-visible, .travelFilterFields select:focus-visible, .travelFilterSummary button:focus-visible { outline: 3px solid var(--color-blue); outline-offset: 4px; }
+@media (max-width: 980px) { .travelFilterFields { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .travelDestinationGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .travelQuestionsLayout { grid-template-columns: 1fr; gap: 28px; } .travelFilterFields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .travelFilterSummary { align-items: start; flex-direction: column; } }
+@media (max-width: 440px) { .travelDestinationGrid { grid-template-columns: 1fr; } .travelDestinationCard { min-height: 190px; } .travelResultControls { padding: 16px; } .travelFilterFields { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .travelDestinationCard > img { transition: none; } .travelDestinationCard:hover > img { transform: none; } }
+.travelHotelResults { scroll-margin-top: 100px; }

@@ -14,6 +14,10 @@ import travelPaymentTranslations from "./travelPaymentTranslations";
 import travelAuthTranslations from "./travelAuthTranslations";
 import hotelDetailTranslations from "./hotelDetailTranslations";
 import travelRuntimeTranslations from "./travelRuntimeTranslations";
+import brandTranslations from "./brandTranslations";
+import discoveryTranslations from "./discoveryTranslations";
+import hotelFactsTranslations from "./hotelFactsTranslations";
+import hotelContentTranslations from "./hotelContentTranslations";
 
 function withTravelTranslations(baseTranslations, language) {
   const payment = travelPaymentTranslations[language] || travelPaymentTranslations.en;
@@ -21,6 +25,10 @@ function withTravelTranslations(baseTranslations, language) {
 
   return {
     ...baseTranslations,
+    brand: brandTranslations[language] || brandTranslations.en,
+    discovery: discoveryTranslations[language] || discoveryTranslations.en,
+    hotelFacts: hotelFactsTranslations[language] || hotelFactsTranslations.en,
+    hotelContent: hotelContentTranslations[language] || hotelContentTranslations.en,
     auth,
     hotelRate: hotelRateTranslations[language],
     rateConditions: rateConditionsTranslations[language] || rateConditionsTranslations.en,

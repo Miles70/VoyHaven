@@ -1,5 +1,8 @@
 import Seo from "../components/Seo/Seo";
 import { appPolicy } from "../../seo/app-policy.js";
+import HotelFacts from "../components/HotelFacts";
+import HotelGuestContent from "../components/HotelGuestContent";
+import RoomExtras from "../components/RoomExtras";
 import { copy as seoCopy } from "../../seo/copy.js";
 import { extraFacilityKeys } from "../../shared/hotelPresentation.js";
 import RateConditions from "../components/RateConditions";
@@ -501,7 +504,7 @@ function HotelDetails() {
   seoQuery.set("lang", language);
   const seoPolicy = appPolicy(location.pathname, seoQuery.toString(), import.meta.env.VITE_SEO_HOTEL_IDS || []);
   const seo = <Seo
-    title={hotel ? `${name} | Rotavoy` : seoPolicy.title}
+    title={hotel ? `${name} | VoyHaven` : seoPolicy.title}
     description={hotel ? `${name}${address ? ` — ${address}` : ""}. ${seoCopy[language].hotelHelp}` : seoPolicy.description}
     path={seoPolicy.canonical}
     image={hotel ? images[0] || "" : ""}
@@ -589,6 +592,8 @@ function HotelDetails() {
             </div>
           )}
         </section>
+
+        <HotelFacts hotel={hotel} />
 
         <HotelStaySearch key={JSON.stringify([hotelId, checkin, checkout, adults])}
           checkin={checkin} checkout={checkout} adults={adults} t={t}
@@ -692,6 +697,7 @@ function HotelDetails() {
                 </p>
               )}
             </section>
+            <HotelGuestContent key={`${hotelId}:${language}`} hotel={hotel} hotelId={hotelId} />
           </div>
 
           <aside className="hotelDetailBooking">
@@ -735,6 +741,7 @@ function HotelDetails() {
                       </div>
                       <span>{totalStayLabel}</span>
                       <RateConditions conditions={offer.conditions} />
+                      {(offer.rates || []).map((rate, index) => <RoomExtras key={`${rate.mappedRoomId}:${index}`} rate={rate} rooms={hotel.rooms} translateFacilities={(values) => textList(values.filter((value) => facilityKeys.has(String(typeof value === "string" ? value : value?.name || "").trim().toLowerCase())), t)} />)}
                       <b>
                         {money(
                           offer.suggestedSellingPrice.amount,

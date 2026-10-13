@@ -1,3 +1,4 @@
+import { readBrandedStorage, writeBrandedStorage } from "../services/brandStorage.js";
 import { travelGuide } from "../../seo/guides.js";
 import { useEffect, useState } from 'react';
 import { copy, languageNames } from '../../seo/copy.js';
@@ -6,9 +7,9 @@ export default function SeoLanding({ page }) {
  const c = copy[page.lang];
  const [dark, setDark] = useState(false);
  useEffect(() => {
-  try { setDark(localStorage.getItem('rotavoy_seo_theme') === 'dark'); localStorage.setItem('language', page.lang); } catch { /* Browsing works without storage. */ }
+  try { setDark(readBrandedStorage(localStorage, 'voyhaven_seo_theme') === 'dark'); writeBrandedStorage(localStorage, 'language', page.lang); } catch { /* Browsing works without storage. */ }
  }, [page.lang]);
- function toggleTheme() { setDark(value => { try { localStorage.setItem('rotavoy_seo_theme', value ? 'light' : 'dark'); } catch { /* Optional. */ } return !value; }); }
+ function toggleTheme() { setDark(value => { try { writeBrandedStorage(localStorage, 'voyhaven_seo_theme', value ? 'light' : 'dark'); } catch { /* Optional. */ } return !value; }); }
  const cards = page.cards || [];
  const guide = ["hotels", "flights"].includes(page.kind) ? travelGuide(page.kind, page.lang) : null;
  return <div className={`seoSite${dark ? ' seoDark' : ''}`}>

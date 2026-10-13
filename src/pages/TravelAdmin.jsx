@@ -1,3 +1,4 @@
+import { readBrandedStorage, writeBrandedStorage } from "../services/brandStorage.js";
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, CalendarCheck, CreditCard, Users, Hotel, Headphones, FileText, Settings, Activity, Plug, Plane, CarFront, MapPinned, RefreshCw, Download, Plus, ArrowUpRight, Moon, Sun } from 'lucide-react';
@@ -44,8 +45,8 @@ function AdminThemeToggle({ dark, onToggle }) {
   return <button type="button" className="adminThemeToggle" aria-pressed={dark} aria-label="Koyu tema" title={dark ? 'Açık temaya geç' : 'Koyu temaya geç'} onClick={onToggle}>{dark ? <Sun size={18} /> : <Moon size={18} />}<span>{dark ? 'Açık tema' : 'Koyu tema'}</span></button>;
 }
 export default function TravelAdmin() {
-  const [dark, setDark] = useState(() => { try { return localStorage.getItem('rotavoy_admin_theme') === 'dark'; } catch { return false; } });
-  useEffect(() => { try { localStorage.setItem('rotavoy_admin_theme', dark ? 'dark' : 'light'); } catch { /* Theme still works when browser storage is unavailable. */ } }, [dark]);
+  const [dark, setDark] = useState(() => { try { return readBrandedStorage(localStorage, 'voyhaven_admin_theme') === 'dark'; } catch { return false; } });
+  useEffect(() => { try { writeBrandedStorage(localStorage, 'voyhaven_admin_theme', dark ? 'dark' : 'light'); } catch { /* Theme still works when browser storage is unavailable. */ } }, [dark]);
   const themeToggle = <AdminThemeToggle dark={dark} onToggle={() => setDark(value => !value)} />;
   const [customerSession, setAdminSession] = useState(getAdminSession);
   const [loginBusy, setLoginBusy] = useState(false);

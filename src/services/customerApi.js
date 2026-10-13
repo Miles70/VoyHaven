@@ -1,5 +1,6 @@
+import { readBrandedStorage, writeBrandedStorage, removeBrandedStorage } from "./brandStorage.js";
 const apiBaseUrl = String(import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
-const CUSTOMER_SESSION_STORAGE_KEY = "rotavoy_customer_session";
+const CUSTOMER_SESSION_STORAGE_KEY = "voyhaven_customer_session";
 
 function safeParse(value, fallback = null) {
   try {
@@ -22,14 +23,14 @@ async function parseResponse(response) {
 }
 
 export function getStoredCustomerSession() {
-  const session = safeParse(localStorage.getItem(CUSTOMER_SESSION_STORAGE_KEY));
+  const session = safeParse(readBrandedStorage(localStorage, CUSTOMER_SESSION_STORAGE_KEY));
 
   if (!session?.token || !session?.provider || !session?.providerId) {
     return null;
   }
 
   if (session.expiresAt && new Date(session.expiresAt).getTime() <= Date.now()) {
-    localStorage.removeItem(CUSTOMER_SESSION_STORAGE_KEY);
+    removeBrandedStorage(localStorage, CUSTOMER_SESSION_STORAGE_KEY);
     return null;
   }
 
@@ -38,12 +39,12 @@ export function getStoredCustomerSession() {
 
 export function storeCustomerSession(session) {
   if (!session?.token) return null;
-  localStorage.setItem(CUSTOMER_SESSION_STORAGE_KEY, JSON.stringify(session));
+  writeBrandedStorage(localStorage, CUSTOMER_SESSION_STORAGE_KEY, JSON.stringify(session));
   return session;
 }
 
 export function clearStoredCustomerSession() {
-  localStorage.removeItem(CUSTOMER_SESSION_STORAGE_KEY);
+  removeBrandedStorage(localStorage, CUSTOMER_SESSION_STORAGE_KEY);
 }
 
 export function getCustomerAccessToken() {

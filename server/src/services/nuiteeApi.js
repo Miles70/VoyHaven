@@ -307,7 +307,7 @@ export function bookNuiteeAccount(body) {
   assertBookingReady('account');
   const method = String(process.env.NUITEE_ACCOUNT_PAYMENT_METHOD || 'ACC_CREDIT_CARD');
   if (!['ACC_CREDIT_CARD', 'WALLET', 'CREDIT'].includes(method)) throw createNuiteeError('Sağlayıcı hesap ödeme yöntemi geçersiz.', 503);
-  return requestNuitee(getSettings().bookingBaseUrl, '/rates/book', { method: 'POST', timeoutMs: 125000, query: { timeout: 120 }, body: { prebookId: body.prebookId, clientReference: body.clientReference, holder: bookingPerson(body.holder), guests: body.guests.map(g => bookingPerson(g, true)), customTags: { CHANNEL: 'ROTAVOY' }, payment: { method } } });
+  return requestNuitee(getSettings().bookingBaseUrl, '/rates/book', { method: 'POST', timeoutMs: 125000, query: { timeout: 120 }, body: { prebookId: body.prebookId, clientReference: body.clientReference, holder: bookingPerson(body.holder), guests: body.guests.map(g => bookingPerson(g, true)), customTags: { CHANNEL: 'VOYHAVEN' }, payment: { method } } });
 }
 export function findNuiteeBooking(clientReference) {
   return requestNuitee(getSettings().bookingBaseUrl, '/bookings', { query: { clientReference, timeout: 30 }, timeoutMs: 35000 });
@@ -318,7 +318,7 @@ export function prebookNuiteeFlight(body) {
 }
 export function bookNuiteeFlight(prebookId, transactionId) {
   assertBookingReady();
-  return requestNuitee(getSettings().dataBaseUrl, '/flights/bookings', { method: 'POST', body: { prebookId, payment: { method: 'TRANSACTION_ID', transactionId }, customTags: { CHANNEL: 'ROTAVOY' } }, timeoutMs: 125000 });
+  return requestNuitee(getSettings().dataBaseUrl, '/flights/bookings', { method: 'POST', body: { prebookId, payment: { method: 'TRANSACTION_ID', transactionId }, customTags: { CHANNEL: 'VOYHAVEN' } }, timeoutMs: 125000 });
 }
 export function getNuiteeFlightBooking(bookingId) {
   return requestNuitee(getSettings().dataBaseUrl, `/flights/bookings/${encodeURIComponent(bookingId)}`, { timeoutMs: 35000 });

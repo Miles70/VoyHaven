@@ -74,7 +74,9 @@ function getSchema() {
 function getModel() {
   return (
     String(
+      process.env.VOYHAVEN_HOTEL_TRANSLATION_MODEL ||
       process.env.ROTAVOY_HOTEL_TRANSLATION_MODEL ||
+        process.env.VOYHAVEN_CONTENT_MODEL ||
         process.env.ROTAVOY_CONTENT_MODEL ||
         "gpt-5.6-luna",
     ).trim() || "gpt-5.6-luna"
@@ -116,7 +118,7 @@ async function generateTranslations(source) {
           text: {
             format: {
               type: "json_schema",
-              name: "rotavoy_hotel_translation",
+              name: "voyhaven_hotel_translation",
               strict: true,
               schema: getSchema(),
             },

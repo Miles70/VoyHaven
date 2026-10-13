@@ -1,3 +1,4 @@
+import { readBrandedStorage, writeBrandedStorage, removeBrandedStorage } from "../services/brandStorage.js";
 import {
   createContext,
   useCallback,
@@ -37,8 +38,8 @@ import {
 } from "../services/customerApi";
 
 const CustomerAuthContext = createContext(null);
-const GUEST_STORAGE_KEY = "rotavoy_guest_session";
-const SOCIAL_PHOTO_STORAGE_PREFIX = "rotavoy_social_photo_";
+const GUEST_STORAGE_KEY = "voyhaven_guest_session";
+const SOCIAL_PHOTO_STORAGE_PREFIX = "voyhaven_social_photo_";
 
 const FIREBASE_PROVIDERS = {
   google: googleAuthProvider,
@@ -52,16 +53,16 @@ function createGuestId() {
 
 function readGuestSession() {
   try {
-    const storedSession = localStorage.getItem(GUEST_STORAGE_KEY);
+    const storedSession = readBrandedStorage(localStorage, GUEST_STORAGE_KEY);
     if (!storedSession) return null;
     const parsedSession = JSON.parse(storedSession);
     if (!parsedSession?.id) {
-      localStorage.removeItem(GUEST_STORAGE_KEY);
+      removeBrandedStorage(localStorage, GUEST_STORAGE_KEY);
       return null;
     }
     return parsedSession;
   } catch {
-    localStorage.removeItem(GUEST_STORAGE_KEY);
+    removeBrandedStorage(localStorage, GUEST_STORAGE_KEY);
     return null;
   }
 }
@@ -89,7 +90,7 @@ function getFirebaseProviderProfile(user, providerId) {
 function getStoredSocialPhoto(uid) {
   if (!uid) return "";
   try {
-    return localStorage.getItem(`${SOCIAL_PHOTO_STORAGE_PREFIX}${uid}`) || "";
+    return readBrandedStorage(localStorage, `${SOCIAL_PHOTO_STORAGE_PREFIX}${uid}`) || "";
   } catch {
     return "";
   }
@@ -98,7 +99,7 @@ function getStoredSocialPhoto(uid) {
 function storeSocialPhoto(uid, photoUrl) {
   if (!uid || !photoUrl) return;
   try {
-    localStorage.setItem(`${SOCIAL_PHOTO_STORAGE_PREFIX}${uid}`, photoUrl);
+    writeBrandedStorage(localStorage, `${SOCIAL_PHOTO_STORAGE_PREFIX}${uid}`, photoUrl);
   } catch {
     // The image can still be used for the current session.
   }
@@ -254,7 +255,7 @@ export function CustomerAuthProvider({ children }) {
         const idToken = await nextUser.getIdToken();
         const session = await createFirebaseCustomerSession(idToken);
         applyCustomerSession(session);
-        localStorage.removeItem(GUEST_STORAGE_KEY);
+        removeBrandedStorage(localStorage, GUEST_STORAGE_KEY);
         setGuestSession(null);
         setErrorCode("");
         setIsAuthModalOpen(false);
@@ -299,7 +300,7 @@ export function CustomerAuthProvider({ children }) {
       })
       .catch(() => {
         if (!cancelled) {
-          localStorage.removeItem(GUEST_STORAGE_KEY);
+          removeBrandedStorage(localStorage, GUEST_STORAGE_KEY);
           setGuestSession(null);
           setErrorCode("genericError");
         }
@@ -340,7 +341,7 @@ export function CustomerAuthProvider({ children }) {
         });
 
         applyCustomerSession(session);
-        localStorage.removeItem(GUEST_STORAGE_KEY);
+        removeBrandedStorage(localStorage, GUEST_STORAGE_KEY);
         setGuestSession(null);
         setIsAuthModalOpen(false);
       } catch {
@@ -488,7 +489,7 @@ export function CustomerAuthProvider({ children }) {
       : { id: createGuestId(), createdAt: new Date().toISOString() };
 
     try {
-      localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(nextGuestSession));
+      writeBrandedStorage(localStorage, GUEST_STORAGE_KEY, JSON.stringify(nextGuestSession));
       setGuestSession(nextGuestSession);
       const session = await createGuestCustomerSession(nextGuestSession.id);
       applyCustomerSession(session);
@@ -508,7 +509,7 @@ export function CustomerAuthProvider({ children }) {
       clearStoredCustomerSession();
     }
     clearCustomerSession();
-    localStorage.removeItem(GUEST_STORAGE_KEY);
+    removeBrandedStorage(localStorage, GUEST_STORAGE_KEY);
     setGuestSession(null);
     setErrorCode("");
     setIsAuthModalOpen(true);
@@ -544,7 +545,7 @@ export function CustomerAuthProvider({ children }) {
       setErrorCode("genericError");
     } finally {
       clearCustomerSession();
-      localStorage.removeItem(GUEST_STORAGE_KEY);
+      removeBrandedStorage(localStorage, GUEST_STORAGE_KEY);
       setSocialProfileImage("");
       setGuestSession(null);
       setIsAuthModalOpen(false);

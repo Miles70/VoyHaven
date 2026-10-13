@@ -1,11 +1,12 @@
+import { readBrandedStorage, writeBrandedStorage } from "./brandStorage.js";
 import { getCustomerAccessToken } from "./customerApi";
 const apiBaseUrl = String(import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
 export function storeBookingAccess(reference, token) {
-  if (reference && token) sessionStorage.setItem(`rotavoy_booking_access:${reference}`, token);
+  if (reference && token) writeBrandedStorage(sessionStorage, `voyhaven_booking_access:${reference}`, token);
 }
 export function bookingHeaders(reference) {
-  const token = sessionStorage.getItem(`rotavoy_booking_access:${reference}`);
+  const token = readBrandedStorage(sessionStorage, `voyhaven_booking_access:${reference}`);
   return token ? { 'X-Booking-Token': token } : {};
 }
 async function hotelRequest(path, options = {}) {

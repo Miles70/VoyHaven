@@ -1,3 +1,4 @@
+import { readBrandedStorage, writeBrandedStorage } from "./brandStorage.js";
 import { bookingHeaders } from './hotelsApi';
 import { getAdminSession } from './adminSession';
 import { getCustomerAccessToken } from './customerApi';
@@ -7,23 +8,23 @@ const id = () => globalThis.crypto?.randomUUID?.() || `rv-${Date.now()}-${Math.r
 function identifiers() {
   memoryVisitor ||= id(); memorySession ||= id();
   try {
-    memoryVisitor = localStorage.getItem('rotavoy_visitor_v1') || memoryVisitor;
-    localStorage.setItem('rotavoy_visitor_v1', memoryVisitor);
-    const saved = JSON.parse(sessionStorage.getItem('rotavoy_visit_v1') || 'null');
+    memoryVisitor = readBrandedStorage(localStorage, 'voyhaven_visitor_v1') || memoryVisitor;
+    writeBrandedStorage(localStorage, 'voyhaven_visitor_v1', memoryVisitor);
+    const saved = JSON.parse(readBrandedStorage(sessionStorage, 'voyhaven_visit_v1') || 'null');
     if (saved && Date.now() - saved.last < 1800000) memorySession = saved.id;
     else if (saved) memorySession = id();
     const source = new URLSearchParams(window.location.search).get('utm_source');
     if (source) memorySource = source.slice(0, 100);
     else if (saved?.id === memorySession) memorySource = saved.source || '';
     else { try { const ref = new URL(document.referrer); memorySource = ref.origin !== window.location.origin ? ref.origin : 'direct'; } catch { memorySource = 'direct'; } }
-    sessionStorage.setItem('rotavoy_visit_v1', JSON.stringify({ id: memorySession, last: Date.now(), source: memorySource }));
+    writeBrandedStorage(sessionStorage, 'voyhaven_visit_v1', JSON.stringify({ id: memorySession, last: Date.now(), source: memorySource }));
   } catch { /* In-memory IDs work with blocked browser storage. */ }
   return { visitorId: memoryVisitor, sessionId: memorySession };
 }
-const queueKey = 'rotavoy_analytics_queue_v1';
-const statusKey = 'rotavoy_analytics_status_v1';
+const queueKey = 'voyhaven_analytics_queue_v1';
+const statusKey = 'voyhaven_analytics_status_v1';
 let pending = [];
-try { pending = JSON.parse(sessionStorage.getItem(queueKey) || '[]'); if (!Array.isArray(pending)) pending = []; pending = pending.slice(-100).map(body => body.schemaVersion === 2 ? body : { ...body, analyticsProof: 'legacy-queue-unverified' }); } catch { /* Storage unavailable. */ }
+try { pending = JSON.parse(readBrandedStorage(sessionStorage, queueKey) || '[]'); if (!Array.isArray(pending)) pending = []; pending = pending.slice(-100).map(body => body.schemaVersion === 2 ? body : { ...body, analyticsProof: 'legacy-queue-unverified' }); } catch { /* Storage unavailable. */ }
 let running = false, timer;
 let adminProof, adminProofToken;
 async function contextProof() {
@@ -36,10 +37,10 @@ async function contextProof() {
     }
     return adminProof.proof;
   }
-  try { return sessionStorage.getItem('rotavoy_analytics_test_proof_v2') || ''; } catch { return ''; }
+  try { return readBrandedStorage(sessionStorage, 'voyhaven_analytics_test_proof_v2') || ''; } catch { return ''; }
 }
-function persist() { try { sessionStorage.setItem(queueKey, JSON.stringify(pending)); } catch { /* Keep in memory. */ } }
-function status(values) { try { const previous = JSON.parse(localStorage.getItem(statusKey) || '{}'); localStorage.setItem(statusKey, JSON.stringify({ ...previous, ...values, pending: pending.length })); } catch { /* Optional diagnostic. */ } }
+function persist() { try { writeBrandedStorage(sessionStorage, queueKey, JSON.stringify(pending)); } catch { /* Keep in memory. */ } }
+function status(values) { try { const previous = JSON.parse(readBrandedStorage(localStorage, statusKey) || '{}'); writeBrandedStorage(localStorage, statusKey, JSON.stringify({ ...previous, ...values, pending: pending.length })); } catch { /* Optional diagnostic. */ } }
 function schedule(delay = 100) { if (!timer) timer = setTimeout(() => { timer = undefined; void flushTravelAnalytics(); }, delay); }
 export async function flushTravelAnalytics() {
   if (running || !pending.length) return;
@@ -78,7 +79,7 @@ export function trackTravel(type, details = {}, bookingReference) {
     const params = new URLSearchParams(window.location.search);
     const body = { schemaVersion: 2, ...identifiers(), ...(bookingReference ? { bookingReference } : {}), eventId: id(), type, path: window.location.pathname, referrer: document.referrer, source: params.get('utm_source') || memorySource, details };
     const admin = getAdminSession();
-    try { body.analyticsProof = sessionStorage.getItem('rotavoy_analytics_test_proof_v2') || ''; } catch { /* No test context. */ }
+    try { body.analyticsProof = readBrandedStorage(sessionStorage, 'voyhaven_analytics_test_proof_v2') || ''; } catch { /* No test context. */ }
     body.contextKind = !body.analyticsProof && admin ? 'admin' : '';
     if (body.contextKind === 'admin' && adminProofToken === admin.token && Date.parse(adminProof?.expiresAt) > Date.now()) body.analyticsProof = adminProof.proof;
     pending.push(body); pending = pending.slice(-100); persist(); status({}); schedule();

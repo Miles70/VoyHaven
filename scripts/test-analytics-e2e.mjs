@@ -15,8 +15,8 @@ import { markAnalyticsTest } from './analytics-test-context.mjs';
 // Only an isolated local database is accepted. Never use MONGODB_URI / production credentials.
 const uri = process.env.ANALYTICS_TEST_MONGODB_URI || 'mongodb://127.0.0.1:27017';
 assert.match(uri, /^mongodb:\/\/(127\.0\.0\.1|localhost):\d+\/?$/);
-const dbName = `rotavoy_analytics_test_${process.pid}_${Date.now()}`;
-process.env.ROTAVOY_ADMIN_PASSWORD = 'isolated-analytics-test-password';
+const dbName = `voyhaven_analytics_test_${process.pid}_${Date.now()}`;
+process.env.VOYHAVEN_ADMIN_PASSWORD = 'isolated-analytics-test-password';
 process.env.CLIENT_ORIGINS = 'http://127.0.0.1:5176';
 let api, vite, browser;
 try {
@@ -24,7 +24,7 @@ try {
   await TravelAnalytics.init();
   api = createApp().listen(0, '127.0.0.1'); await once(api, 'listening');
   const apiBase = `http://127.0.0.1:${api.address().port}`;
-  const session = await createPasswordAdminSession(process.env.ROTAVOY_ADMIN_PASSWORD);
+  const session = await createPasswordAdminSession(process.env.VOYHAVEN_ADMIN_PASSWORD);
   const headers = { Authorization: `Bearer ${session.token}` };
   const report = async (query = '') => { const r = await fetch(`${apiBase}/api/admin/analytics/v2?${query}`, { headers }); assert.equal(r.status, 200, await r.clone().text()); return r.json(); };
   const now = Date.now();
@@ -77,7 +77,7 @@ try {
   for (const width of [320, 390, 1440]) {
     const context = await browser.newContext({ viewport: { width, height: 1000 }, locale: 'tr-TR' });
     await markAnalyticsTest(context, { apiBaseUrl: apiBase, adminToken: session.token });
-    await context.addInitScript(value => { globalThis.localStorage.setItem('rotavoy_admin_session_v2', JSON.stringify(value)); globalThis.localStorage.setItem('language', 'tr'); }, session);
+    await context.addInitScript(value => { globalThis.localStorage.setItem('voyhaven_admin_session_v2', JSON.stringify(value)); globalThis.localStorage.setItem('language', 'tr'); }, session);
     const page = await context.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message));
     await page.goto('http://127.0.0.1:5176/admin/analytics');
     await page.locator('.avVisitor').first().waitFor();

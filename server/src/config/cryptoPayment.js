@@ -147,7 +147,7 @@ export function getCryptoPaymentConfig(asset = "USDT", network = "") {
   }
 
   const recipientAddress = normalizeEvmAddress(
-    process.env.ROTAVOY_PAYMENT_WALLET || DEFAULT_PAYMENT_WALLET
+    process.env.VOYHAVEN_PAYMENT_WALLET || process.env.ROTAVOY_PAYMENT_WALLET || DEFAULT_PAYMENT_WALLET
   );
   const rpcUrl = String(
     process.env[networkDefinition.rpcUrlEnv] || networkDefinition.defaultRpcUrl

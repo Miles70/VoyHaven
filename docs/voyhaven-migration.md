@@ -71,3 +71,11 @@ Deploy and verify these redirects on the old hostname before submitting Search C
 - Anonymous requests returned 200 XML for the sitemap and its page sitemap, 200 text for robots.txt, and 200 HTML for `/en/hotels`.
 - Anonymous requests on `www.rotavoy.com/en/hotels` returned 308 to the same VoyHaven path. Both old aliases now use the validated redirect deployment; `www.voyhaven.com` retains its redirect to the apex.
 - Search Console Change of Address has not yet been submitted. Search ranking and indexing changes are not assumed complete.
+
+## Production cleanup (13 October 2026)
+
+The active Vercel project no longer includes old-domain forwarding rules. The www VoyHaven domain still redirects to the apex through Vercel domain settings.
+
+Browser sessions, booking access and preferences now use the VoyHaven prefix. Existing values are migrated when read, preserving sessions; logout removes both names. Backend configuration prefers VOYHAVEN_ADMIN_PASSWORD, VOYHAVEN_PAYMENT_WALLET, VOYHAVEN_HOTEL_TRANSLATION_MODEL and VOYHAVEN_CONTENT_MODEL while accepting the legacy variables during transition. Keep the admin credential hash context unchanged to avoid invalidating current sessions.
+
+Firebase project identifiers and the Railway API hostname identify existing provisioned resources. They are not brand labels and must remain valid until a separately provisioned resource migration is performed.

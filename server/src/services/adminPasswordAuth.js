@@ -6,7 +6,7 @@ export function hashAdminToken(value) {
 }
 
 export function adminCredentials() {
-  const password = process.env.ROTAVOY_ADMIN_PASSWORD || '';
+  const password = process.env.VOYHAVEN_ADMIN_PASSWORD || process.env.ROTAVOY_ADMIN_PASSWORD || '';
   if (password.length < 12 || password.length > 1024) return null;
   return { password, version: crypto.createHmac('sha256', password).update('rotavoy-admin-password-v1').digest('hex') };
 }

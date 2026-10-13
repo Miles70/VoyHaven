@@ -105,7 +105,7 @@ async function resolveOfferId() {
   }
 
   throw new Error(
-    "No sandbox offerId was found automatically. Search a hotel in Rotavoy and pass an offerId manually.",
+    "No sandbox offerId was found automatically. Search a hotel in VoyHaven and pass an offerId manually.",
   );
 }
 

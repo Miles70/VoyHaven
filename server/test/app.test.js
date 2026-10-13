@@ -16,14 +16,14 @@ async function withServer(run) {
   }
 }
 
-test("health endpoint reports a healthy Rotavoy API", async () => {
+test("health endpoint reports a healthy VoyHaven API", async () => {
   await withServer(async (baseUrl) => {
     const response = await fetch(`${baseUrl}/api/health`);
     const body = await response.json();
 
     assert.equal(response.status, 200);
     assert.equal(body.ok, true);
-    assert.equal(body.service, "rotavoy-travel-api");
+    assert.equal(body.service, "voyhaven-travel-api");
     assert.ok(Date.parse(body.timestamp));
   });
 });

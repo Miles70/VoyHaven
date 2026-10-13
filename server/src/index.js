@@ -14,7 +14,7 @@ async function startServer() {
 
   stopReconciliation = startBookingReconciliation();
   server = app.listen(port, () => {
-    console.log(`Rotavoy Travel API running on http://localhost:${port}`);
+    console.log(`VoyHaven Travel API running on http://localhost:${port}`);
   });
 }
 

@@ -83,7 +83,7 @@ adminRouter.get('/providers', async (request, response) => response.json({
   nuitee: getNuiteeStatus(), database: mongoose.connection.readyState === 1,
   marginPercent: await readTravelMargin(),
   cardPublishableKeyConfigured: Boolean(process.env.NUITEE_STRIPE_PUBLISHABLE_KEY),
-  cryptoWalletConfigured: Boolean(process.env.ROTAVOY_PAYMENT_WALLET),
+  cryptoWalletConfigured: Boolean(process.env.VOYHAVEN_PAYMENT_WALLET || process.env.ROTAVOY_PAYMENT_WALLET),
   firebaseConfigured: Boolean(process.env.FIREBASE_PROJECT_ID),
   liveBookingEnabled: getNuiteeStatus().liveBookingEnabled,
   services: [{ key: 'hotels', search: true, booking: true }, { key: 'flights', search: true, booking: true }, { key: 'cars', search: false, booking: false }, { key: 'activities', search: false, booking: false }],

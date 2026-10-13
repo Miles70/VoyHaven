@@ -8,6 +8,6 @@ export async function markAnalyticsTest(context, { apiBaseUrl, adminToken, fixtu
     proof = (await response.json()).proof;
   }
   await context.addInitScript(value => {
-    globalThis.sessionStorage.setItem('rotavoy_analytics_test_proof_v2', value);
+    globalThis.sessionStorage.setItem('voyhaven_analytics_test_proof_v2', value);
   }, proof);
 }

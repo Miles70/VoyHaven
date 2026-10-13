@@ -3,7 +3,22 @@ import { useLanguage } from "../i18n/LanguageContext";
 import siteConfig from "../config/site";
 import "./InformationPage.css";
 
-const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL || "support@rotavoy.com";
+const configuredSupportEmail = String(import.meta.env.VITE_SUPPORT_EMAIL || "").trim();
+// Keep legacy mailbox configuration intact; use account support until a
+// current-brand mailbox is configured.
+const supportEmail = /@(?:www\.)?rotavoy\.com$/i.test(configuredSupportEmail) ? "" : configuredSupportEmail;
+const supportCopy = {
+  en: ["Send questions, hotel partnership requests and travel feedback through the support section of your account.", "For reservation help, sign in and create a support request with your booking reference. You can track replies in your account.", "Open account support"],
+  tr: ["Sorularını, otel iş birliği taleplerini ve seyahat geri bildirimlerini hesabındaki destek bölümünden iletebilirsin.", "Rezervasyon desteği için giriş yapıp rezervasyon referansınla bir destek talebi oluştur. Yanıtları hesabından takip edebilirsin.", "Hesabımdan destek al"],
+  de: ["Sende Fragen, Hotelpartnerschaftsanfragen und Reisefeedback über den Supportbereich deines Kontos.", "Melde dich für Buchungshilfe an und erstelle eine Supportanfrage mit deiner Buchungsreferenz. Antworten findest du in deinem Konto.", "Kontosupport öffnen"],
+  fr: ["Envoie tes questions, demandes de partenariat hôtelier et avis de voyage depuis la rubrique assistance de ton compte.", "Pour une réservation, connecte-toi et crée une demande avec ta référence. Tu peux suivre les réponses dans ton compte.", "Ouvrir l’assistance du compte"],
+  ru: ["Отправляй вопросы, предложения о сотрудничестве с отелями и отзывы через раздел поддержки в своём аккаунте.", "Для помощи с бронированием войди и создай обращение с номером бронирования. Ответы можно отслеживать в аккаунте.", "Открыть поддержку аккаунта"],
+  ar: ["أرسل الأسئلة وطلبات الشراكة الفندقية وملاحظات السفر عبر قسم الدعم في حسابك.", "للمساعدة في الحجز، سجّل الدخول وأنشئ طلب دعم مع مرجع الحجز. يمكنك متابعة الردود في حسابك.", "فتح دعم الحساب"],
+  es: ["Envía preguntas, solicitudes de colaboración hotelera y comentarios sobre viajes desde la sección de soporte de tu cuenta.", "Para recibir ayuda con una reserva, inicia sesión y crea una solicitud con tu referencia. Puedes seguir las respuestas en tu cuenta.", "Abrir soporte de la cuenta"],
+  pt: ["Envia perguntas, pedidos de parceria hoteleira e comentários sobre viagens pela secção de apoio da tua conta.", "Para ajuda com uma reserva, inicia sessão e cria um pedido com a referência da reserva. Podes acompanhar as respostas na tua conta.", "Abrir apoio da conta"],
+  it: ["Invia domande, richieste di collaborazione alberghiera e feedback sui viaggi dalla sezione assistenza del tuo account.", "Per assistenza con una prenotazione, accedi e crea una richiesta con il riferimento della prenotazione. Puoi seguire le risposte nel tuo account.", "Apri l’assistenza dell’account"],
+  zh: ["通过账户中的支持页面发送问题、酒店合作请求和旅行反馈。", "如需预订帮助，请登录并提交包含预订编号的支持请求。你可以在账户中查看回复。", "打开账户支持"],
+};
 
 const content = {
   en: {
@@ -32,12 +47,15 @@ function InformationPage({ page }) {
   const { language } = useLanguage();
   const localized = content[language] || content.en;
   const [title, body] = localized[page] || localized.about;
+  const accountSupport = !supportEmail && ["contact", "support"].includes(page);
+  const supportText = supportCopy[language] || supportCopy.en;
 
   return (
     <main className="informationPage container">
       <p className="informationEyebrow">{siteConfig.brandName} · Travel</p>
       <h1>{title}</h1>
-      <p>{body}</p>
+      <p>{accountSupport ? supportText[page === "contact" ? 0 : 1] : body}</p>
+      {accountSupport && <Link to="/account?tab=support">{supportText[2]}</Link>}
       {page !== "about" && <small>{localized.updated}</small>}
       <Link to="/" className="informationBack">← {localized.back}</Link>
     </main>

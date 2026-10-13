@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { BedDouble, Heart, UsersRound, MessageCircle, ArrowRight, Plus, Trash2, Download, LogIn, Compass } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { accountRequest } from '../services/customerApi';
@@ -21,7 +21,8 @@ export default function TravelAccount() {
 function AccountPage({ auth }) {
   const { isAuthenticated, customerSession, displayName, isGuest, openAuthModal } = auth;
   const [supportReference, setSupportReference] = useState('');
-  const [tab, setTab] = useState('bookings');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(() => searchParams.get('tab') === 'support' ? 'tickets' : 'bookings');
   const [data, setData] = useState(empty);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

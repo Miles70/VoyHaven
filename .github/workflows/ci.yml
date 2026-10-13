@@ -68,6 +68,9 @@ jobs:
       - name: Test multilingual SEO in browser
         run: npm run test:seo-e2e
 
+      - name: Test multilingual legal pages
+        run: npm run test:legal-ui
+
       - name: Test multilingual About page
         run: npm run test:about-ui
 

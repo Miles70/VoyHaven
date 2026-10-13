@@ -88,7 +88,7 @@ for (const key of searchKeys) {
  assert.ok(appPolicy('/hotels', `${key}=example`, published).noIndex);
 }
 assert.ok(appPolicy('/privacy', 'lang=tr').title.includes('Gizlilik'));
-assert.ok(appPolicy('/privacy', 'lang=de').title.includes('Privacy'));
+assert.ok(appPolicy('/privacy', 'lang=de').title.includes('Datenschutz'));
 const existing = hotels[0], provider = { ...existing, main_photo: existing.image };
 assert.equal(hotelFactsChanged(existing, provider, existing.source.descriptionHash), false);
 for (const [key, value] of Object.entries({ name: 'Updated', address: 'Updated', city: 'Updated', country: 'GB', main_photo: 'https://example.com/new.jpg', stars: 4, latitude: 1, longitude: 1 })) assert.equal(hotelFactsChanged(existing, { ...provider, [key]: value }, existing.source.descriptionHash), true);

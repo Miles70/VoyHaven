@@ -2,6 +2,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import { copy } from "../../../seo/copy.js";
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaYoutube } from "react-icons/fa6";
+import footerTranslations from "../../i18n/footerTranslations.js";
 import siteConfig from "../../config/site";
 import "./Footer.css";
 import VoyHavenLogo from "../Brand/VoyHavenLogo";
@@ -48,6 +49,8 @@ function PaymentCard({ method }) {
 function Footer() {
   const { language, t } = useLanguage();
   const seoCopy = copy[language];
+  const labels = footerTranslations[language] || footerTranslations.en;
+  const infoLink = path => `${path}?lang=${language}`;
   const currentYear = new Date().getFullYear();
 
   return (
@@ -69,26 +72,26 @@ function Footer() {
         </div>
 
         <div className="footerColumn">
-          <h3>Travel</h3>
-          <Link to="/">Hotels</Link>
+          <h3>{labels.travel}</h3>
+          <Link to="/">{labels.hotels}</Link>
           <a href={`/${language}/hotels`}>{seoCopy.destinations}</a>
           <a href={`/${language}/flights`}>{seoCopy.routes}</a>
-          <Link to="/support">Reservation support</Link>
-          <Link to="/refund">Cancellation & refunds</Link>
+          <Link to={infoLink("/support")}>{labels.reservationSupport}</Link>
+          <Link to={infoLink("/refund")}>{labels.cancellations}</Link>
         </div>
 
         <div className="footerColumn">
           <h3>VoyHaven</h3>
-          <Link to="/about">About</Link>
-          <Link to="/contact">Contact</Link>
-          <Link to="/support">Support</Link>
+          <Link to={infoLink("/about")}>{labels.about}</Link>
+          <Link to={infoLink("/contact")}>{labels.contact}</Link>
+          <Link to={infoLink("/support")}>{labels.support}</Link>
         </div>
 
         <div className="footerColumn">
-          <h3>Legal</h3>
-          <Link to="/privacy">Privacy</Link>
-          <Link to="/terms">Terms</Link>
-          <Link to="/refund">Refund policy</Link>
+          <h3>{labels.legal}</h3>
+          <Link to={infoLink("/privacy")}>{labels.privacy}</Link>
+          <Link to={infoLink("/terms")}>{labels.terms}</Link>
+          <Link to={infoLink("/refund")}>{labels.refund}</Link>
         </div>
       </div>
 
@@ -96,8 +99,8 @@ function Footer() {
         <div className="footerPaymentSections">
           <section className="footerPaymentSection" aria-labelledby="footer-card-payments-title">
             <div className="footerPaymentsIntro">
-              <strong id="footer-card-payments-title">Payment Methods</strong>
-              <span>Kart ve dijital cüzdan</span>
+              <strong id="footer-card-payments-title">{labels.payments}</strong>
+              <span>{labels.wallets}</span>
             </div>
             <div className="footerPaymentCards" aria-label="VoyHaven accepted card and wallet payment methods">
               {cardPaymentMethods.map((method) => (
@@ -108,7 +111,7 @@ function Footer() {
 
           <section className="footerPaymentSection footerCryptoPayments" aria-labelledby="footer-crypto-payments-title">
             <div className="footerPaymentsIntro">
-              <strong id="footer-crypto-payments-title">Crypto Payments</strong>
+              <strong id="footer-crypto-payments-title">{labels.crypto}</strong>
               <span>BNB Chain & Ethereum</span>
             </div>
             <div className="footerPaymentCards footerCryptoPaymentCards" aria-label="VoyHaven accepted crypto payment methods">
@@ -120,7 +123,7 @@ function Footer() {
         </div>
 
         <p className="footerPaymentNote">
-          Kart ve cüzdan kullanılabilirliği ödeme oturumunun para birimi, bölgesi ve sağlayıcı uygunluğuna göre değişebilir. Kripto ödemelerinde seçilen ağ doğru olmalıdır.
+          {labels.paymentNote}
         </p>
       </div>
 

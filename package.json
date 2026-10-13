@@ -22,7 +22,8 @@
     "test:analytics-e2e": "node scripts/test-analytics-e2e.mjs",
     "test:seo": "node scripts/test-seo.mjs",
     "test:seo-e2e": "node scripts/test-seo-e2e.mjs",
-    "seo:refresh": "node scripts/refresh-seo-hotels.mjs"
+    "seo:refresh": "node scripts/refresh-seo-hotels.mjs",
+    "test:legal-ui": "node scripts/test-legal-ui.mjs"
   },
   "dependencies": {
     "@reown/appkit": "^1.8.23",

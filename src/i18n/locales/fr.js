@@ -1,6 +1,6 @@
 const fr = {
   language: { current: "Français" },
-  nav: { travel: "Voyages" },
+  nav: { about: "À propos", support: "Assistance", travel: "Voyages" },
   travelPage: {
     nearby: {"distance": "Distance depuis votre position", "straightLine": "À vol d’oiseau", "button": "Trouver des hébergements près de moi", "locating": "Localisation en cours…", "title": "Hébergements près de moi", "radius": "Rayon de recherche", "denied": "Accès à la position refusé. Autorisez-le dans le navigateur ou cherchez une ville.", "unavailable": "Position indisponible. Réessayez ou cherchez une ville.", "timeout": "La demande de position a expiré. Réessayez.", "unsupported": "Ce navigateur ne prend pas en charge la géolocalisation. Cherchez une ville.", "insecure": "Ouvrez le site en HTTPS pour utiliser votre position.", "empty": "Aucun hébergement dans cette zone. Essayez un rayon plus large."},
     onlineTravelAgency: "AGENCE DE VOYAGES EN LIGNE",

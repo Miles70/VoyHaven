@@ -1,6 +1,6 @@
 const de = {
   language: { current: "Deutsch" },
-  nav: { travel: "Reisen" },
+  nav: { about: "Über uns", support: "Support", travel: "Reisen" },
   travelPage: {
     nearby: {"distance": "Entfernung von dir", "straightLine": "Luftlinie", "button": "Unterkünfte in meiner Nähe", "locating": "Standort wird ermittelt…", "title": "Unterkünfte in meiner Nähe", "radius": "Suchradius", "denied": "Standortzugriff verweigert. Im Browser erlauben oder nach Stadt suchen.", "unavailable": "Standort nicht verfügbar. Erneut versuchen oder nach Stadt suchen.", "timeout": "Standortanfrage abgelaufen. Erneut versuchen.", "unsupported": "Dieser Browser unterstützt keine Standortsuche. Suche nach einer Stadt.", "insecure": "Für den Standort die Website über HTTPS öffnen.", "empty": "Keine Unterkünfte in diesem Umkreis. Radius vergrößern."},
     onlineTravelAgency: "ONLINE-REISEBÜRO",

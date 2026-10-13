@@ -1,0 +1,62 @@
+.aboutPage{background:#fff;color:var(--color-navy);padding-bottom:72px;overflow:hidden}
+.aboutPage .container{max-width:1180px}
+.aboutHero{padding:76px 0 66px;background:radial-gradient(ellipse at 92% 8%,#ddf3f3 0,transparent 46%),linear-gradient(180deg,#f6f8ff,#fff)}
+.aboutHeroGrid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.85fr);align-items:center;gap:62px}
+.aboutEyebrow{display:flex;align-items:center;gap:10px;margin:0 0 22px;color:#ac215d;font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.aboutEyebrow>span{height:7px;width:7px;border-radius:50%;background:#c92a6d}
+.aboutHero h1{margin:0;font-size:clamp(2.5rem,4.6vw,4.15rem);line-height:1.09;letter-spacing:-.052em;font-weight:800;text-wrap:balance}
+.aboutHero h1>span{display:block;margin-top:9px;color:#1253a0}
+.aboutIntro{max-width:550px;margin:26px 0 30px;color:#465b75;font-size:1.07rem;line-height:1.8}
+.aboutActions{display:flex;gap:12px;flex-wrap:wrap}
+.aboutButton{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:15px 20px;min-height:52px;border-radius:13px;font-size:.9rem;font-weight:750;text-decoration:none;transition:box-shadow .18s,background .18s;line-height:1.4;text-align:center}
+.aboutButtonPrimary{background:#0b3f80;color:#fff;box-shadow:0 8px 24px #0b3f801e}
+.aboutButtonPrimary:hover{background:#0b3161;box-shadow:0 10px 28px #0b3f8033}
+.aboutButtonSecondary{background:#fff;border:1px solid #d5dfed;color:#183c67}
+.aboutButtonSecondary:hover{background:#f2f6fc}
+.aboutButton svg,.aboutFacts svg{flex-shrink:0}
+.aboutButton:focus-visible,.aboutSupportLink:focus-visible{outline:3px solid #c92a6d;outline-offset:5px}
+.aboutFacts{display:flex;flex-wrap:wrap;gap:14px 20px;padding:0;margin:31px 0 0;list-style:none;color:#4c617b;font-size:.76rem;font-weight:600}
+.aboutFacts li{display:flex;align-items:center;gap:7px}
+.aboutFacts svg{color:#0b6a74}
+.aboutHeroVisual{position:relative;isolation:isolate;margin:0;min-height:480px;align-self:stretch;border-radius:28px;overflow:hidden;background:#10314d;box-shadow:0 24px 60px #071b3a17}
+.aboutHeroVisual>img{position:absolute;inset:0;height:100%;width:100%;object-fit:cover;object-position:47% center}
+.aboutHeroVisual:after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,#071b3a08 20%,#071b3acc 100%)}
+.aboutVisualBrand{position:absolute;inset-inline-start:26px;top:26px;display:flex;align-items:center;gap:8px;z-index:1;color:#fff;background:#0c294966;backdrop-filter:blur(10px);border:1px solid #ffffff4a;padding:9px 12px;border-radius:24px;font-size:.8rem;font-weight:700}
+.aboutHeroVisual figcaption{position:absolute;inset-inline:30px;bottom:43px;z-index:1;color:#fff}
+.aboutHeroVisual figcaption>span{display:block;margin-bottom:10px;font-size:.77rem;letter-spacing:.05em;color:#e7edf5}
+.aboutHeroVisual figcaption strong{display:block;font-size:clamp(1.45rem,2vw,2rem);line-height:1.25;letter-spacing:-.03em;font-weight:650}
+.aboutVisualLine{position:absolute;inset-inline:30px;bottom:26px;height:3px;z-index:1;background:linear-gradient(90deg,#19c6d8,#cf3882);border-radius:4px}
+.aboutStory{display:grid;grid-template-columns:1fr 1.1fr;gap:70px;align-items:start;padding-top:64px;padding-bottom:64px;border-top:1px solid #e4ebf2}
+.aboutPage h2{margin:0;font-size:clamp(1.8rem,2.6vw,2.5rem);line-height:1.2;letter-spacing:-.038em;text-wrap:balance}
+.aboutStory .aboutEyebrow{margin-bottom:14px}
+.aboutStory>p{margin:26px 0 0;color:#465b75;line-height:1.9;font-size:1rem}
+.aboutValuesSection{padding:54px 0 64px;background:#f5f8fc;border-block:1px solid #e5ecf4}
+.aboutValuesSection h2{margin-bottom:30px}
+.aboutValues{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.aboutValue{padding:29px 26px;background:#fff;border:1px solid #dfe7f1;border-radius:20px}
+.aboutValueIcon{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;margin-bottom:22px;border-radius:15px;background:#edf3fd;color:#1b5396}
+.aboutValueIcon1{background:#e8f5f1;color:#19756c}
+.aboutValueIcon2{background:#faf0f6;color:#a52669}
+.aboutPage h3{margin:0 0 12px;font-size:1.13rem;line-height:1.4;letter-spacing:-.018em}
+.aboutValue p,.aboutSteps p{margin:0;color:#465b75;font-size:.93rem;line-height:1.8}
+.aboutProcess{padding-top:64px;padding-bottom:64px}
+.aboutProcessHeader{max-width:640px;margin-bottom:34px}
+.aboutProcessHeader .aboutEyebrow{margin-bottom:14px}
+.aboutSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px;padding:0;margin:0;list-style:none;counter-reset:none}
+.aboutSteps li{display:flex;align-items:flex-start;gap:18px;border-top:1px solid #dbe5f0;padding-top:24px}
+.aboutStepNumber{font-size:1.6rem;line-height:1.3;color:#087c85;letter-spacing:-.04em;font-weight:650;font-variant-numeric:tabular-nums}
+.aboutClosing{position:relative;display:flex;justify-content:space-between;align-items:center;gap:38px;background:radial-gradient(ellipse at 100% 0,#154c73,transparent 70%),#0a274b;color:#fff;border-radius:24px;padding:42px 44px}
+.aboutClosing>div:first-child{max-width:630px}
+.aboutClosingMark{display:flex;align-items:center;gap:8px;margin-bottom:18px;font-weight:650;font-size:.8rem;color:#bdeae3}
+.aboutClosing h2{color:#fff}
+.aboutClosing p{margin:14px 0 0;color:#d6e2ed;line-height:1.7;font-size:.98rem}
+.aboutClosingActions{display:flex;flex-direction:column;align-items:center;gap:20px;flex-shrink:0}
+.aboutButtonLight{background:#fff;color:#0a274b}
+.aboutButtonLight:hover{background:#eaf2fc}
+.aboutSupportLink{display:flex;align-items:center;gap:8px;color:#dcebf6;text-decoration:none;font-weight:650;font-size:.85rem}
+.aboutSupportLink:hover{color:#fff;text-decoration:underline}
+.aboutPage[dir="rtl"] .aboutActions svg:last-child,.aboutPage[dir="rtl"] .aboutClosingActions svg:last-child{transform:scaleX(-1)}
+@media(max-width:1000px){.aboutHeroGrid{gap:35px;grid-template-columns:minmax(0,1.1fr) minmax(0,.8fr)}.aboutHero{padding-top:54px}.aboutHeroVisual{min-height:450px}.aboutStory{gap:40px}.aboutValue{padding:25px 20px}.aboutClosing{padding:34px}.aboutSteps{gap:20px}}
+@media(max-width:760px){.aboutPage{padding-bottom:40px}.aboutHero{padding:42px 0 40px}.aboutHeroGrid{grid-template-columns:1fr;gap:32px}.aboutHero h1{max-width:650px;font-size:clamp(2.3rem,7vw,3.6rem)}.aboutIntro{max-width:none;font-size:1rem;margin-top:22px}.aboutHeroVisual{min-height:300px}.aboutHeroVisual>img{object-position:center 50%}.aboutStory{grid-template-columns:1fr;gap:16px;padding-top:40px;padding-bottom:40px}.aboutStory>p{margin-top:0}.aboutValuesSection{padding:40px 0}.aboutValues{grid-template-columns:1fr}.aboutValue{padding:25px}.aboutValueIcon{margin-bottom:17px}.aboutProcess{padding-top:40px;padding-bottom:40px}.aboutSteps{grid-template-columns:1fr;gap:25px}.aboutSteps li{gap:20px}.aboutClosing{flex-direction:column;align-items:flex-start;gap:26px;padding:30px}.aboutClosingActions{align-items:flex-start}.aboutHeroVisual figcaption strong{font-size:1.65rem}}
+@media(max-width:380px){.aboutActions{flex-direction:column}.aboutButton{width:100%}.aboutHero h1{font-size:2.25rem}.aboutClosing{padding:25px}.aboutFacts{gap:12px}.aboutHeroVisual{min-height:270px}}
+@media(prefers-reduced-motion:reduce){.aboutButton{transition:none}}

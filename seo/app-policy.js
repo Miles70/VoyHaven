@@ -1,5 +1,6 @@
 import { SITE_URL } from './model.js';
 import { copy } from './copy.js';
+import aboutTranslations from '../src/i18n/aboutTranslations.js';
 export const searchKeys = ['cityName','checkin','checkout','adults','children','infants','departure','returnDate','origin','destination','originName','destinationName','offerId','auto','latitude','longitude','placeId','cabinClass','currency','country','reference','bookingReference','prebookId'];
 const generalSeo = {
  en: {
@@ -34,7 +35,8 @@ export function appPolicy(pathname, search = '', catalog = []) {
  const userSearch = searchKeys.some(key => params.has(key));
  const noIndex = privatePage || liveHotel || ['/hotels', '/flights', '/cars', '/activities'].includes(pathname) || userSearch || !known;
  const c = copy[lang];
- const information = (generalSeo[lang] || generalSeo.en)[pathname];
+ const about = aboutTranslations[lang] || aboutTranslations.en;
+ const information = pathname === '/about' ? [about.seoTitle, about.seoDescription] : (generalSeo[lang] || generalSeo.en)[pathname];
  const title = information?.[0] || (!known ? '404 | VoyHaven' : pathname.startsWith('/flights') ? c.flights : pathname.startsWith('/hotels') || liveHotel ? c.hotels : c.homeTitle);
  const canonicalPath = liveHotel && hotelMatch && catalog.includes(hotelMatch[1]) ? `/${lang}/travel/hotels/${hotelMatch[1]}` : ['/hotels','/flights'].includes(pathname) ? `/${lang}${pathname}` : pathname === "/" ? "/en" : pathname;
  return { status: known ? 200 : 404, noIndex, title: `${title} | VoyHaven`, description: information?.[1] || (pathname.startsWith('/flights') ? c.flightHelp : c.hotelHelp), canonical: SITE_URL + canonicalPath };

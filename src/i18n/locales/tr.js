@@ -1,6 +1,6 @@
 const tr = {
   language: { current: "Türkçe" },
-  nav: { travel: "Travel" },
+  nav: { about: "Hakkımızda", support: "Destek", travel: "Travel" },
   travelPage: {
     nearby: {"distance": "Konumuna uzaklık", "straightLine": "Kuş uçuşu", "button": "Yakınımdaki konaklamaları bul", "locating": "Konumun alınıyor…", "title": "Yakınımdaki konaklamalar", "radius": "Arama mesafesi", "denied": "Konum izni verilmedi. Tarayıcı ayarlarından izin ver veya şehir adıyla ara.", "unavailable": "Konum alınamadı. Tekrar dene veya şehir adıyla ara.", "timeout": "Konum isteği zaman aşımına uğradı. Tekrar dene.", "unsupported": "Bu tarayıcı konum aramasını desteklemiyor. Şehir adıyla arayabilirsin.", "insecure": "Konum için siteyi HTTPS üzerinden açmalısın.", "empty": "Bu çevrede konaklama bulunamadı. Mesafeyi genişletmeyi dene."},
     "onlineTravelAgency": "ONLINE TRAVEL AGENCY",

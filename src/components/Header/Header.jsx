@@ -132,14 +132,14 @@ function Header() {
               to="/about"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              About
+              {text("nav.about", "About")}
             </NavLink>
 
             <NavLink
               to="/support"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              Support
+              {text("nav.support", "Support")}
             </NavLink>
           </nav>
 

@@ -20,6 +20,19 @@ const supportCopy = {
   zh: ["通过账户中的支持页面发送问题、酒店合作请求和旅行反馈。", "如需预订帮助，请登录并提交包含预订编号的支持请求。你可以在账户中查看回复。", "打开账户支持"],
 };
 
+const mailSupportCopy = {
+  en: ["Contact", "Travel Support", "Email us with questions, hotel partnership requests or travel feedback.", "For reservation support, include your booking reference and the email address used for your reservation."],
+  tr: ["İletişim", "Seyahat Desteği", "Soruların, otel iş birliği taleplerin ve seyahat geri bildirimlerin için bize e-posta gönderebilirsin.", "Rezervasyon desteği için mesajına rezervasyon referansını ve rezervasyonda kullandığın e-posta adresini ekle."],
+  de: ["Kontakt", "Reisesupport", "Schreib uns bei Fragen, Hotelpartnerschaftsanfragen oder Reisefeedback eine E-Mail.", "Gib bei Buchungsfragen deine Buchungsreferenz und die für die Buchung verwendete E-Mail-Adresse an."],
+  fr: ["Contact", "Assistance voyage", "Écris-nous pour toute question, demande de partenariat hôtelier ou remarque sur ton voyage.", "Pour une demande concernant une réservation, indique ta référence et l’adresse e-mail utilisée pour la réservation."],
+  ru: ["Контакты", "Поддержка путешественников", "Напиши нам по вопросам, предложениям о сотрудничестве с отелями или отзывам о путешествиях.", "Для помощи с бронированием укажи номер бронирования и адрес электронной почты, использованный при бронировании."],
+  ar: ["اتصل بنا", "دعم السفر", "راسلنا عبر البريد الإلكتروني للأسئلة وطلبات الشراكة الفندقية وملاحظات السفر.", "للدعم المتعلق بالحجز، أرفق مرجع الحجز وعنوان البريد الإلكتروني المستخدم في الحجز."],
+  es: ["Contacto", "Asistencia de viaje", "Escríbenos por correo con preguntas, solicitudes de colaboración hotelera o comentarios sobre viajes.", "Para recibir ayuda con una reserva, incluye la referencia y la dirección de correo utilizada en la reserva."],
+  pt: ["Contacto", "Apoio à viagem", "Envia-nos um e-mail com perguntas, pedidos de parceria hoteleira ou comentários sobre viagens.", "Para ajuda com uma reserva, inclui a referência da reserva e o endereço de e-mail utilizado na reserva."],
+  it: ["Contatti", "Assistenza viaggi", "Scrivici per domande, richieste di collaborazione alberghiera o feedback sui viaggi.", "Per assistenza con una prenotazione, indica il riferimento della prenotazione e l’indirizzo e-mail utilizzato per prenotare."],
+  zh: ["联系我们", "旅行支持", "如有问题、酒店合作请求或旅行反馈，请发送电子邮件联系我们。", "如需预订支持，请提供预订编号和预订时使用的电子邮件地址。"],
+};
+
 const content = {
   en: {
     about: ["About VoyHaven", "VoyHaven is a travel-first platform focused on hotel discovery, live room availability and secure reservation flows. The service is currently evolving in beta as travel inventory and payment options expand."],
@@ -47,15 +60,19 @@ function InformationPage({ page }) {
   const { language } = useLanguage();
   const localized = content[language] || content.en;
   const [title, body] = localized[page] || localized.about;
-  const accountSupport = !supportEmail && ["contact", "support"].includes(page);
+  const supportPage = ["contact", "support"].includes(page);
+  const accountSupport = !supportEmail && supportPage;
+  const mailText = mailSupportCopy[language] || mailSupportCopy.en;
+  const supportIndex = page === "contact" ? 0 : 1;
   const supportText = supportCopy[language] || supportCopy.en;
 
   return (
     <main className="informationPage container">
       <p className="informationEyebrow">{siteConfig.brandName} · Travel</p>
-      <h1>{title}</h1>
-      <p>{accountSupport ? supportText[page === "contact" ? 0 : 1] : body}</p>
-      {accountSupport && <Link to="/account?tab=support">{supportText[2]}</Link>}
+      <h1>{supportPage ? mailText[supportIndex] : title}</h1>
+      <p>{accountSupport ? supportText[supportIndex] : supportPage ? mailText[supportIndex + 2] : body}</p>
+      {supportPage && supportEmail && <p><a href={`mailto:${supportEmail}`}>{supportEmail}</a></p>}
+      {supportPage && <Link to="/account?tab=support">{supportText[2]}</Link>}
       {page !== "about" && <small>{localized.updated}</small>}
       <Link to="/" className="informationBack">← {localized.back}</Link>
     </main>

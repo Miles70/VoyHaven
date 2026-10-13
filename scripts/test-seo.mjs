@@ -62,6 +62,9 @@ assert.equal(await readFile('dist/google2fd19590f23b16c5.html', 'utf8'), await r
 assert.equal(SITE_URL, 'https://voyhaven.com');
 const shell = await readFile('index.html', 'utf8');
 assert.ok(!/rotavoy/i.test(shell));
+assert.ok(shell.includes('property="og:site_name" content="VoyHaven"'));
+assert.ok(shell.includes('property="og:url" content="https://voyhaven.com/en"'));
+assert.equal((await request('/admin')).body.match(/property="og:site_name"/g).length, 1);
 assert.ok(!shell.match(/<div id="root">([\s\S]*?)<\/div>/)[1].replace(/<noscript>[\s\S]*?<\/noscript>/, '').trim());
 assert.ok((await readFile('dist/robots.txt', 'utf8')).includes('Sitemap: https://voyhaven.com/sitemap.xml'));
 const index = await readFile('dist/sitemap.xml', 'utf8');

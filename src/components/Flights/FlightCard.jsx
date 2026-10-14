@@ -1,6 +1,7 @@
 import { Plane, Luggage, ChevronDown } from 'lucide-react';
 import { flightLocalTime, flightStops } from '../../services/flightResults';
 import translations from '../../i18n/flightCardTranslations';
+import { flightFareLabel } from '../../services/flightFareLabel';
 
 // These are airport-local wall times; keep the provider's calendar date and clock.
 function clock(value) {
@@ -48,6 +49,6 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
         </div>
       </details>
     </div>
-    <div className="flightPrice">{result.offer.fare?.family && <small className="flightFareBadge">{result.offer.fare.family}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
+    <div className="flightPrice">{result.offer.fare?.family && <small className="flightFareBadge">{flightFareLabel(result.offer.fare.family, language)}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
   </article>;
 }

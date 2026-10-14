@@ -11,7 +11,7 @@ import AirportInput from '../components/Flights/AirportInput';
 import { flightRequest } from '../services/flightsApi';
 import { flightResults } from '../services/flightResults';
 import './Flights.css';
-import filterTranslations from '../i18n/flightFilterTranslations';
+import filterTranslations, { cabinAlternativeMessages } from '../i18n/flightFilterTranslations';
 import { filterFlightResults, matchingFlightOffer } from '../services/flightFilters';
 
 const regionCodes = 'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
@@ -38,7 +38,7 @@ export default function Flights({ embedded = false }) {
   const [cabinClass, setCabinClass] = useState(() => ['ECONOMY', 'PREMIUM_ECONOMY', 'BUSINESS', 'FIRST'].includes(initial.get('cabinClass')) ? initial.get('cabinClass') : 'ECONOMY');
   const [currency, setCurrency] = useState(() => ['USD', 'EUR', 'TRY', 'GBP'].includes(initial.get('currency')) ? initial.get('currency') : 'USD');
   const [country, setCountry] = useState(() => regionCodes.includes(initial.get('country')) ? initial.get('country') : 'TR');
-  
+
   const filtersCopy = filterTranslations[language] || filterTranslations.en;
   const [sort, setSort] = useState('low');
   const [refund, setRefund] = useState('all');
@@ -46,6 +46,7 @@ export default function Flights({ embedded = false }) {
   const [state, setState] = useState('idle');
   const [error, setError] = useState('');
   const [results, setResults] = useState([]);
+  const [cabinNotice, setCabinNotice] = useState(false);
   const [completedSearch, setCompletedSearch] = useState(null);
   const cabinController = useRef(null);
   const searchVersion = useRef(0);
@@ -63,7 +64,7 @@ export default function Flights({ embedded = false }) {
   useEffect(() => {
     if (embedded) return undefined;
     const controller = new AbortController();
-    
+
     return () => { controller.abort(); searchController.current?.abort(); cabinController.current?.abort(); searchVersion.current += 1; searchController.current = null; };
   }, [embedded]);
   useEffect(() => {
@@ -76,7 +77,7 @@ export default function Flights({ embedded = false }) {
     event.preventDefault();
     if (loading) return;
     searchVersion.current += 1; cabinController.current?.abort();
-    setSort('low'); setRefund('all'); setStops('all'); setError(''); setResults([]); setVisible(20); setFocusedFlight(null); setChosenOfferId(null);
+    setCabinNotice(false); setSort('low'); setRefund('all'); setStops('all'); setError(''); setResults([]); setVisible(20); setFocusedFlight(null); setChosenOfferId(null);
     if (!origin || !destination) { setError('selectAirport'); setState('error'); return; }
     if (origin.iata === destination.iata || departure < localDate() || (roundTrip && returnDate < departure) || infants > adults || adults + children + infants > 9) { setError('invalid'); setState('error'); return; }
     if (embedded) {
@@ -109,8 +110,17 @@ export default function Flights({ embedded = false }) {
     try {
       const payload = await flightRequest('/search', { signal: controller.signal, body: { ...completedSearch, cabinClass: nextCabin } });
       if (version !== searchVersion.current || controller.signal.aborted) return;
-      const replacement = matchingFlightOffer(flightResults(payload, completedSearch.currency), original);
-      if (!replacement) throw new Error('NO_CABIN_OFFER');
+      const alternatives = flightResults(payload, completedSearch.currency);
+      if (!alternatives.length) throw new Error('NO_ROUTE_CABIN_OFFER');
+      const replacement = matchingFlightOffer(alternatives, original);
+      if (!replacement) {
+        setResults(alternatives.map(result => ({ ...result, requestedCabin: nextCabin })));
+        setCompletedSearch({ ...completedSearch, cabinClass: nextCabin });
+        setCabinClass(nextCabin); setSort('low'); setRefund('all'); setStops('all'); setVisible(20); setChosenOfferId(null); setCabinNotice(true);
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      setCabinNotice(false);
       setResults(current => current.filter(result => result.offer.offerId === original.offer.offerId || result.offer.offerId !== replacement.offer.offerId).map(result => result.offer.offerId === original.offer.offerId ? { ...replacement, requestedCabin: nextCabin } : result));
       setChosenOfferId(null);
     } finally { clearTimeout(timer); }
@@ -134,17 +144,18 @@ export default function Flights({ embedded = false }) {
           <div className="flightCabinPicker"><strong>{copy.cabin}</strong><div>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value, label]) => <button key={value} type="button" aria-pressed={cabinClass === value} onClick={() => setCabinClass(value)}>{copy[label]}</button>)}</div><p>{filtersCopy.cabinHelp}</p></div>
           <div className="flightFields flightPassengerFields">
             {[[copy.adults, adults, setAdults, 1], [copy.children, children, setChildren, 0], [copy.infants, infants, setInfants, 0]].map(([label, value, setter, min]) => <label key={label}>{label}<input required type="number" min={min} max="9" value={value} onChange={(event) => setter(Number(event.target.value))} /></label>)}
-            
+
             <label>{copy.currency}<select value={currency} onChange={(event) => setCurrency(event.target.value)}>{['USD','EUR','TRY','GBP'].map((code) => <option key={code}>{code}</option>)}</select></label>
             <label>{copy.country}<select value={country} onChange={(event) => setCountry(event.target.value)}>{countries.map((region) => <option key={region.code} value={region.code}>{region.name}</option>)}</select></label>
           </div>
           <button className="flightSearchButton" type="submit" disabled={loading}>{loading ? <LoaderCircle className="flightSpin" size={20} /> : <Search size={20} />}{loading ? copy.searching : copy.search}</button>
         </fieldset>
         {error && <p className="flightError" role="alert">{copy[error]}</p>}
-        
+
       </form>
     </section>
     {!embedded && <section ref={resultsRef} className="flightResults" aria-live="polite" aria-busy={loading}>
+      {cabinNotice && <p className="flightVerified" role="status">{(cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[1]}</p>}
       {loading && <p className="flightStatus">{copy.searching}</p>}
       {state === 'done' && <><h2>{copy.results} · {filteredResults.length} / {results.length}</h2><p>{copy.localTimes}</p>{results.length === 0 && <p className="flightStatus">{copy.empty}</p>}</>}
       {state === 'done' && results.length > 0 && <div className="flightFilterBar">

@@ -25,3 +25,15 @@ export const cabinOfferMessages = {
  ar: ['لا يوجد عرض بهذه المقصورة لهذه الرحلة.', 'جارٍ التحقق من السعر…'],
  zh: ['此航班没有所选舱位的报价。', '正在查询舱位价格…'],
 };
+export const cabinAlternativeMessages = {
+ tr: ['Bu rota ve tarihlerde seçilen kabin için teklif bulunamadı.', 'Aynı uçuşlarda bu kabin bulunamadı. Seçtiğin sınıftaki alternatif uçuşlar gösteriliyor.'],
+ en: ['No offers in this cabin for this route and dates.', 'This cabin was not available on the same flights. Alternative flights in your selected cabin are shown.'],
+ de: ['Keine Angebote in dieser Kabine für diese Strecke und Daten.', 'Diese Kabine ist auf denselben Flügen nicht verfügbar. Alternative Flüge in der gewählten Kabine werden angezeigt.'],
+ fr: ['Aucune offre dans cette cabine pour ce trajet et ces dates.', 'Cette cabine est indisponible sur les mêmes vols. Des vols alternatifs dans la cabine choisie sont affichés.'],
+ es: ['No hay ofertas en esta cabina para esta ruta y fechas.', 'Esta cabina no está disponible en los mismos vuelos. Se muestran vuelos alternativos en la cabina elegida.'],
+ it: ['Nessuna offerta in questa cabina per questa tratta e queste date.', 'Cabina non disponibile sugli stessi voli. Sono mostrati voli alternativi nella cabina scelta.'],
+ pt: ['Nenhuma oferta nesta cabine para esta rota e datas.', 'Esta cabine não está disponível nos mesmos voos. Mostramos voos alternativos na cabine escolhida.'],
+ ru: ['Нет предложений в этом классе на этот маршрут и даты.', 'Этот класс недоступен на тех же рейсах. Показаны альтернативные рейсы выбранного класса.'],
+ ar: ['لا توجد عروض بهذه المقصورة لهذا المسار والتواريخ.', 'هذه المقصورة غير متاحة على الرحلات نفسها. يتم عرض رحلات بديلة بالمقصورة المختارة.'],
+ zh: ['此航线和日期没有所选舱位的报价。', '原航班没有所选舱位，现显示该舱位的其他航班。'],
+};

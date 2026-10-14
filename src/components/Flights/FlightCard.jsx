@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import flightCopy from '../../i18n/flightTranslations';
-import { cabinOfferMessages } from '../../i18n/flightFilterTranslations';
+import { cabinOfferMessages, cabinAlternativeMessages } from '../../i18n/flightFilterTranslations';
 import { Plane, Luggage, ChevronDown } from 'lucide-react';
 import { flightLocalTime, flightStops } from '../../services/flightResults';
 import translations from '../../i18n/flightCardTranslations';
@@ -25,7 +25,7 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
   const cabinMessages = cabinOfferMessages[language] || cabinOfferMessages.en;
   async function changeCabin(value) {
     setCabinBusy(true); setCabinError('');
-    try { await onCabinChange(result, value); } catch (error) { setCabinError(error.message === 'NO_CABIN_OFFER' ? cabinMessages[0] : copy.error); } finally { setCabinBusy(false); }
+    try { await onCabinChange(result, value); } catch (error) { setCabinError(error.message === 'NO_ROUTE_CABIN_OFFER' ? (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[0] : error.message === 'NO_CABIN_OFFER' ? cabinMessages[0] : copy.error); } finally { setCabinBusy(false); }
   }
   const labels = translations[language] || translations.en;
   const money = new Intl.NumberFormat(language, { style: 'currency', currency: result.currency }).format(result.total);

@@ -168,3 +168,5 @@
 
 .flightCabinNotice { margin:0 0 24px; padding:18px 22px; border:1px solid #e3bc65; border-inline-start:5px solid #d59b24; border-radius:14px; background:#fff1cb; color:#674708; font-size:.92rem; font-weight:600; line-height:1.65; box-shadow:0 4px 12px #67470808; }
 .flightResults > .flightCabinNotice { color:#674708; }
+
+.flightNewDates { display:block; margin-top:8px; font-size:1rem; }

@@ -11,8 +11,8 @@ import AirportInput from '../components/Flights/AirportInput';
 import { flightRequest } from '../services/flightsApi';
 import { flightResults } from '../services/flightResults';
 import './Flights.css';
-import filterTranslations, { cabinAlternativeMessages } from '../i18n/flightFilterTranslations';
-import { filterFlightResults, matchingFlightOffer } from '../services/flightFilters';
+import filterTranslations, { cabinAlternativeMessages, nearbyCabinMessages } from '../i18n/flightFilterTranslations';
+import { filterFlightResults, matchingFlightOffer, findNearbyFlightOffers } from '../services/flightFilters';
 
 const regionCodes = 'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
 function localDate(days = 0) {
@@ -89,29 +89,52 @@ export default function Flights({ embedded = false }) {
     const controller = new AbortController(); searchController.current = controller;
     trackTravel('flight_search', { origin: origin.iata, originName: origin.name, destination: destination.iata, destinationName: destination.name, departure, returnDate: roundTrip ? returnDate : '', adults, children, infants, currency });
     setState('loading');
-    const timeout = setTimeout(() => controller.abort(), 70000);
+    const timeout = setTimeout(() => controller.abort(), 180000);
     try {
       const payload = await flightRequest('/search', { signal: controller.signal, body: { origin: origin.iata, destination: destination.iata, departure, ...(roundTrip ? { returnDate } : {}), adults, children, infants, cabinClass, currency, country } });
       if (searchController.current !== controller || controller.signal.aborted) return;
-      setCompletedSearch({ origin: origin.iata, destination: destination.iata, departure, ...(roundTrip ? { returnDate } : {}), adults, children, infants, cabinClass, currency, country });
-      setResults(flightResults(payload, currency)); setState('done');
+      let search = { origin: origin.iata, destination: destination.iata, departure, ...(roundTrip ? { returnDate } : {}), adults, children, infants, cabinClass, currency, country };
+      let offers = flightResults(payload, currency);
+      if (!offers.length && cabinClass !== 'ECONOMY') {
+        const nearby = await findNearbyFlightOffers(search, localDate(), body => flightRequest('/search', { signal: controller.signal, body }), data => flightResults(data, currency), () => searchController.current === controller && !controller.signal.aborted);
+        if (searchController.current !== controller || controller.signal.aborted) return;
+        if (nearby) {
+          search = nearby.search; offers = nearby.offers;
+          setDeparture(search.departure); if (search.returnDate) setReturnDate(search.returnDate);
+          setCabinNotice('nearby');
+        } else { setError('noNearby'); }
+      }
+      setCompletedSearch(search);
+      setResults(offers); setState('done');
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
       if (searchController.current !== controller) return;
       setState('error'); setError(err.name === 'AbortError' || err.message === 'TIMEOUT' ? 'timeout' : err.message === 'INVALID_SEARCH' ? 'invalid' : err.message === 'RATE_LIMIT' ? 'rateLimit' : 'error');
     } finally { clearTimeout(timeout); }
   }
-  async function changeOfferCabin(original, nextCabin) {
+  async function changeOfferCabin(original, nextCabin, onNearby) {
     if (!completedSearch) return;
     const version = searchVersion.current;
     const controller = new AbortController();
     cabinController.current?.abort(); cabinController.current = controller;
-    const timer = setTimeout(() => controller.abort(), 70000);
+    const timer = setTimeout(() => controller.abort(), 180000);
     try {
       const payload = await flightRequest('/search', { signal: controller.signal, body: { ...completedSearch, cabinClass: nextCabin } });
       if (version !== searchVersion.current || controller.signal.aborted) return;
-      const alternatives = flightResults(payload, completedSearch.currency);
-      if (!alternatives.length) throw new Error('NO_ROUTE_CABIN_OFFER');
+      let alternatives = flightResults(payload, completedSearch.currency);
+      if (!alternatives.length) {
+        onNearby?.();
+        const nearby = await findNearbyFlightOffers({ ...completedSearch, cabinClass: nextCabin }, localDate(), body => flightRequest('/search', { signal: controller.signal, body }), data => flightResults(data, completedSearch.currency), () => version === searchVersion.current && !controller.signal.aborted);
+        if (version !== searchVersion.current || controller.signal.aborted) return;
+        if (!nearby) throw new Error('NO_NEARBY_CABIN_OFFER');
+        setResults(nearby.offers.map(result => ({ ...result, requestedCabin: nextCabin })));
+        setCompletedSearch(nearby.search); setDeparture(nearby.search.departure);
+        if (nearby.search.returnDate) setReturnDate(nearby.search.returnDate);
+        setCabinClass(nextCabin); setSort('low'); setRefund('all'); setStops('all'); setVisible(20); setChosenOfferId(null);
+        setCabinNotice('nearby');
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
       const replacement = matchingFlightOffer(alternatives, original);
       if (!replacement) {
         setResults(alternatives.map(result => ({ ...result, requestedCabin: nextCabin })));
@@ -150,7 +173,7 @@ export default function Flights({ embedded = false }) {
           </div>
           <button className="flightSearchButton" type="submit" disabled={loading}>{loading ? <LoaderCircle className="flightSpin" size={20} /> : <Search size={20} />}{loading ? copy.searching : copy.search}</button>
         </fieldset>
-        {error && <p className="flightError" role="alert">{copy[error]}</p>}
+        {error && <p className="flightError" role="alert">{error === 'noNearby' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[2] : copy[error]}</p>}
 
       </form>
     </section>
@@ -166,7 +189,7 @@ export default function Flights({ embedded = false }) {
         <button type="button" className="flightBackButton" onClick={() => { setSort('low'); setRefund('all'); setStops('all'); setVisible(20); }}>{filtersCopy.reset}</button>
         <p>{filtersCopy.cabinHelp}</p>
       </div>}
-      {cabinNotice && <p className="flightCabinNotice" role="status">{(cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[1]}</p>}
+      {cabinNotice && <p className="flightCabinNotice" role="status">{cabinNotice === 'nearby' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[1] : (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[1]}{cabinNotice === 'nearby' && <strong className="flightNewDates">{copy.departure}: {completedSearch?.departure}{completedSearch?.returnDate && <> · {copy.returnDate}: {completedSearch.returnDate}</>}</strong>}</p>}
       {state === 'done' && results.length > 0 && filteredResults.length === 0 && <p className="flightStatus">{filtersCopy.noMatches}</p>}
       {filteredResults.slice(0, visible).map((result) => <FlightCard key={result.offer.offerId} result={result} copy={copy} language={language} searchedCabin={completedSearch?.cabinClass} onCabinChange={changeOfferCabin} onSelect={result => { trackTravel('flight_view', { offerId: result.offer.offerId, origin: origin?.iata, destination: destination?.iata }); setFocusedFlight({ ...result, passengers: { adults: completedSearch?.adults ?? adults, children: completedSearch?.children ?? children, infants: completedSearch?.infants ?? infants } }); }} selected={chosenOfferId === result.offer.offerId} />)}
       {visible < filteredResults.length && <button className="flightSearchButton" onClick={() => setVisible((count) => count + 20)}>{copy.more}</button>}

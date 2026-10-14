@@ -37,3 +37,15 @@ export const cabinAlternativeMessages = {
  ar: ['لا توجد عروض بهذه المقصورة لهذا المسار والتواريخ.', 'المقصورة التي اخترتها غير متاحة على هذه الرحلة. وجدنا لك خيارات أخرى في التواريخ نفسها.'],
  zh: ['此航线和日期没有所选舱位的报价。', '这趟航班没有你选择的舱位。我们为你找到了相同日期的其他选择。'],
 };
+export const nearbyCabinMessages = {
+ tr: ['Yakın tarihlerdeki seçeneklere bakıyoruz…', 'Seçtiğin tarihlerde bu sınıfta bilet bulamadık. Yakın tarihlerde bulduğumuz seçenekler aşağıda; rezervasyondan önce yeni tarihleri kontrol et.', 'Seçtiğin tarihlerde ve kontrol ettiğimiz yakın tarihlerde bu sınıfta bilet bulamadık. Farklı bir rota veya tarih deneyebilirsin.'],
+ en: ['Looking at nearby dates…', 'We couldn’t find this cabin on your dates. Here are options on nearby dates; check the new dates before booking.', 'We couldn’t find this cabin on your dates or the nearby dates we checked. Try another route or date.'],
+ de: ['Wir prüfen nahegelegene Termine…', 'Für deine Termine haben wir diese Kabine nicht gefunden. Hier sind Angebote für nahegelegene Termine. Prüfe die neuen Daten vor der Buchung.', 'Für deine Termine und die geprüften Alternativtermine haben wir diese Kabine nicht gefunden. Versuche eine andere Strecke oder ein anderes Datum.'],
+ fr: ['Nous regardons les dates proches…', 'Cette cabine est indisponible à vos dates. Voici des options à des dates proches ; vérifiez les nouvelles dates avant de réserver.', 'Aucune offre dans cette cabine à vos dates ni aux dates proches vérifiées. Essayez un autre trajet ou une autre date.'],
+ es: ['Buscando fechas cercanas…', 'No encontramos esta cabina para tus fechas. Aquí tienes opciones en fechas cercanas; comprueba las nuevas fechas antes de reservar.', 'No encontramos esta cabina para tus fechas ni las fechas cercanas consultadas. Prueba otra ruta o fecha.'],
+ it: ['Cerchiamo nelle date vicine…', 'Non abbiamo trovato questa cabina nelle tue date. Ecco opzioni in date vicine: controlla le nuove date prima di prenotare.', 'Nessuna offerta in questa cabina nelle tue date o nelle date vicine controllate. Prova un’altra tratta o data.'],
+ pt: ['Buscando em datas próximas…', 'Não encontramos esta cabine nas suas datas. Veja opções em datas próximas e confira as novas datas antes de reservar.', 'Não encontramos esta cabine nas suas datas nem nas datas próximas consultadas. Tente outra rota ou data.'],
+ ru: ['Проверяем ближайшие даты…', 'На ваши даты этот класс не найден. Ниже варианты на ближайшие даты; проверьте новые даты перед бронированием.', 'На ваши даты и проверенные ближайшие даты этот класс не найден. Попробуйте другой маршрут или дату.'],
+ ar: ['نبحث في التواريخ القريبة…', 'لم نجد هذه المقصورة في تواريخك. إليك خيارات في تواريخ قريبة؛ تحقق من التواريخ الجديدة قبل الحجز.', 'لم نجد هذه المقصورة في تواريخك أو التواريخ القريبة التي فحصناها. جرّب مساراً أو تاريخاً آخر.'],
+ zh: ['正在查询邻近日期…', '所选日期没有该舱位。下方为邻近日期的选择，请在预订前确认新日期。', '所选日期及已查询的邻近日期均未找到该舱位，请尝试其他航线或日期。'],
+};

@@ -24,3 +24,30 @@ export function matchingFlightOffer(results, original) {
  const signature = result => JSON.stringify(result.segments.map(segment => [segment.direction || 'OUTBOUND', segment.originCode, segment.destinationCode, segment.departureTime, segment.carrier?.marketingCode, segment.flight?.marketingNumber]));
  return results.find(result => signature(result) === signature(original));
 }
+
+export function nearbyFlightSearches(search, today) {
+ const shift = (value, days) => {
+  const date = new Date(`${value}T12:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+ };
+ return [-1,1,-3,3,-7,7].map(days => ({ ...search, departure: shift(search.departure, days), ...(search.returnDate ? { returnDate: shift(search.returnDate, days) } : {}) })).filter(candidate => candidate.departure >= today);
+}
+export async function findNearbyFlightOffers(search, today, request, parse, isActive = () => true) {
+ const candidates = nearbyFlightSearches(search, today);
+ let failure;
+ for (let index = 0; index < candidates.length; index += 2) {
+  if (!isActive()) return null;
+  const pair = candidates.slice(index, index + 2);
+  const responses = await Promise.allSettled(pair.map(async candidate => ({ search: candidate, offers: parse(await request(candidate)) })));
+  let found;
+  for (const response of responses) {
+   if (response.status === 'rejected') failure = response.reason;
+   else if (!found && response.value.offers.length) found = response.value;
+  }
+  if (!isActive()) return null;
+  if (found) return found;
+  if (failure) throw failure;
+ }
+ return null;
+}

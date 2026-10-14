@@ -123,18 +123,18 @@
 }
 .flightResults .flightCard {
   margin:28px 0;
-  border:1px solid #adc9e6;
-  border-inline-start:5px solid #69aee8;
+  border:1px solid #89c69c;
+  border-inline-start:5px solid #52a970;
   border-radius:20px;
   box-shadow:0 6px 18px #174b7c14;
-  background:#effaf2;
+  background:#d4f1dc;
 }
 .flightResults .flightCardSelected {
   border-color:#0b63f6;
   border-inline-start-color:#0b63f6;
 }
 .flightResults .flightPrice {
-  background:#e2f3e8;
+  background:#bce5c8;
   border-inline-start-color:#bedbca;
 }
 @media(max-width:700px) {

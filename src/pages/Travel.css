@@ -1366,7 +1366,7 @@
 .travelHeroContent > .travelIntro {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .travelHeroContent > .travelIntro .travelPill {
   align-self: flex-start;
@@ -1459,3 +1459,9 @@
 @media (max-width: 440px) { .travelDestinationGrid { grid-template-columns: 1fr; } .travelDestinationCard { min-height: 190px; } .travelResultControls { padding: 16px; } .travelFilterFields { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .travelDestinationCard > img { transition: none; } .travelDestinationCard:hover > img { transform: none; } }
 .travelHotelResults { scroll-margin-top: 100px; }
+
+/* Keep the homepage flight form compact inside the shared hero shell. */
+.travelSearchShell .flightsPage--embedded { min-height:0; padding-bottom:0; }
+.travelSearchShell .flightsPage--embedded .flightSearchForm { padding:0; margin-top:18px; border-radius:0; }
+.travelSearchShell .flightsPage--embedded .flightFields { gap:14px; margin-bottom:16px; }
+.travelSearchShell .flightsPage--embedded .flightTripType { margin-bottom:18px; }

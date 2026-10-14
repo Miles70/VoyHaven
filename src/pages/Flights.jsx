@@ -201,10 +201,11 @@ export default function Flights({ embedded = false }) {
             <label>{copy.departure}<input required type="date" min={localDate()} value={departure} onChange={(event) => { setDeparture(event.target.value); if (returnDate < event.target.value) setReturnDate(event.target.value); }} /></label>
             {roundTrip && <label>{copy.returnDate}<input required type="date" min={departure || localDate()} value={returnDate} onChange={(event) => setReturnDate(event.target.value)} /></label>}
           </div>
-          <div className="flightCabinPicker">{dateRangePicker}<strong>{copy.cabin}</strong><div>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value, label]) => <button key={value} type="button" aria-pressed={cabinClass === value} onClick={() => setCabinClass(value)}>{copy[label]}</button>)}</div><p>{filtersCopy.cabinHelp}</p></div>
+          {!embedded && <div className="flightCabinPicker">{dateRangePicker}<strong>{copy.cabin}</strong><div>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value, label]) => <button key={value} type="button" aria-pressed={cabinClass === value} onClick={() => setCabinClass(value)}>{copy[label]}</button>)}</div><p>{filtersCopy.cabinHelp}</p></div>}
           <div className="flightFields flightPassengerFields">
             {[[copy.adults, adults, setAdults, 1], [copy.children, children, setChildren, 0], [copy.infants, infants, setInfants, 0]].map(([label, value, setter, min]) => <label key={label}>{label}<input required type="number" min={min} max="9" value={value} onChange={(event) => setter(Number(event.target.value))} /></label>)}
 
+            {embedded && <label>{copy.cabin}<select value={cabinClass} onChange={event => setCabinClass(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,key]) => <option key={value} value={value}>{copy[key]}</option>)}</select></label>}
             <label>{copy.currency}<select value={currency} onChange={(event) => setCurrency(event.target.value)}>{['USD','EUR','TRY','GBP'].map((code) => <option key={code}>{code}</option>)}</select></label>
             <label>{copy.country}<select value={country} onChange={(event) => setCountry(event.target.value)}>{countries.map((region) => <option key={region.code} value={region.code}>{region.name}</option>)}</select></label>
           </div>

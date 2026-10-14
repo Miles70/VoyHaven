@@ -155,7 +155,6 @@ export default function Flights({ embedded = false }) {
       </form>
     </section>
     {!embedded && <section ref={resultsRef} className="flightResults" aria-live="polite" aria-busy={loading}>
-      {cabinNotice && <p className="flightVerified" role="status">{(cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[1]}</p>}
       {loading && <p className="flightStatus">{copy.searching}</p>}
       {state === 'done' && <><h2>{copy.results} · {filteredResults.length} / {results.length}</h2><p>{copy.localTimes}</p>{results.length === 0 && <p className="flightStatus">{copy.empty}</p>}</>}
       {state === 'done' && results.length > 0 && <div className="flightFilterBar">
@@ -167,6 +166,7 @@ export default function Flights({ embedded = false }) {
         <button type="button" className="flightBackButton" onClick={() => { setSort('low'); setRefund('all'); setStops('all'); setVisible(20); }}>{filtersCopy.reset}</button>
         <p>{filtersCopy.cabinHelp}</p>
       </div>}
+      {cabinNotice && <p className="flightCabinNotice" role="status">{(cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[1]}</p>}
       {state === 'done' && results.length > 0 && filteredResults.length === 0 && <p className="flightStatus">{filtersCopy.noMatches}</p>}
       {filteredResults.slice(0, visible).map((result) => <FlightCard key={result.offer.offerId} result={result} copy={copy} language={language} searchedCabin={completedSearch?.cabinClass} onCabinChange={changeOfferCabin} onSelect={result => { trackTravel('flight_view', { offerId: result.offer.offerId, origin: origin?.iata, destination: destination?.iata }); setFocusedFlight({ ...result, passengers: { adults: completedSearch?.adults ?? adults, children: completedSearch?.children ?? children, infants: completedSearch?.infants ?? infants } }); }} selected={chosenOfferId === result.offer.offerId} />)}
       {visible < filteredResults.length && <button className="flightSearchButton" onClick={() => setVisible((count) => count + 20)}>{copy.more}</button>}

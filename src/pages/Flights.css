@@ -165,3 +165,6 @@
 .flightCardCabin { width:100%; text-align:start; font-size:.75rem; font-weight:650; }
 .flightCardCabin select { display:block; width:100%; margin-top:7px; padding:10px 8px; min-height:42px; border:1px solid #69ab7f; border-radius:9px; background:#f2fff6; color:#071b3a; font:inherit; cursor:pointer; }
 @media(max-width:700px) { .flightResults .flightPrice:has(.flightCardCabin) { display:flex; align-items:stretch; text-align:start; } .flightCardCabin { max-width:100%; } }
+
+.flightCabinNotice { margin:0 0 24px; padding:18px 22px; border:1px solid #e3bc65; border-inline-start:5px solid #d59b24; border-radius:14px; background:#fff1cb; color:#674708; font-size:.92rem; font-weight:600; line-height:1.65; box-shadow:0 4px 12px #67470808; }
+.flightResults > .flightCabinNotice { color:#674708; }

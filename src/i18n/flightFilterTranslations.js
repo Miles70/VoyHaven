@@ -51,14 +51,26 @@ export const nearbyCabinMessages = {
 };
 
 export const flexibleDateLabels = {
- tr: ['Esnek tarih aralığı', '30 gün', '90 gün', '180 gün', '11 aya kadar', 'Kontrol edilen tarihler'],
- en: ['Flexible date range', '30 days', '90 days', '180 days', 'Up to 11 months', 'Checking dates'],
- de: ['Flexibler Zeitraum', '30 Tage', '90 Tage', '180 Tage', 'Bis zu 11 Monate', 'Geprüfte Termine'],
- fr: ['Dates flexibles', '30 jours', '90 jours', '180 jours', 'Jusqu’à 11 mois', 'Dates en cours'],
- es: ['Fechas flexibles', '30 días', '90 días', '180 días', 'Hasta 11 meses', 'Fechas consultadas'],
- it: ['Date flessibili', '30 giorni', '90 giorni', '180 giorni', 'Fino a 11 mesi', 'Date in verifica'],
- pt: ['Datas flexíveis', '30 dias', '90 dias', '180 dias', 'Até 11 meses', 'Datas em consulta'],
- ru: ['Гибкие даты', '30 дней', '90 дней', '180 дней', 'До 11 месяцев', 'Проверяем даты'],
- ar: ['نطاق التواريخ المرن', '30 يوماً', '90 يوماً', '180 يوماً', 'حتى 11 شهراً', 'التواريخ الجاري فحصها'],
- zh: ['灵活日期范围', '30天', '90天', '180天', '最多11个月', '正在查询的日期'],
+ tr: ['Esnek tarih aralığı', '7 gün', '15 gün', '30 gün', 'En fazla 1 ay', 'Kontrol edilen tarihler'],
+ en: ['Flexible date range', '7 days', '15 days', '30 days', 'Up to 1 month', 'Checking dates'],
+ de: ['Flexibler Zeitraum', '7 Tage', '15 Tage', '30 Tage', 'Bis zu 1 Monat', 'Geprüfte Termine'],
+ fr: ['Dates flexibles', '7 jours', '15 jours', '30 jours', 'Jusqu’à 1 mois', 'Dates en cours'],
+ es: ['Fechas flexibles', '7 días', '15 días', '30 días', 'Hasta 1 mes', 'Fechas consultadas'],
+ it: ['Date flessibili', '7 giorni', '15 giorni', '30 giorni', 'Fino a 1 mese', 'Date in verifica'],
+ pt: ['Datas flexíveis', '7 dias', '15 dias', '30 dias', 'Até 1 mês', 'Datas em consulta'],
+ ru: ['Гибкие даты', '7 дней', '15 дней', '30 дней', 'До 1 месяца', 'Проверяем даты'],
+ ar: ['نطاق التواريخ المرن', '7 أيام', '15 يوماً', '30 يوماً', 'حتى شهر واحد', 'التواريخ الجاري فحصها'],
+ zh: ['灵活日期范围', '7天', '15天', '30天', '最多1个月', '正在查询的日期'],
+};
+export const flightAuditMessages = {
+ tr: ['İlk tarih grubunu kontrol ettik. Dilersen diğer tarihlere de bakalım.', 'Diğer tarihleri ara', 'Karma kabin', 'Kabin bilgisi belirtilmemiş'],
+ en: ['We checked the first date group. You can continue with more dates.', 'Search more dates', 'Mixed cabin', 'Cabin not specified'],
+ de: ['Die erste Datengruppe ist geprüft. Du kannst weitere Termine prüfen.', 'Weitere Termine suchen', 'Gemischte Kabinen', 'Kabine nicht angegeben'],
+ fr: ['Les premières dates ont été vérifiées. Vous pouvez poursuivre la recherche.', 'Chercher d’autres dates', 'Cabines mixtes', 'Cabine non précisée'],
+ es: ['Revisamos las primeras fechas. Puedes continuar con otras fechas.', 'Buscar más fechas', 'Cabinas mixtas', 'Cabina no indicada'],
+ it: ['Abbiamo controllato le prime date. Puoi continuare con altre date.', 'Cerca altre date', 'Cabine miste', 'Cabina non specificata'],
+ pt: ['Verificamos as primeiras datas. Você pode continuar com outras datas.', 'Buscar mais datas', 'Cabines mistas', 'Cabine não informada'],
+ ru: ['Первая группа дат проверена. Можно продолжить поиск.', 'Искать другие даты', 'Смешанные классы', 'Класс не указан'],
+ ar: ['فحصنا مجموعة التواريخ الأولى. يمكنك متابعة البحث في تواريخ أخرى.', 'ابحث في تواريخ أخرى', 'مقصورات مختلطة', 'المقصورة غير محددة'],
+ zh: ['已查询第一组日期，你可以继续查询更多日期。', '查询更多日期', '混合舱位', '舱位未注明'],
 };

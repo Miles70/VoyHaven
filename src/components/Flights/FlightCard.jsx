@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import flightCopy from '../../i18n/flightTranslations';
-import { cabinOfferMessages, cabinAlternativeMessages, nearbyCabinMessages, flexibleDateLabels } from '../../i18n/flightFilterTranslations';
+import { cabinOfferMessages, cabinAlternativeMessages, nearbyCabinMessages, flexibleDateLabels, flightAuditMessages } from '../../i18n/flightFilterTranslations';
 import { Plane, Luggage, ChevronDown, Info, LoaderCircle } from 'lucide-react';
 import { flightLocalTime, flightStops, flightDisplayDate } from '../../services/flightResults';
+import { flightOfferCabin } from '../../services/flightFilters';
 import translations from '../../i18n/flightCardTranslations';
 import { flightFareLabel } from '../../services/flightFareLabel';
 
@@ -11,14 +12,13 @@ function clock(value) {
   return typeof value === 'string' ? value.match(/[T ](\d{2}:\d{2})/)?.[1] || '—' : '—';
 }
 function calendar(value, language) {
-  const match = typeof value === 'string' && value.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!match) return '—';
-  return new Intl.DateTimeFormat(language, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))));
+  return flightDisplayDate(typeof value === 'string' ? value.slice(0,10) : null, language);
 }
+
 function carrier(segment, copy) {
   return segment.carrier?.marketingName || segment.carrier?.marketingCode || copy.unknown;
 }
-export default function FlightCard({ result, copy, language, onSelect, selected = false, onCabinChange, searchedCabin }) {
+export default function FlightCard({ result, copy, language, onSelect, selected = false, onCabinChange }) {
   const [checkedDates, setCheckedDates] = useState([]);
   const [nearbyBusy, setNearbyBusy] = useState(false);
   const [cabinBusy, setCabinBusy] = useState(false);
@@ -27,8 +27,10 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
   const cabinMessages = cabinOfferMessages[language] || cabinOfferMessages.en;
   async function changeCabin(value) {
     setCabinBusy(true); setNearbyBusy(false); setCheckedDates([]); setCabinError('');
-    try { await onCabinChange(result, value, dates => { setNearbyBusy(true); if (dates) setCheckedDates(dates); }); } catch (error) { if (error.name === 'AbortError') return; setCabinError(error.message === 'NO_NEARBY_CABIN_OFFER' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[2] : error.message === 'NO_ROUTE_CABIN_OFFER' ? (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[0] : error.message === 'NO_CABIN_OFFER' ? cabinMessages[0] : copy.error); } finally { setCabinBusy(false); }
+    try { await onCabinChange(result, value, dates => { setNearbyBusy(true); if (dates) setCheckedDates(dates); }); } catch (error) { if (error.name === 'AbortError') return; setCabinError(error.message === 'SCAN_PAUSED' ? (flightAuditMessages[language] || flightAuditMessages.en)[0] : error.message === 'NO_NEARBY_CABIN_OFFER' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[2] : error.message === 'NO_ROUTE_CABIN_OFFER' ? (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[0] : error.message === 'NO_CABIN_OFFER' ? cabinMessages[0] : copy.error); } finally { setCabinBusy(false); }
   }
+  const actualCabin = flightOfferCabin(result);
+  const auditCopy = flightAuditMessages[language] || flightAuditMessages.en;
   const labels = translations[language] || translations.en;
   const money = new Intl.NumberFormat(language, { style: 'currency', currency: result.currency }).format(result.total);
   const bags = result.offer.baggage?.included || [];
@@ -63,6 +65,6 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
         </div>
       </details>
     </div>
-    <div className="flightPrice">{onCabinChange && <label className="flightCardCabin">{copy.cabin}<select aria-label={copy.cabin} disabled={cabinBusy} value={result.requestedCabin || searchedCabin || 'ECONOMY'} onChange={event => changeCabin(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,key]) => <option key={value} value={value}>{cabinLabels[key]}</option>)}</select></label>}{result.offer.fare?.family && <small className="flightFareBadge">{flightFareLabel(result.offer.fare.family, language)}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" disabled={cabinBusy} aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
+    <div className="flightPrice">{onCabinChange && <label className="flightCardCabin">{copy.cabin}<select aria-label={copy.cabin} disabled={cabinBusy} value={actualCabin || ''} onChange={event => changeCabin(event.target.value)}>{!actualCabin && <option value="">{auditCopy[3]}</option>}{actualCabin === 'MIXED' && <option value="MIXED" disabled>{auditCopy[2]}</option>}{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,key]) => <option key={value} value={value}>{cabinLabels[key]}</option>)}</select></label>}{result.offer.fare?.family && <small className="flightFareBadge">{flightFareLabel(result.offer.fare.family, language)}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" disabled={cabinBusy} aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
   </article>;
 }

@@ -31,6 +31,8 @@ for (const page of pages) {
  assert.ok(html.includes(`href="${SITE_URL}${page.path}"`));
  assert.ok(html.includes(`lang="${page.lang}"`));
  assert.ok(!/rotavoy/i.test(html));
+ assert.ok(html.includes('/brand/voyhaven-horizontal-v3.png'), `Current brand missing: ${page.path}`);
+ assert.ok(!html.includes('/brand/voyhaven-favicon.svg'), `Old header brand: ${page.path}`);
  assert.ok(html.includes('property="og:site_name" content="VoyHaven"'));
  assert.ok(html.includes(`property="og:url" content="${SITE_URL}${page.path}"`));
  assert.ok(html.includes(`dir="${page.lang === 'ar' ? 'rtl' : 'ltr'}"`));

@@ -9,7 +9,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 import flightTranslations from '../i18n/flightTranslations';
 import AirportInput from '../components/Flights/AirportInput';
 import { flightRequest } from '../services/flightsApi';
-import { flightResults } from '../services/flightResults';
+import { flightResults, flightDisplayDate } from '../services/flightResults';
 import './Flights.css';
 import filterTranslations, { cabinAlternativeMessages, nearbyCabinMessages, flexibleDateLabels } from '../i18n/flightFilterTranslations';
 import { filterFlightResults, matchingFlightOffer, findNearbyFlightOffers } from '../services/flightFilters';
@@ -183,7 +183,7 @@ export default function Flights({ embedded = false }) {
       </form>
     </section>
     {!embedded && <section ref={resultsRef} className="flightResults" aria-live="polite" aria-busy={loading}>
-      {dateProgress.length > 0 && <p className="flightCabinNotice" role="status">{dateLabels[5]}: {dateProgress.join(" · ")} <button type="button" className="flightBackButton" onClick={() => { searchVersion.current += 1; searchController.current?.abort(); searchController.current = null; cabinController.current?.abort(); setDateProgress([]); setState(results.length ? 'done' : 'idle'); }}>{copy.back}</button></p>}
+      {dateProgress.length > 0 && <p className="flightCabinNotice" role="status">{dateLabels[5]}: {dateProgress.map(date => flightDisplayDate(date, language)).join(" · ")} <button type="button" className="flightBackButton" onClick={() => { searchVersion.current += 1; searchController.current?.abort(); searchController.current = null; cabinController.current?.abort(); setDateProgress([]); setState(results.length ? 'done' : 'idle'); }}>{copy.back}</button></p>}
       {loading && <p className="flightStatus">{copy.searching}</p>}
       {state === 'done' && <><h2>{copy.results} · {filteredResults.length} / {results.length}</h2><p>{copy.localTimes}</p>{results.length === 0 && <p className="flightStatus">{copy.empty}</p>}</>}
       {state === 'done' && results.length > 0 && <div className="flightFilterBar">
@@ -195,7 +195,7 @@ export default function Flights({ embedded = false }) {
         <button type="button" className="flightBackButton" onClick={() => { setSort('low'); setRefund('all'); setStops('all'); setVisible(20); }}>{filtersCopy.reset}</button>
         <p>{filtersCopy.cabinHelp}</p>
       </div>}
-      {cabinNotice && <p className="flightCabinNotice" role="status">{cabinNotice === 'nearby' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[1] : (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[1]}{cabinNotice === 'nearby' && <strong className="flightNewDates">{copy.departure}: {completedSearch?.departure}{completedSearch?.returnDate && <> · {copy.returnDate}: {completedSearch.returnDate}</>}</strong>}</p>}
+      {cabinNotice && <p className="flightCabinNotice" role="status">{cabinNotice === 'nearby' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[1] : (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[1]}{cabinNotice === 'nearby' && <strong className="flightNewDates">{copy.departure}: {flightDisplayDate(completedSearch?.departure, language)}{completedSearch?.returnDate && <> · {copy.returnDate}: {flightDisplayDate(completedSearch.returnDate, language)}</>}</strong>}</p>}
       {state === 'done' && results.length > 0 && filteredResults.length === 0 && <p className="flightStatus">{filtersCopy.noMatches}</p>}
       {filteredResults.slice(0, visible).map((result) => <FlightCard key={result.offer.offerId} result={result} copy={copy} language={language} searchedCabin={completedSearch?.cabinClass} onCabinChange={changeOfferCabin} onSelect={result => { trackTravel('flight_view', { offerId: result.offer.offerId, origin: origin?.iata, destination: destination?.iata }); setFocusedFlight({ ...result, passengers: { adults: completedSearch?.adults ?? adults, children: completedSearch?.children ?? children, infants: completedSearch?.infants ?? infants } }); }} selected={chosenOfferId === result.offer.offerId} />)}
       {visible < filteredResults.length && <button className="flightSearchButton" onClick={() => setVisible((count) => count + 20)}>{copy.more}</button>}

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import flightCopy from '../../i18n/flightTranslations';
 import { cabinOfferMessages, cabinAlternativeMessages, nearbyCabinMessages, flexibleDateLabels } from '../../i18n/flightFilterTranslations';
-import { Plane, Luggage, ChevronDown } from 'lucide-react';
-import { flightLocalTime, flightStops } from '../../services/flightResults';
+import { Plane, Luggage, ChevronDown, Info, LoaderCircle } from 'lucide-react';
+import { flightLocalTime, flightStops, flightDisplayDate } from '../../services/flightResults';
 import translations from '../../i18n/flightCardTranslations';
 import { flightFareLabel } from '../../services/flightFareLabel';
 
@@ -34,6 +34,7 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
   const bags = result.offer.baggage?.included || [];
   const legs = ['OUTBOUND', 'INBOUND'].map(direction => ({ direction, segments: result.segments.filter(segment => (segment.direction || 'OUTBOUND') === direction) })).filter(leg => leg.segments.length);
   return <article className={`flightCard${selected ? ' flightCardSelected' : ''}`}>
+    {(cabinError || cabinBusy) && <div className="flightCardNotice" role={cabinError ? 'alert' : 'status'}>{cabinBusy ? <LoaderCircle size={21} className="flightSpin" aria-hidden="true" /> : <Info size={21} aria-hidden="true" />}<div><p>{cabinError || (nearbyBusy ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[0] : cabinMessages[1])}</p>{cabinBusy && nearbyBusy && checkedDates.length > 0 && <strong>{(flexibleDateLabels[language] || flexibleDateLabels.en)[5]}: {checkedDates.map(date => flightDisplayDate(date, language)).join(' · ')}</strong>}</div></div>}
     <div className="flightItinerary">
       {legs.map(({ direction, segments }) => {
         const first = segments[0];
@@ -62,6 +63,6 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
         </div>
       </details>
     </div>
-    <div className="flightPrice">{onCabinChange && <label className="flightCardCabin">{copy.cabin}<select aria-label={copy.cabin} disabled={cabinBusy} value={result.requestedCabin || searchedCabin || 'ECONOMY'} onChange={event => changeCabin(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,key]) => <option key={value} value={value}>{cabinLabels[key]}</option>)}</select></label>}{cabinBusy && nearbyBusy && checkedDates.length > 0 && <small>{(flexibleDateLabels[language] || flexibleDateLabels.en)[5]}: {checkedDates.join(" · ")}</small>}{cabinBusy && <small role="status">{nearbyBusy ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[0] : cabinMessages[1]}</small>}{cabinError && <small role="alert">{cabinError}</small>}{result.offer.fare?.family && <small className="flightFareBadge">{flightFareLabel(result.offer.fare.family, language)}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" disabled={cabinBusy} aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
+    <div className="flightPrice">{onCabinChange && <label className="flightCardCabin">{copy.cabin}<select aria-label={copy.cabin} disabled={cabinBusy} value={result.requestedCabin || searchedCabin || 'ECONOMY'} onChange={event => changeCabin(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,key]) => <option key={value} value={value}>{cabinLabels[key]}</option>)}</select></label>}{result.offer.fare?.family && <small className="flightFareBadge">{flightFareLabel(result.offer.fare.family, language)}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" disabled={cabinBusy} aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
   </article>;
 }

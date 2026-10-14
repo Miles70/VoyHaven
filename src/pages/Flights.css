@@ -173,3 +173,10 @@
 
 .flightDateRange { display:block; margin-bottom:16px; font-size:.8rem; font-weight:650; }
 .flightDateRange select { display:block; margin-top:8px; padding:10px; min-height:44px; border:1px solid #bfcfe0; border-radius:9px; background:#f7faff; color:#071b3a; font:inherit; }
+
+.flightCard > .flightCardNotice { grid-column:1 / -1; display:flex; align-items:flex-start; gap:12px; padding:18px 22px; background:linear-gradient(110deg,#ffe39b,#fff0c2); border-bottom:1px solid #ddb454; color:#634508; text-align:start; }
+.flightCardNotice > svg { flex-shrink:0; margin-top:2px; color:#946408; }
+.flightCardNotice p { margin:0; font-size:.9rem; font-weight:600; line-height:1.65; }
+.flightCardNotice strong { display:block; margin-top:6px; font-size:.8rem; line-height:1.6; }
+.flightCabinNotice { background:linear-gradient(110deg,#ffe39b,#fff0c2); border-color:#ddb454; }
+@media(max-width:700px) { .flightCard > .flightCardNotice { padding:16px; } }

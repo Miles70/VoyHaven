@@ -49,3 +49,16 @@ export const nearbyCabinMessages = {
  ar: ['نبحث في التواريخ القريبة…', 'لم نجد هذه المقصورة في تواريخك. إليك خيارات في تواريخ قريبة؛ تحقق من التواريخ الجديدة قبل الحجز.', 'لم نجد هذه المقصورة في تواريخك أو التواريخ القريبة التي فحصناها. جرّب مساراً أو تاريخاً آخر.'],
  zh: ['正在查询邻近日期…', '所选日期没有该舱位。下方为邻近日期的选择，请在预订前确认新日期。', '所选日期及已查询的邻近日期均未找到该舱位，请尝试其他航线或日期。'],
 };
+
+export const flexibleDateLabels = {
+ tr: ['Esnek tarih aralığı', '30 gün', '90 gün', '180 gün', '11 aya kadar', 'Kontrol edilen tarihler'],
+ en: ['Flexible date range', '30 days', '90 days', '180 days', 'Up to 11 months', 'Checking dates'],
+ de: ['Flexibler Zeitraum', '30 Tage', '90 Tage', '180 Tage', 'Bis zu 11 Monate', 'Geprüfte Termine'],
+ fr: ['Dates flexibles', '30 jours', '90 jours', '180 jours', 'Jusqu’à 11 mois', 'Dates en cours'],
+ es: ['Fechas flexibles', '30 días', '90 días', '180 días', 'Hasta 11 meses', 'Fechas consultadas'],
+ it: ['Date flessibili', '30 giorni', '90 giorni', '180 giorni', 'Fino a 11 mesi', 'Date in verifica'],
+ pt: ['Datas flexíveis', '30 dias', '90 dias', '180 dias', 'Até 11 meses', 'Datas em consulta'],
+ ru: ['Гибкие даты', '30 дней', '90 дней', '180 дней', 'До 11 месяцев', 'Проверяем даты'],
+ ar: ['نطاق التواريخ المرن', '30 يوماً', '90 يوماً', '180 يوماً', 'حتى 11 شهراً', 'التواريخ الجاري فحصها'],
+ zh: ['灵活日期范围', '30天', '90天', '180天', '最多11个月', '正在查询的日期'],
+};

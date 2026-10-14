@@ -170,3 +170,6 @@
 .flightResults > .flightCabinNotice { color:#674708; }
 
 .flightNewDates { display:block; margin-top:8px; font-size:1rem; }
+
+.flightDateRange { display:block; margin-bottom:16px; font-size:.8rem; font-weight:650; }
+.flightDateRange select { display:block; margin-top:8px; padding:10px; min-height:44px; border:1px solid #bfcfe0; border-radius:9px; background:#f7faff; color:#071b3a; font:inherit; }

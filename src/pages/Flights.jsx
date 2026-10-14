@@ -11,7 +11,7 @@ import AirportInput from '../components/Flights/AirportInput';
 import { flightRequest } from '../services/flightsApi';
 import { flightResults } from '../services/flightResults';
 import './Flights.css';
-import filterTranslations, { cabinAlternativeMessages, nearbyCabinMessages } from '../i18n/flightFilterTranslations';
+import filterTranslations, { cabinAlternativeMessages, nearbyCabinMessages, flexibleDateLabels } from '../i18n/flightFilterTranslations';
 import { filterFlightResults, matchingFlightOffer, findNearbyFlightOffers } from '../services/flightFilters';
 
 const regionCodes = 'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
@@ -40,6 +40,10 @@ export default function Flights({ embedded = false }) {
   const [country, setCountry] = useState(() => regionCodes.includes(initial.get('country')) ? initial.get('country') : 'TR');
 
   const filtersCopy = filterTranslations[language] || filterTranslations.en;
+  const [dateRange, setDateRange] = useState(30);
+  const [dateProgress, setDateProgress] = useState([]);
+  const dateLabels = flexibleDateLabels[language] || flexibleDateLabels.en;
+
   const [sort, setSort] = useState('low');
   const [refund, setRefund] = useState('all');
   const [stops, setStops] = useState('all');
@@ -57,6 +61,7 @@ export default function Flights({ embedded = false }) {
   const searchController = useRef(null);
   const resultsRef = useRef(null);
   const loading = state === 'loading';
+  const dateRangePicker = <label className="flightDateRange">{dateLabels[0]}<select value={dateRange} disabled={loading} onChange={event => setDateRange(Number(event.target.value))}>{[30,90,180,335].map((value,index) => <option value={value} key={value}>{dateLabels[index + 1]}</option>)}</select></label>;
   const countries = useMemo(() => {
     const names = new Intl.DisplayNames([language], { type: 'region' });
     return regionCodes.map((code) => ({ code, name: names.of(code) })).sort((a, b) => a.name.localeCompare(b.name, language));
@@ -77,7 +82,7 @@ export default function Flights({ embedded = false }) {
     event.preventDefault();
     if (loading) return;
     searchVersion.current += 1; cabinController.current?.abort();
-    setCabinNotice(false); setSort('low'); setRefund('all'); setStops('all'); setError(''); setResults([]); setVisible(20); setFocusedFlight(null); setChosenOfferId(null);
+    setDateProgress([]); setCabinNotice(false); setSort('low'); setRefund('all'); setStops('all'); setError(''); setResults([]); setVisible(20); setFocusedFlight(null); setChosenOfferId(null);
     if (!origin || !destination) { setError('selectAirport'); setState('error'); return; }
     if (origin.iata === destination.iata || departure < localDate() || (roundTrip && returnDate < departure) || infants > adults || adults + children + infants > 9) { setError('invalid'); setState('error'); return; }
     if (embedded) {
@@ -89,14 +94,14 @@ export default function Flights({ embedded = false }) {
     const controller = new AbortController(); searchController.current = controller;
     trackTravel('flight_search', { origin: origin.iata, originName: origin.name, destination: destination.iata, destinationName: destination.name, departure, returnDate: roundTrip ? returnDate : '', adults, children, infants, currency });
     setState('loading');
-    const timeout = setTimeout(() => controller.abort(), 180000);
+    const timeout = setTimeout(() => controller.abort(), 900000);
     try {
       const payload = await flightRequest('/search', { signal: controller.signal, body: { origin: origin.iata, destination: destination.iata, departure, ...(roundTrip ? { returnDate } : {}), adults, children, infants, cabinClass, currency, country } });
       if (searchController.current !== controller || controller.signal.aborted) return;
       let search = { origin: origin.iata, destination: destination.iata, departure, ...(roundTrip ? { returnDate } : {}), adults, children, infants, cabinClass, currency, country };
       let offers = flightResults(payload, currency);
       if (!offers.length && cabinClass !== 'ECONOMY') {
-        const nearby = await findNearbyFlightOffers(search, localDate(), body => flightRequest('/search', { signal: controller.signal, body }), data => flightResults(data, currency), () => searchController.current === controller && !controller.signal.aborted);
+        const nearby = await findNearbyFlightOffers(search, localDate(), body => flightRequest('/search', { signal: controller.signal, body }), data => flightResults(data, currency), () => searchController.current === controller && !controller.signal.aborted, dateRange, setDateProgress);
         if (searchController.current !== controller || controller.signal.aborted) return;
         if (nearby) {
           search = nearby.search; offers = nearby.offers;
@@ -110,21 +115,21 @@ export default function Flights({ embedded = false }) {
     } catch (err) {
       if (searchController.current !== controller) return;
       setState('error'); setError(err.name === 'AbortError' || err.message === 'TIMEOUT' ? 'timeout' : err.message === 'INVALID_SEARCH' ? 'invalid' : err.message === 'RATE_LIMIT' ? 'rateLimit' : 'error');
-    } finally { clearTimeout(timeout); }
+    } finally { clearTimeout(timeout); setDateProgress([]); }
   }
   async function changeOfferCabin(original, nextCabin, onNearby) {
     if (!completedSearch) return;
     const version = searchVersion.current;
     const controller = new AbortController();
     cabinController.current?.abort(); cabinController.current = controller;
-    const timer = setTimeout(() => controller.abort(), 180000);
+    const timer = setTimeout(() => controller.abort(), 900000);
     try {
       const payload = await flightRequest('/search', { signal: controller.signal, body: { ...completedSearch, cabinClass: nextCabin } });
       if (version !== searchVersion.current || controller.signal.aborted) return;
       let alternatives = flightResults(payload, completedSearch.currency);
       if (!alternatives.length) {
         onNearby?.();
-        const nearby = await findNearbyFlightOffers({ ...completedSearch, cabinClass: nextCabin }, localDate(), body => flightRequest('/search', { signal: controller.signal, body }), data => flightResults(data, completedSearch.currency), () => version === searchVersion.current && !controller.signal.aborted);
+        const nearby = await findNearbyFlightOffers({ ...completedSearch, cabinClass: nextCabin }, localDate(), body => flightRequest('/search', { signal: controller.signal, body }), data => flightResults(data, completedSearch.currency), () => version === searchVersion.current && !controller.signal.aborted, dateRange, dates => { setDateProgress(dates); onNearby?.(dates); });
         if (version !== searchVersion.current || controller.signal.aborted) return;
         if (!nearby) throw new Error('NO_NEARBY_CABIN_OFFER');
         setResults(nearby.offers.map(result => ({ ...result, requestedCabin: nextCabin })));
@@ -146,7 +151,7 @@ export default function Flights({ embedded = false }) {
       setCabinNotice(false);
       setResults(current => current.filter(result => result.offer.offerId === original.offer.offerId || result.offer.offerId !== replacement.offer.offerId).map(result => result.offer.offerId === original.offer.offerId ? { ...replacement, requestedCabin: nextCabin } : result));
       setChosenOfferId(null);
-    } finally { clearTimeout(timer); }
+    } finally { clearTimeout(timer); setDateProgress([]); }
   }
   const Container = embedded ? "div" : "main";
   return <Container className={embedded ? "flightsPage flightsPage--embedded" : "flightsPage"}>
@@ -164,7 +169,7 @@ export default function Flights({ embedded = false }) {
             <label>{copy.departure}<input required type="date" min={localDate()} value={departure} onChange={(event) => { setDeparture(event.target.value); if (returnDate < event.target.value) setReturnDate(event.target.value); }} /></label>
             {roundTrip && <label>{copy.returnDate}<input required type="date" min={departure || localDate()} value={returnDate} onChange={(event) => setReturnDate(event.target.value)} /></label>}
           </div>
-          <div className="flightCabinPicker"><strong>{copy.cabin}</strong><div>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value, label]) => <button key={value} type="button" aria-pressed={cabinClass === value} onClick={() => setCabinClass(value)}>{copy[label]}</button>)}</div><p>{filtersCopy.cabinHelp}</p></div>
+          <div className="flightCabinPicker">{dateRangePicker}<strong>{copy.cabin}</strong><div>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value, label]) => <button key={value} type="button" aria-pressed={cabinClass === value} onClick={() => setCabinClass(value)}>{copy[label]}</button>)}</div><p>{filtersCopy.cabinHelp}</p></div>
           <div className="flightFields flightPassengerFields">
             {[[copy.adults, adults, setAdults, 1], [copy.children, children, setChildren, 0], [copy.infants, infants, setInfants, 0]].map(([label, value, setter, min]) => <label key={label}>{label}<input required type="number" min={min} max="9" value={value} onChange={(event) => setter(Number(event.target.value))} /></label>)}
 
@@ -178,10 +183,11 @@ export default function Flights({ embedded = false }) {
       </form>
     </section>
     {!embedded && <section ref={resultsRef} className="flightResults" aria-live="polite" aria-busy={loading}>
+      {dateProgress.length > 0 && <p className="flightCabinNotice" role="status">{dateLabels[5]}: {dateProgress.join(" · ")} <button type="button" className="flightBackButton" onClick={() => { searchVersion.current += 1; searchController.current?.abort(); searchController.current = null; cabinController.current?.abort(); setDateProgress([]); setState(results.length ? 'done' : 'idle'); }}>{copy.back}</button></p>}
       {loading && <p className="flightStatus">{copy.searching}</p>}
       {state === 'done' && <><h2>{copy.results} · {filteredResults.length} / {results.length}</h2><p>{copy.localTimes}</p>{results.length === 0 && <p className="flightStatus">{copy.empty}</p>}</>}
       {state === 'done' && results.length > 0 && <div className="flightFilterBar">
-        <label>{filtersCopy.sort}<select value={sort} onChange={event => { setSort(event.target.value); setVisible(20); }}><option value="low">{filtersCopy.low}</option><option value="high">{filtersCopy.high}</option></select></label>
+        {dateRangePicker}<label>{filtersCopy.sort}<select value={sort} onChange={event => { setSort(event.target.value); setVisible(20); }}><option value="low">{filtersCopy.low}</option><option value="high">{filtersCopy.high}</option></select></label>
         <label>{filtersCopy.refund}<select value={refund} onChange={event => { setRefund(event.target.value); setVisible(20); }}>{['all','refundable','partial','nonRefundable','unknown'].map(value => <option key={value} value={value}>{filtersCopy[value]}</option>)}</select></label>
         <label>{filtersCopy.stops}<select value={stops} onChange={event => { setStops(event.target.value); setVisible(20); }}><option value="all">{filtersCopy.anyStops}</option><option value="0">{filtersCopy.direct}</option><option value="1">{filtersCopy.oneStop}</option></select></label>
         <label>{copy.cabin}<select disabled={loading} value={cabinClass} onChange={event => setCabinClass(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,label]) => <option key={value} value={value}>{copy[label]}</option>)}</select></label>

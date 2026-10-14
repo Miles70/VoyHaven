@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import flightCopy from '../../i18n/flightTranslations';
-import { cabinOfferMessages, cabinAlternativeMessages, nearbyCabinMessages } from '../../i18n/flightFilterTranslations';
+import { cabinOfferMessages, cabinAlternativeMessages, nearbyCabinMessages, flexibleDateLabels } from '../../i18n/flightFilterTranslations';
 import { Plane, Luggage, ChevronDown } from 'lucide-react';
 import { flightLocalTime, flightStops } from '../../services/flightResults';
 import translations from '../../i18n/flightCardTranslations';
@@ -19,14 +19,15 @@ function carrier(segment, copy) {
   return segment.carrier?.marketingName || segment.carrier?.marketingCode || copy.unknown;
 }
 export default function FlightCard({ result, copy, language, onSelect, selected = false, onCabinChange, searchedCabin }) {
+  const [checkedDates, setCheckedDates] = useState([]);
   const [nearbyBusy, setNearbyBusy] = useState(false);
   const [cabinBusy, setCabinBusy] = useState(false);
   const [cabinError, setCabinError] = useState('');
   const cabinLabels = flightCopy[language] || flightCopy.en;
   const cabinMessages = cabinOfferMessages[language] || cabinOfferMessages.en;
   async function changeCabin(value) {
-    setCabinBusy(true); setNearbyBusy(false); setCabinError('');
-    try { await onCabinChange(result, value, () => setNearbyBusy(true)); } catch (error) { setCabinError(error.message === 'NO_NEARBY_CABIN_OFFER' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[2] : error.message === 'NO_ROUTE_CABIN_OFFER' ? (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[0] : error.message === 'NO_CABIN_OFFER' ? cabinMessages[0] : copy.error); } finally { setCabinBusy(false); }
+    setCabinBusy(true); setNearbyBusy(false); setCheckedDates([]); setCabinError('');
+    try { await onCabinChange(result, value, dates => { setNearbyBusy(true); if (dates) setCheckedDates(dates); }); } catch (error) { if (error.name === 'AbortError') return; setCabinError(error.message === 'NO_NEARBY_CABIN_OFFER' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[2] : error.message === 'NO_ROUTE_CABIN_OFFER' ? (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[0] : error.message === 'NO_CABIN_OFFER' ? cabinMessages[0] : copy.error); } finally { setCabinBusy(false); }
   }
   const labels = translations[language] || translations.en;
   const money = new Intl.NumberFormat(language, { style: 'currency', currency: result.currency }).format(result.total);
@@ -61,6 +62,6 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
         </div>
       </details>
     </div>
-    <div className="flightPrice">{onCabinChange && <label className="flightCardCabin">{copy.cabin}<select aria-label={copy.cabin} disabled={cabinBusy} value={result.requestedCabin || searchedCabin || 'ECONOMY'} onChange={event => changeCabin(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,key]) => <option key={value} value={value}>{cabinLabels[key]}</option>)}</select></label>}{cabinBusy && <small role="status">{nearbyBusy ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[0] : cabinMessages[1]}</small>}{cabinError && <small role="alert">{cabinError}</small>}{result.offer.fare?.family && <small className="flightFareBadge">{flightFareLabel(result.offer.fare.family, language)}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" disabled={cabinBusy} aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
+    <div className="flightPrice">{onCabinChange && <label className="flightCardCabin">{copy.cabin}<select aria-label={copy.cabin} disabled={cabinBusy} value={result.requestedCabin || searchedCabin || 'ECONOMY'} onChange={event => changeCabin(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,key]) => <option key={value} value={value}>{cabinLabels[key]}</option>)}</select></label>}{cabinBusy && nearbyBusy && checkedDates.length > 0 && <small>{(flexibleDateLabels[language] || flexibleDateLabels.en)[5]}: {checkedDates.join(" · ")}</small>}{cabinBusy && <small role="status">{nearbyBusy ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[0] : cabinMessages[1]}</small>}{cabinError && <small role="alert">{cabinError}</small>}{result.offer.fare?.family && <small className="flightFareBadge">{flightFareLabel(result.offer.fare.family, language)}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" disabled={cabinBusy} aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
   </article>;
 }

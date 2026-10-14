@@ -149,3 +149,19 @@
     border-radius:16px;
   }
 }
+.flightCabinPicker { margin-bottom:22px; }
+.flightCabinPicker > strong { display:block; font-size:.84rem; margin-bottom:10px; }
+.flightCabinPicker > div { display:flex; flex-wrap:wrap; gap:10px; }
+.flightCabinPicker button { padding:11px 18px; border:1px solid #c3d3e4; background:#f7faff; color:#071b3a; border-radius:10px; cursor:pointer; font:inherit; font-weight:650; }
+.flightCabinPicker button[aria-pressed="true"] { background:#0b63f6; color:white; border-color:#0b63f6; }
+.flightCabinPicker p,.flightFilterBar p { font-size:.78rem; color:#526581; line-height:1.6; margin:10px 0 0; }
+.flightFilterBar { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; background:white; padding:20px; border:1px solid #c3d6e8; border-radius:16px; margin:22px 0; }
+.flightFilterBar label { font-size:.8rem; font-weight:650; min-width:0; }
+.flightFilterBar select { display:block; width:100%; min-height:44px; margin-top:8px; padding:9px; font:inherit; color:#071b3a; background:#f7faff; border:1px solid #bfcfe0; border-radius:8px; }
+.flightFilterBar > p { grid-column:1 / -1; }
+.flightFilterBar button { font-size:.82rem; padding:12px; }
+@media(max-width:700px) { .flightFilterBar { grid-template-columns:repeat(2,minmax(0,1fr)); padding:14px; } }
+@media(max-width:380px) { .flightFilterBar { grid-template-columns:1fr; } }
+.flightCardCabin { width:100%; text-align:start; font-size:.75rem; font-weight:650; }
+.flightCardCabin select { display:block; width:100%; margin-top:7px; padding:10px 8px; min-height:42px; border:1px solid #69ab7f; border-radius:9px; background:#f2fff6; color:#071b3a; font:inherit; cursor:pointer; }
+@media(max-width:700px) { .flightResults .flightPrice:has(.flightCardCabin) { display:flex; align-items:stretch; text-align:start; } .flightCardCabin { max-width:100%; } }

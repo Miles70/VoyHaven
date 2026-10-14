@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import flightCopy from '../../i18n/flightTranslations';
+import { cabinOfferMessages } from '../../i18n/flightFilterTranslations';
 import { Plane, Luggage, ChevronDown } from 'lucide-react';
 import { flightLocalTime, flightStops } from '../../services/flightResults';
 import translations from '../../i18n/flightCardTranslations';
@@ -15,7 +18,15 @@ function calendar(value, language) {
 function carrier(segment, copy) {
   return segment.carrier?.marketingName || segment.carrier?.marketingCode || copy.unknown;
 }
-export default function FlightCard({ result, copy, language, onSelect, selected = false }) {
+export default function FlightCard({ result, copy, language, onSelect, selected = false, onCabinChange, searchedCabin }) {
+  const [cabinBusy, setCabinBusy] = useState(false);
+  const [cabinError, setCabinError] = useState('');
+  const cabinLabels = flightCopy[language] || flightCopy.en;
+  const cabinMessages = cabinOfferMessages[language] || cabinOfferMessages.en;
+  async function changeCabin(value) {
+    setCabinBusy(true); setCabinError('');
+    try { await onCabinChange(result, value); } catch (error) { setCabinError(error.message === 'NO_CABIN_OFFER' ? cabinMessages[0] : copy.error); } finally { setCabinBusy(false); }
+  }
   const labels = translations[language] || translations.en;
   const money = new Intl.NumberFormat(language, { style: 'currency', currency: result.currency }).format(result.total);
   const bags = result.offer.baggage?.included || [];
@@ -49,6 +60,6 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
         </div>
       </details>
     </div>
-    <div className="flightPrice">{result.offer.fare?.family && <small className="flightFareBadge">{flightFareLabel(result.offer.fare.family, language)}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
+    <div className="flightPrice">{onCabinChange && <label className="flightCardCabin">{copy.cabin}<select aria-label={copy.cabin} disabled={cabinBusy} value={result.requestedCabin || searchedCabin || 'ECONOMY'} onChange={event => changeCabin(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,key]) => <option key={value} value={value}>{cabinLabels[key]}</option>)}</select></label>}{cabinBusy && <small role="status">{cabinMessages[1]}</small>}{cabinError && <small role="alert">{cabinError}</small>}{result.offer.fare?.family && <small className="flightFareBadge">{flightFareLabel(result.offer.fare.family, language)}</small>}<strong>{money}</strong><span>{copy.total}</span>{onSelect && <button type="button" className="flightSearchButton" disabled={cabinBusy} aria-pressed={selected} onClick={() => onSelect(result)}>{selected ? copy.selected : copy.select}</button>}</div>
   </article>;
 }

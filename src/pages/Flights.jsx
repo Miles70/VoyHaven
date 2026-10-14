@@ -11,6 +11,8 @@ import AirportInput from '../components/Flights/AirportInput';
 import { flightRequest } from '../services/flightsApi';
 import { flightResults } from '../services/flightResults';
 import './Flights.css';
+import filterTranslations from '../i18n/flightFilterTranslations';
+import { filterFlightResults, matchingFlightOffer } from '../services/flightFilters';
 
 const regionCodes = 'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
 function localDate(days = 0) {
@@ -37,9 +39,17 @@ export default function Flights({ embedded = false }) {
   const [currency, setCurrency] = useState(() => ['USD', 'EUR', 'TRY', 'GBP'].includes(initial.get('currency')) ? initial.get('currency') : 'USD');
   const [country, setCountry] = useState(() => regionCodes.includes(initial.get('country')) ? initial.get('country') : 'TR');
   
+  const filtersCopy = filterTranslations[language] || filterTranslations.en;
+  const [sort, setSort] = useState('low');
+  const [refund, setRefund] = useState('all');
+  const [stops, setStops] = useState('all');
   const [state, setState] = useState('idle');
   const [error, setError] = useState('');
   const [results, setResults] = useState([]);
+  const [completedSearch, setCompletedSearch] = useState(null);
+  const cabinController = useRef(null);
+  const searchVersion = useRef(0);
+  const filteredResults = useMemo(() => filterFlightResults(results, { sort, refund, stops }), [results, sort, refund, stops]);
   const [visible, setVisible] = useState(20);
   const [focusedFlight, setFocusedFlight] = useState(null);
   const [chosenOfferId, setChosenOfferId] = useState(null);
@@ -54,7 +64,7 @@ export default function Flights({ embedded = false }) {
     if (embedded) return undefined;
     const controller = new AbortController();
     
-    return () => { controller.abort(); searchController.current?.abort(); searchController.current = null; };
+    return () => { controller.abort(); searchController.current?.abort(); cabinController.current?.abort(); searchVersion.current += 1; searchController.current = null; };
   }, [embedded]);
   useEffect(() => {
     if (embedded || initial.get("auto") !== "1") return undefined;
@@ -65,7 +75,8 @@ export default function Flights({ embedded = false }) {
   async function submit(event) {
     event.preventDefault();
     if (loading) return;
-    setError(''); setResults([]); setVisible(20); setFocusedFlight(null); setChosenOfferId(null);
+    searchVersion.current += 1; cabinController.current?.abort();
+    setSort('low'); setRefund('all'); setStops('all'); setError(''); setResults([]); setVisible(20); setFocusedFlight(null); setChosenOfferId(null);
     if (!origin || !destination) { setError('selectAirport'); setState('error'); return; }
     if (origin.iata === destination.iata || departure < localDate() || (roundTrip && returnDate < departure) || infants > adults || adults + children + infants > 9) { setError('invalid'); setState('error'); return; }
     if (embedded) {
@@ -81,12 +92,28 @@ export default function Flights({ embedded = false }) {
     try {
       const payload = await flightRequest('/search', { signal: controller.signal, body: { origin: origin.iata, destination: destination.iata, departure, ...(roundTrip ? { returnDate } : {}), adults, children, infants, cabinClass, currency, country } });
       if (searchController.current !== controller || controller.signal.aborted) return;
+      setCompletedSearch({ origin: origin.iata, destination: destination.iata, departure, ...(roundTrip ? { returnDate } : {}), adults, children, infants, cabinClass, currency, country });
       setResults(flightResults(payload, currency)); setState('done');
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
       if (searchController.current !== controller) return;
       setState('error'); setError(err.name === 'AbortError' || err.message === 'TIMEOUT' ? 'timeout' : err.message === 'INVALID_SEARCH' ? 'invalid' : err.message === 'RATE_LIMIT' ? 'rateLimit' : 'error');
     } finally { clearTimeout(timeout); }
+  }
+  async function changeOfferCabin(original, nextCabin) {
+    if (!completedSearch) return;
+    const version = searchVersion.current;
+    const controller = new AbortController();
+    cabinController.current?.abort(); cabinController.current = controller;
+    const timer = setTimeout(() => controller.abort(), 70000);
+    try {
+      const payload = await flightRequest('/search', { signal: controller.signal, body: { ...completedSearch, cabinClass: nextCabin } });
+      if (version !== searchVersion.current || controller.signal.aborted) return;
+      const replacement = matchingFlightOffer(flightResults(payload, completedSearch.currency), original);
+      if (!replacement) throw new Error('NO_CABIN_OFFER');
+      setResults(current => current.filter(result => result.offer.offerId === original.offer.offerId || result.offer.offerId !== replacement.offer.offerId).map(result => result.offer.offerId === original.offer.offerId ? { ...replacement, requestedCabin: nextCabin } : result));
+      setChosenOfferId(null);
+    } finally { clearTimeout(timer); }
   }
   const Container = embedded ? "div" : "main";
   return <Container className={embedded ? "flightsPage flightsPage--embedded" : "flightsPage"}>
@@ -104,9 +131,10 @@ export default function Flights({ embedded = false }) {
             <label>{copy.departure}<input required type="date" min={localDate()} value={departure} onChange={(event) => { setDeparture(event.target.value); if (returnDate < event.target.value) setReturnDate(event.target.value); }} /></label>
             {roundTrip && <label>{copy.returnDate}<input required type="date" min={departure || localDate()} value={returnDate} onChange={(event) => setReturnDate(event.target.value)} /></label>}
           </div>
+          <div className="flightCabinPicker"><strong>{copy.cabin}</strong><div>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value, label]) => <button key={value} type="button" aria-pressed={cabinClass === value} onClick={() => setCabinClass(value)}>{copy[label]}</button>)}</div><p>{filtersCopy.cabinHelp}</p></div>
           <div className="flightFields flightPassengerFields">
             {[[copy.adults, adults, setAdults, 1], [copy.children, children, setChildren, 0], [copy.infants, infants, setInfants, 0]].map(([label, value, setter, min]) => <label key={label}>{label}<input required type="number" min={min} max="9" value={value} onChange={(event) => setter(Number(event.target.value))} /></label>)}
-            <label>{copy.cabin}<select value={cabinClass} onChange={(event) => setCabinClass(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value, label]) => <option key={value} value={value}>{copy[label]}</option>)}</select></label>
+            
             <label>{copy.currency}<select value={currency} onChange={(event) => setCurrency(event.target.value)}>{['USD','EUR','TRY','GBP'].map((code) => <option key={code}>{code}</option>)}</select></label>
             <label>{copy.country}<select value={country} onChange={(event) => setCountry(event.target.value)}>{countries.map((region) => <option key={region.code} value={region.code}>{region.name}</option>)}</select></label>
           </div>
@@ -118,9 +146,19 @@ export default function Flights({ embedded = false }) {
     </section>
     {!embedded && <section ref={resultsRef} className="flightResults" aria-live="polite" aria-busy={loading}>
       {loading && <p className="flightStatus">{copy.searching}</p>}
-      {state === 'done' && <><h2>{copy.results} · {results.length}</h2><p>{copy.localTimes}</p>{results.length === 0 && <p className="flightStatus">{copy.empty}</p>}</>}
-      {results.slice(0, visible).map((result) => <FlightCard key={result.offer.offerId} result={result} copy={copy} language={language} onSelect={result => { trackTravel('flight_view', { offerId: result.offer.offerId, origin: origin?.iata, destination: destination?.iata }); setFocusedFlight({ ...result, passengers: { adults, children, infants } }); }} selected={chosenOfferId === result.offer.offerId} />)}
-      {visible < results.length && <button className="flightSearchButton" onClick={() => setVisible((count) => count + 20)}>{copy.more}</button>}
+      {state === 'done' && <><h2>{copy.results} · {filteredResults.length} / {results.length}</h2><p>{copy.localTimes}</p>{results.length === 0 && <p className="flightStatus">{copy.empty}</p>}</>}
+      {state === 'done' && results.length > 0 && <div className="flightFilterBar">
+        <label>{filtersCopy.sort}<select value={sort} onChange={event => { setSort(event.target.value); setVisible(20); }}><option value="low">{filtersCopy.low}</option><option value="high">{filtersCopy.high}</option></select></label>
+        <label>{filtersCopy.refund}<select value={refund} onChange={event => { setRefund(event.target.value); setVisible(20); }}>{['all','refundable','partial','nonRefundable','unknown'].map(value => <option key={value} value={value}>{filtersCopy[value]}</option>)}</select></label>
+        <label>{filtersCopy.stops}<select value={stops} onChange={event => { setStops(event.target.value); setVisible(20); }}><option value="all">{filtersCopy.anyStops}</option><option value="0">{filtersCopy.direct}</option><option value="1">{filtersCopy.oneStop}</option></select></label>
+        <label>{copy.cabin}<select disabled={loading} value={cabinClass} onChange={event => setCabinClass(event.target.value)}>{[['ECONOMY','economy'], ['PREMIUM_ECONOMY','premium'], ['BUSINESS','business'], ['FIRST','first']].map(([value,label]) => <option key={value} value={value}>{copy[label]}</option>)}</select></label>
+        <button type="button" className="flightSearchButton" disabled={loading} onClick={() => formRef.current?.requestSubmit()}>{filtersCopy.searchCabin}</button>
+        <button type="button" className="flightBackButton" onClick={() => { setSort('low'); setRefund('all'); setStops('all'); setVisible(20); }}>{filtersCopy.reset}</button>
+        <p>{filtersCopy.cabinHelp}</p>
+      </div>}
+      {state === 'done' && results.length > 0 && filteredResults.length === 0 && <p className="flightStatus">{filtersCopy.noMatches}</p>}
+      {filteredResults.slice(0, visible).map((result) => <FlightCard key={result.offer.offerId} result={result} copy={copy} language={language} searchedCabin={completedSearch?.cabinClass} onCabinChange={changeOfferCabin} onSelect={result => { trackTravel('flight_view', { offerId: result.offer.offerId, origin: origin?.iata, destination: destination?.iata }); setFocusedFlight({ ...result, passengers: { adults: completedSearch?.adults ?? adults, children: completedSearch?.children ?? children, infants: completedSearch?.infants ?? infants } }); }} selected={chosenOfferId === result.offer.offerId} />)}
+      {visible < filteredResults.length && <button className="flightSearchButton" onClick={() => setVisible((count) => count + 20)}>{copy.more}</button>}
     </section>}
     {focusedFlight && <FlightSelection key={focusedFlight.offer.offerId} result={focusedFlight} copy={copy} language={language} passengers={focusedFlight.passengers} onVerified={handleVerified} onClose={() => setFocusedFlight(null)} />}
   </Container>;

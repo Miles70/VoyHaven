@@ -65,3 +65,50 @@
 .flightBackButton { border:1px solid #bfd0e2; border-radius:12px; background:white; color:#071B3A; font-weight:650; padding:14px 22px; cursor:pointer; }
 .flightSelection :is(button,a):focus-visible { outline:3px solid #19C6D8; outline-offset:3px; }
 @media(max-width:600px) { .flightSelection { padding:16px; } .flightSelection .flightCard { grid-template-columns:1fr; } }
+
+/* Compact offer summaries; segment and baggage details stay within each card. */
+.flightCard { margin:24px 0; border-color:#cddbea; box-shadow:0 6px 24px #071b3a0a; }
+.flightItinerary { padding:0; }
+.flightLeg { padding:20px 24px; }
+.flightLeg + .flightLeg { margin:0; padding:20px 24px; border-top:1px solid #e4ecf5; }
+.flightLegHeading { align-items:center; color:#526581; }
+.flightLegHeading > strong { display:flex; align-items:center; gap:7px; color:#071b3a; }
+.flightStopBadge { padding:4px 9px; border-radius:7px; background:#f1f5fa; color:#526581; font-size:.75rem; }
+.flightStopBadge--direct { background:#e6f6ee; color:#196447; }
+.flightLeg > .flightCarrier { margin:12px 0; font-size:.82rem; font-weight:600; color:#526581; }
+.flightSummaryRoute { display:grid; grid-template-columns:minmax(0,1fr) minmax(75px,.8fr) minmax(0,1fr); gap:16px; align-items:center; }
+.flightEndpoint { min-width:0; }
+.flightEndpoint time { display:block; font-size:1.9rem; line-height:1.2; font-weight:800; letter-spacing:-.7px; }
+.flightEndpoint strong { display:block; margin:4px 0; font-size:1rem; }
+.flightEndpoint small { display:block; font-size:.75rem; color:#526581; }
+.flightEndpoint > span { display:block; margin-top:4px; font-size:.7rem; color:#526581; overflow-wrap:anywhere; }
+.flightEndpoint--arrival { text-align:right; }
+.flightRouteLine { text-align:center; color:#526581; }
+.flightRouteLine > span { display:flex; align-items:center; gap:8px; }
+.flightRouteLine i { height:1px; flex:1; background:#bfd0e1; }
+.flightRouteLine small { display:block; font-size:.7rem; margin-top:8px; overflow-wrap:anywhere; }
+.flightPrice { justify-content:flex-start; padding-top:28px; border-inline-start:1px solid #dce5ef; background:#f7faff; }
+.flightPrice strong { font-size:1.8rem; letter-spacing:-.6px; }
+.flightFareBadge { background:#e8eef8; padding:5px 10px; border-radius:7px; font-size:.75rem; }
+.flightCardDetails { border-top:1px solid #e4ecf5; }
+.flightCardDetails > summary { display:flex; justify-content:space-between; gap:12px; padding:14px 24px; cursor:pointer; color:#245a9c; font-size:.78rem; font-weight:650; list-style:none; }
+.flightCardDetails > summary::-webkit-details-marker { display:none; }
+.flightCardDetails > summary > span { display:flex; gap:7px; align-items:center; }
+.flightCardDetails[open] > summary > span:first-child > svg { transform:rotate(180deg); }
+.flightCardDetails > summary:focus-visible { outline:3px solid #19c6d8; outline-offset:-3px; }
+.flightExpandedContent { padding:0 24px 20px; background:#fafcfe; border-top:1px solid #e4ecf5; }
+.flightDetailLeg h3 { font-size:.85rem; padding-top:18px; margin:0 0 12px; }
+.flightDetailLeg + .flightDetailLeg { margin-top:20px; border-top:1px dashed #bdd1e4; }
+@media(max-width:700px) {
+ .flightLeg,.flightLeg + .flightLeg { padding:18px; }
+ .flightPrice { border-inline-start:0; border-top:1px solid #dce5ef; display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; text-align:start; align-items:center; padding:18px; }
+ .flightPrice > strong { grid-column:1; grid-row:2; }
+ .flightPrice > span { grid-column:1; grid-row:3; }
+ .flightPrice > .flightFareBadge { grid-column:1; grid-row:1; justify-self:start; }
+ .flightPrice > .flightSearchButton { grid-column:2; grid-row:1 / 4; margin:0; min-height:48px; }
+ .flightCardDetails > summary { padding:14px 18px; flex-wrap:wrap; }
+ .flightExpandedContent { padding:0 18px 18px; }
+ .flightSummaryRoute { gap:10px; }
+ .flightEndpoint time { font-size:1.6rem; }
+}
+@media(max-width:380px) { .flightSummaryRoute { grid-template-columns:minmax(0,1fr) 65px minmax(0,1fr); gap:8px; } .flightEndpoint time { font-size:1.4rem; } .flightPrice strong { font-size:1.45rem; } }

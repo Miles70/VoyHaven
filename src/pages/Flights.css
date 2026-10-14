@@ -112,3 +112,40 @@
  .flightEndpoint time { font-size:1.6rem; }
 }
 @media(max-width:380px) { .flightSummaryRoute { grid-template-columns:minmax(0,1fr) 65px minmax(0,1fr); gap:8px; } .flightEndpoint time { font-size:1.4rem; } .flightPrice strong { font-size:1.45rem; } }
+
+/* Give each offer a distinct surface against a sky-blue results canvas. */
+.flightResults {
+  max-width:1240px;
+  padding:28px 24px;
+  background:#e5f1fc;
+  border:1px solid #cfdfef;
+  border-radius:24px;
+}
+.flightResults .flightCard {
+  margin:28px 0;
+  border:1px solid #adc9e6;
+  border-inline-start:5px solid #69aee8;
+  border-radius:20px;
+  box-shadow:0 6px 18px #174b7c14;
+  background:#fff;
+}
+.flightResults .flightCardSelected {
+  border-color:#0b63f6;
+  border-inline-start-color:#0b63f6;
+}
+.flightResults .flightPrice {
+  background:#edf6ff;
+  border-inline-start-color:#c3d9ee;
+}
+@media(max-width:700px) {
+  .flightResults {
+    margin:24px 12px 0;
+    padding:18px 12px;
+    border-radius:20px;
+  }
+  .flightResults .flightCard {
+    margin:24px 0;
+    border-inline-start-width:4px;
+    border-radius:16px;
+  }
+}

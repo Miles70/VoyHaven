@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, MapPin, CalendarDays, ShieldCheck, Ticket, RefreshCw, Luggage, ClipboardCheck, Headphones } from "lucide-react";
 import { useLanguage } from "../i18n/LanguageContext";
+import questionTranslations from '../i18n/travelQuestionTranslations';
 import { showcaseDestinations } from "../services/hotelDiscovery.js";
 
 export function DestinationDiscovery({ hotels, checkin, checkout, adults }) {
@@ -32,22 +33,32 @@ export function DestinationDiscovery({ hotels, checkin, checkout, adults }) {
 }
 
 export function TravelQuestions() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const copy = questionTranslations[language] || questionTranslations.en;
+  const cards = [
+    [CalendarDays, t('discovery.datesQuestion'), t('discovery.datesAnswer')],
+    [ShieldCheck, t('discovery.cancellationQuestion'), t('discovery.cancellationAnswer')],
+    [Ticket, t('discovery.bookingQuestion'), t('discovery.bookingAnswer')],
+    [RefreshCw, copy.priceQuestion, copy.priceAnswer],
+    [Luggage, copy.baggageQuestion, copy.baggageAnswer],
+    [ClipboardCheck, copy.checkQuestion, copy.checkAnswer],
+  ];
   return (
     <section className="travelQuestionsSection" aria-labelledby="travel-questions-title">
       <div className="travelContainer travelQuestionsLayout">
-        <div className="travelDiscoveryHeading">
-          <h2 id="travel-questions-title">{t("discovery.questionsTitle")}</h2>
-          <p>{t("discovery.questionsText")}</p>
-          <Link className="travelQuestionsSupport" to="/support">{t("discovery.support")} <ArrowRight size={16} /></Link>
+        <div className="travelQuestionsHeader">
+          <div className="travelDiscoveryHeading">
+            <h2 id="travel-questions-title">{t('discovery.questionsTitle')}</h2>
+            <p>{t('discovery.questionsText')}</p>
+          </div>
+          <Link className="travelQuestionsSupport" to={`/support?lang=${language}`}><Headphones size={19} aria-hidden="true" />{t('discovery.support')} <ArrowRight size={17} aria-hidden="true" /></Link>
         </div>
-        <div className="travelQuestionList">
-          {["dates", "cancellation", "booking"].map((key) => (
-            <details key={key}>
-              <summary>{t(`discovery.${key}Question`)}</summary>
-              <p>{t(`discovery.${key}Answer`)}</p>
-            </details>
-          ))}
+        <div className="travelQuestionCards">
+          {cards.map(([Icon, question, answer], index) => <article className={`travelQuestionCard travelQuestionCard--${index + 1}`} key={question}>
+            <span className="travelQuestionIcon"><Icon size={23} strokeWidth={1.8} aria-hidden="true" /></span>
+            <h3>{question}</h3>
+            <p>{answer}</p>
+          </article>)}
         </div>
       </div>
     </section>

@@ -1,3 +1,4 @@
+import { useFlowText } from "../../i18n/flowTranslations";
 import { useEffect, useState } from "react";
 import {
   Check,
@@ -132,7 +133,8 @@ function CryptoPayment({
   verifyPaymentRequest,
   forceDisplay = false,
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const ui = useFlowText();
   const [paymentStage, setPaymentStage] = useState("idle");
   const [paymentError, setPaymentError] = useState("");
   const [transactionHash, setTransactionHash] = useState(
@@ -403,7 +405,7 @@ function CryptoPayment({
     }
 
     if (paymentStage === "switching") {
-      return `${paymentNetwork} ağına geçiliyor...`;
+      return ui("{network} ağına geçiliyor…", { network: paymentNetwork });
     }
 
     if (paymentStage === "signing") {
@@ -473,8 +475,7 @@ function CryptoPayment({
             {text("travelPayment.payWith", "Pay with")} {paymentToken}
           </h2>
           <p>
-            {paymentNetwork} ağında tam tutarı gönder. Backend transferi
-            zincirde doğruladıktan sonra rezervasyonu işleme alır.
+            {ui("{network} ağında tam tutarı gönder. Transfer zincirde doğrulandıktan sonra rezervasyon işleme alınır.", { network: paymentNetwork })}
           </p>
         </div>
 
@@ -512,9 +513,9 @@ function CryptoPayment({
 
       {payment.quoteUsdPrice && !["USDT", "USDC"].includes(paymentToken) && (
         <div className="cryptoPaymentStatus">
-          <span>20 dakikalık ödeme tutarı</span>
+          <span>{ui("20 dakikalık ödeme tutarı")}</span>
           <strong>
-            1 {paymentToken} ≈ ${Number(payment.quoteUsdPrice).toLocaleString("en-US", {
+            1 {paymentToken} ≈ ${Number(payment.quoteUsdPrice).toLocaleString(language, {
               maximumFractionDigits: 2,
             })}
           </strong>
@@ -529,7 +530,7 @@ function CryptoPayment({
       )}
 
       {paymentError && (
-        <div className="cryptoPaymentError">{paymentError}</div>
+        <div className="cryptoPaymentError">{ui(paymentError)}</div>
       )}
 
       {pendingTransactionHash && (
@@ -565,9 +566,7 @@ function CryptoPayment({
         onClick={() => setManualOpen((open) => !open)}
         disabled={isPaymentBusy || !paymentConfigured}
       >
-        {manualOpen
-          ? "Manuel ödeme alanını kapat"
-          : "Cüzdan bağlamadan manuel gönder"}
+        {manualOpen ? ui("Manuel ödeme alanını kapat") : ui("Cüzdan bağlamadan manuel gönder")}
       </button>
 
       {manualOpen && (
@@ -575,26 +574,22 @@ function CryptoPayment({
           className="cryptoPaymentManual"
           onSubmit={verifyManualPayment}
         >
-          <strong>Manuel {paymentToken} gönderimi</strong>
+          <strong>{ui("Manuel {token} gönderimi", { token: paymentToken })}</strong>
           <p>
-            {paymentNetwork} ağında tam olarak{" "}
-            <b>
-              {paymentAmount} {paymentToken}
-            </b>{" "}
-            gönder. Yanlış ağdaki transfer sistem tarafından kabul edilmez.
+            {ui("{network} ağında tam olarak {amount} {token} gönder. Yanlış ağdaki transfer sistem tarafından kabul edilmez.", { network: paymentNetwork, amount: paymentAmount, token: paymentToken })}
           </p>
           <label>
-            Alıcı cüzdan adresi
+            {ui("Alıcı cüzdan adresi")}
             <span className="cryptoPaymentAddress">
               <code>{recipientAddress}</code>
               <button type="button" onClick={copyRecipient}>
                 {copied ? <Check size={16} /> : <Copy size={16} />} {" "}
-                {copied ? "Kopyalandı" : "Kopyala"}
+                {copied ? ui("Kopyalandı") : ui("Kopyala")}
               </button>
             </span>
           </label>
           <label>
-            İşlem hash&apos;i (TxID)
+            {ui("İşlem hash'i (TxID)")}
             <input
               required
               value={manualHash}
@@ -616,13 +611,13 @@ function CryptoPayment({
             ) : (
               <ShieldCheck size={17} />
             )}
-            Gönderimi doğrula ve devam et
+            {ui("Gönderimi doğrula ve devam et")}
           </button>
         </form>
       )}
 
       <small className="cryptoPaymentGasNote">
-        İşlem ücreti için cüzdanda küçük bir miktar {gasToken} gerekir.
+        {ui("İşlem ücreti için cüzdanda küçük bir miktar {gasToken} gerekir.", { gasToken })}
       </small>
     </section>
   );

@@ -1,3 +1,4 @@
+import baseline from "../i18n/baselineSupplement.js";
 import { additionalTranslations } from "../i18n/extended/index.js";
 import LegalPage from "./LegalPage";
 import AboutPage from "./AboutPage";
@@ -84,3 +85,5 @@ Object.assign(supportCopy, additionalTranslations("information-supportCopy"));
 Object.assign(mailSupportCopy, additionalTranslations("information-mailSupportCopy"));
 
 Object.assign(content, additionalTranslations("information-content"));
+
+for (const [language, catalog] of Object.entries(baseline)) content[language] = { ...content.en, ...catalog.information };

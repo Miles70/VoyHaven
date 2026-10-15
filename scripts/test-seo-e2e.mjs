@@ -74,6 +74,21 @@ try {
   await page.waitForFunction(() => globalThis.document.documentElement.dir === 'ltr' && globalThis.document.documentElement.lang === 'tr');
   assert.equal(await page.locator('link[rel=canonical]').count(), 1);
   assert.equal(await page.locator('meta[name=robots]').getAttribute('content'), 'noindex, follow');
+  // Switching language must retain the flight selected in router history state.
+  await page.evaluate(() => {
+   const result = { total: 123.45, currency: 'EUR', offer: { offerId: 'fixture' }, segments: [{ originCode: 'AYT', destinationCode: 'FRA', departureTime: '2099-10-01T10:00:00', direction: 'OUTBOUND' }] };
+   globalThis.history.pushState({ usr: { result, passengers: { adults: 1, children: 1, infants: 1 } }, key: 'locale-fixture', idx: 2 }, '', '/flights/checkout?lang=tr');
+  });
+  await page.reload();
+  await page.locator('.accountForm').waitFor();
+  await page.locator('.languageButton').click();
+  await page.getByRole('option', { name: /日本語/ }).click();
+  await page.waitForURL('**/flights/checkout?lang=ja');
+  await page.waitForFunction(() => globalThis.document.documentElement.lang === 'ja');
+  assert.equal(await page.locator('.accountForm').count(), 1);
+  assert.ok((await page.locator('h1').innerText()).includes('AYT'));
+  assert.ok(!(await page.locator('.accountForm').innerText()).match(/Yetişkin|Çocuk|Bebek|Belgedeki|İletişim/));
+  assert.equal(await page.locator('html').getAttribute('lang'), 'ja');
   const response = await page.goto(`${server.base}/tr/hotels/does-not-exist`);
   assert.equal(response.status(), 404);
   assert.equal(response.headers()['x-robots-tag'], 'noindex, follow');

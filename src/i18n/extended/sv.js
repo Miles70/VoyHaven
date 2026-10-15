@@ -2,58 +2,58 @@
 export default {
   "aboutTranslations.js": {
     "default": {
-      "eyebrow": "Omkring VoyHaven",
+      "eyebrow": "Om VoyHaven",
       "title": "Världen väntar.",
-      "accent": "Gör resan din.",
-      "intro": "VoyHaven sammanför hotellets upptäckt och flyg sökning. Utforska nya destinationer, jämför ställen och ta det första steget mot en resa som passar dig.",
-      "hotelCta": "Utforska hotell",
-      "flightCta": "Hitta flygplan",
+      "accent": "Gör resan till din egen.",
+      "intro": "VoyHaven samlar hotell och flygsökning på ett ställe. Upptäck nya resmål, jämför boenden och ta det första steget mot en resa som passar dig.",
+      "hotelCta": "Upptäck hotell",
+      "flightCta": "Sök flyg",
       "imageLabel": "Mot nya horisonter",
-      "imageText": "Utforska. Välj. - Gå nu.",
+      "imageText": "Upptäck. Välj. Res.",
       "facts": [
-        "Tillgängligt på 17 språk",
-        "Kort- och kryptooptioner",
-        "Stöd på ditt konto"
+        "Upptäck på 17 språk",
+        "Betala med kort eller krypto",
+        "Support via ditt konto"
       ],
-      "storyLabel": "Vårt sätt att",
+      "storyLabel": "Vårt arbetssätt",
       "storyTitle": "En bra resa börjar med rätt val.",
-      "storyBody": "Att planera en resa bör vara att hitta vad som passar dig. VoyHaven ger hotellinformation, rumalternativ och bokningsvillkor till en tydlig, sammankopplade upplevelse. Du väljer vart du ska gå, vi gör det lättare att utforska dina alternativ.",
-      "valuesTitle": "Klarhet i varje steg.",
+      "storyBody": "Att planera en resa handlar om att hitta det som passar dig. VoyHaven samlar hotellinformation, rumsalternativ och bokningsvillkor på ett tydligt sätt. Du väljer vart du vill åka; vi gör det lättare att utforska alternativen.",
+      "valuesTitle": "Tydlighet i varje steg.",
       "values": [
         [
-          "Information som du kan jämföra",
-          "Tittar på rumstyper, måltidsplaner, avbokningsvillkor och total vistelse. Välj runt dina datum och behov."
+          "Information att jämföra",
+          "Se rumstyper, måltidsalternativ, avbokningsvillkor och vistelsens totalpris tillsammans. Välj utifrån dina datum och behov."
         ],
         [
-          "Gällande villkor före betalning",
-          "Det valda rummet och priset kontrolleras igen innan betalningen görs. Se över kort- och kryptoalternativ som erbjuds vid bokningssteget."
+          "Aktuella villkor före betalning",
+          "Det valda rummet och priset kontrolleras igen före betalning. Se vilka kort- och kryptoalternativ som erbjuds vid bokningen."
         ],
         [
-          "Stöd som du kan nå",
-          "Skicka reservationsfrågor via e-post eller skapa en supportförfrågan i ditt konto. Spåra kontonfrågningar och svar på ett ställe."
+          "Tillgänglig support",
+          "Skicka bokningsfrågor via e-post eller skapa ett supportärende i ditt konto. Följ dina ärenden och våra svar på ett ställe."
         ]
       ],
       "processLabel": "Med VoyHaven",
-      "processTitle": "Din nästa resa, i tre steg.",
+      "processTitle": "Din nästa resa i tre steg.",
       "steps": [
         [
-          "Utforska din destination",
-          "Välj din destination, datum och antal gäster. Bläddra hotell och leta efter flygalternativ."
+          "Upptäck ditt resmål",
+          "Välj resmål, datum och antal gäster. Bläddra bland hotell och undersök flygalternativ."
         ],
         [
-          "Hitta din passform",
-          "Jämför boende och rum. Välj det alternativ som passar din resa."
+          "Hitta det som passar dig",
+          "Jämför boenden och rumsvillkor. Välj det alternativ som passar din resa."
         ],
         [
-          "Slutföra din vistelse",
-          "Ange gästdetaljer, granska de aktuella villkoren och fortsätt till bokningssteget."
+          "Slutför bokningen",
+          "Fyll i gästuppgifter, granska de aktuella villkoren och gå vidare till bokningen."
         ]
       ],
-      "ctaTitle": "Vart ska du gå nu?",
-      "ctaBody": "Nya platser, nya upplevelser och en vistelse som passar dig. Börja utforska din resa.",
+      "ctaTitle": "Vart går din nästa resa?",
+      "ctaBody": "Nya platser, nya upplevelser och ett boende som passar dig. Börja upptäcka din nästa resa.",
       "supportCta": "Kontakta oss",
-      "seoTitle": "Om oss · Hotell och flyg upptäckt",
-      "seoDescription": "Möt VoyHaven: hotell och flyg upptäckt, ren rum och bokning jämförelser, kort och krypto betalningsalternativ, och resehjälp du kan nå."
+      "seoTitle": "Om oss · Upptäck hotell och flyg",
+      "seoDescription": "Lär känna VoyHaven: sök hotell och flyg, jämför rum och bokningsvillkor, betala med kort eller krypto och få hjälp med din resa."
     }
   },
   "brandTranslations.js": {

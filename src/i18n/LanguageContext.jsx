@@ -1,4 +1,4 @@
-import { supportedLanguages, normalizeLanguage } from "../../shared/languages.js";
+import { supportedLanguages, normalizeLanguage, requestedLanguage } from "../../shared/languages.js";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import translations from "./translations";
@@ -6,7 +6,7 @@ import translations from "./translations";
 const LanguageContext = createContext(null);
 
 function detectInitialLanguage() {
-  const urlLanguage = new URLSearchParams(globalThis.window?.location?.search || "").get("lang");
+  const urlLanguage = requestedLanguage(new URLSearchParams(globalThis.window?.location?.search || "").get("lang")) || requestedLanguage(globalThis.window?.location?.pathname?.split("/")[1]);
   if (supportedLanguages.includes(urlLanguage)) {
     try { localStorage.setItem("language", urlLanguage); } catch { /* Optional storage. */ }
     return urlLanguage;
@@ -29,10 +29,10 @@ export function RoutedLanguageProvider({ children }) {
   return <LanguageProvider location={location} navigate={navigate}>{children}</LanguageProvider>;
 }
 
-export function LanguageProvider({ children, location, navigate }) {
-  const [preferredLanguage, setLanguageState] = useState(detectInitialLanguage);
+export function LanguageProvider({ children, location, navigate, initialLanguage }) {
+  const [preferredLanguage, setLanguageState] = useState(() => initialLanguage || detectInitialLanguage());
   const queryLanguage = new URLSearchParams(location?.search || "").get("lang");
-  const urlLanguage = supportedLanguages.includes(queryLanguage) ? queryLanguage : null;
+  const urlLanguage = requestedLanguage(queryLanguage) || requestedLanguage(location?.pathname?.split("/")[1]);
   const language = urlLanguage || preferredLanguage;
 
   useEffect(() => {
@@ -41,6 +41,13 @@ export function LanguageProvider({ children, location, navigate }) {
       try { localStorage.setItem("language", urlLanguage); } catch { /* Optional storage. */ }
     }
   }, [urlLanguage]);
+
+  useEffect(() => {
+    if (!location || !navigate || urlLanguage) return;
+    const params = new URLSearchParams(location.search);
+    params.set("lang", language);
+    navigate({ pathname: location.pathname, search: `?${params}`, hash: location.hash }, { replace: true, state: location.state });
+  }, [location, navigate, language, urlLanguage]);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -54,10 +61,10 @@ export function LanguageProvider({ children, location, navigate }) {
 
     try { localStorage.setItem("language", nextLanguage); } catch { /* Optional storage. */ }
     setLanguageState(nextLanguage);
-    if (location && navigate && new URLSearchParams(location.search).has("lang")) {
+    if (location && navigate) {
       const params = new URLSearchParams(location.search);
       params.set("lang", nextLanguage);
-      navigate({ pathname: location.pathname, search: `?${params}`, hash: location.hash }, { replace: true });
+      navigate({ pathname: location.pathname, search: `?${params}`, hash: location.hash }, { replace: true, state: location.state });
     }
   }, [location, navigate]);
 

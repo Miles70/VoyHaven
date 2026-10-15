@@ -1,0 +1,20 @@
+const rows = {
+  en: ['Wallet native-coin transactions are unavailable.', 'The blockchain client is unavailable.'],
+  tr: ['Cüzdanın yerel coin işlemleri kullanılamıyor.', 'Blokzincir istemcisi kullanılamıyor.'],
+  de: ['Transaktionen mit der nativen Kryptowährung sind in dieser Wallet nicht verfügbar.', 'Der Blockchain-Client ist nicht verfügbar.'],
+  fr: ['Les transactions dans la monnaie native ne sont pas disponibles dans ce portefeuille.', 'Le client blockchain est indisponible.'],
+  ru: ['Операции с нативной монетой недоступны в этом кошельке.', 'Клиент блокчейна недоступен.'],
+  es: ['Las transacciones con la moneda nativa no están disponibles en esta cartera.', 'El cliente de blockchain no está disponible.'],
+  ar: ['معاملات العملة الأصلية غير متاحة في هذه المحفظة.', 'عميل سلسلة الكتل غير متاح.'],
+  pt: ['As transações com a moeda nativa não estão disponíveis nesta carteira.', 'O cliente de blockchain está indisponível.'],
+  it: ['Le transazioni con la moneta nativa non sono disponibili in questo portafoglio.', 'Il client blockchain non è disponibile.'],
+  zh: ['此钱包无法进行原生代币交易。', '区块链客户端不可用。'],
+  nl: ['Transacties met de eigen munt van het netwerk zijn niet beschikbaar in deze wallet.', 'De blockchainclient is niet beschikbaar.'],
+  nb: ['Transaksjoner med nettverkets egen mynt er ikke tilgjengelige i denne lommeboken.', 'Blokkjede-klienten er utilgjengelig.'],
+  sv: ['Transaktioner med nätverkets egen valuta är inte tillgängliga i denna plånbok.', 'Blockkedjeklienten är inte tillgänglig.'],
+  da: ['Transaktioner med netværkets egen valuta er ikke tilgængelige i denne wallet.', 'Blockchain-klienten er ikke tilgængelig.'],
+  fi: ['Verkon omalla kryptovaluutalla tehtävät siirrot eivät ole käytettävissä tässä lompakossa.', 'Lohkoketjuasiakas ei ole käytettävissä.'],
+  ja: ['このウォレットではネイティブ通貨の送金を利用できません。', 'ブロックチェーンクライアントを利用できません。'],
+  ko: ['이 지갑에서는 네이티브 코인 전송을 사용할 수 없습니다.', '블록체인 클라이언트를 사용할 수 없습니다.'],
+};
+export default Object.fromEntries(Object.entries(rows).map(([language, [nativeTransactionsUnavailable, blockchainClientUnavailable]]) => [language, { nativeTransactionsUnavailable, blockchainClientUnavailable }]));

@@ -30,6 +30,7 @@ function MainLayout() {
         description={policy.description}
         path={policy.canonical?.replace(SITE_URL, "") || pathname}
         noIndex={policy.noIndex}
+        alternates={policy.alternates}
       />}
 
       <Header />

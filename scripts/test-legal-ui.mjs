@@ -29,7 +29,7 @@ try {
         assert.equal(await page.locator('h1').textContent(), copy[policy].title);
         assert.equal(await page.title(), `${copy[policy].title} | VoyHaven`);
         assert.equal(await page.locator('meta[name=description]').getAttribute('content'), copy[policy].intro);
-        assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), `https://voyhaven.com/${policy}`);
+        assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), `https://voyhaven.com/${policy}${language === 'en' ? '' : `?lang=${language}`}`);
         assert.equal(await page.locator('.legalPage').getAttribute('dir'), language === 'ar' ? 'rtl' : 'ltr');
         assert.equal(await page.locator('.legalSection').count(), 6);
         assert.equal(await page.locator('.legalEmail').getAttribute('href'), 'mailto:support@voyhaven.com');

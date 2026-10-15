@@ -80,7 +80,14 @@ for (const match of index.matchAll(/<loc>([^<]+)<\/loc>/g)) {
  assert.ok(locs.length <= 50000 && Buffer.byteLength(file) < 50 * 1024 * 1024);
 }
 for (const path of paths) assert.ok(locations.includes(SITE_URL + path));
-assert.ok(locations.every(url => !url.includes('?') && !/checkout|account|admin/.test(url)));
+assert.ok(locations.every(url => !/checkout|account|admin/.test(url)));
+for (const url of locations.filter(url => url.includes('?'))) {
+ const parsed = new URL(url);
+ assert.ok(['/about','/contact','/support','/privacy','/terms','/refund'].includes(parsed.pathname));
+ assert.deepEqual([...parsed.searchParams.keys()], ['lang']);
+ assert.ok(languages.includes(parsed.searchParams.get('lang')));
+}
+assert.equal(locations.length, pages.length + 6 * languages.length);
 const published = hotels.map(h => h.id);
 const config = JSON.parse(await readFile('vercel.json', 'utf8'));
 // Old-domain forwarding is intentionally absent from the active project.
@@ -123,3 +130,31 @@ for (const path of ['/account','/travel/checkout','/flights/checkout','/flights?
 assert.equal((await request('/flights')).status, 308);
 assert.equal((await request('/flights?lang=tr')).headers['Cache-Control'], 'private, no-store');
 console.log(`SEO passed: ${pages.length} JavaScript-free HTML pages, ${languages.length} languages, reciprocal hreflang, canonical, schema, links, sitemap, publication gates, redirects, HTTP 404 and private noindex.`);
+for (const lang of languages) {
+ const root = await request(`/?lang=${lang}`);
+ assert.equal(root.status, 200);
+ assert.ok(root.body.includes(`<h1>${copy[lang].homeTitle.replaceAll('&', '&amp;').replaceAll("'", '&#39;')}</h1>`));
+ assert.ok(root.body.includes(`<html lang="${lang}" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">`));
+ assert.ok(root.body.includes(`rel="canonical" href="${SITE_URL}/${lang}"`));
+ assert.equal(root.headers['Cache-Control'], 'private, no-store');
+ assert.equal((root.body.match(/name="robots"/g) || []).length, 1);
+ const privatePage = await request(`/account?lang=${lang}`);
+ assert.ok(privatePage.body.includes(`<html lang="${lang}"`));
+ assert.equal(privatePage.headers['X-Robots-Tag'], 'noindex, follow');
+}
+assert.equal(appPolicy('/missing').title, '404 | VoyHaven');
+
+for (const lang of languages) {
+ for (const path of ['/about','/contact','/support','/privacy','/terms','/refund']) {
+  const r = await request(`${path}?lang=${lang}`);
+  const canonical = SITE_URL + path + (lang === 'en' ? '' : `?lang=${lang}`);
+  assert.ok(r.body.includes(`rel="canonical" href="${canonical}"`));
+  assert.ok(/<h1[ >]/.test(r.body), `${path}: missing server-rendered content`);
+  assert.equal((r.body.match(/hreflang=/g) || []).length, languages.length + 1);
+ }
+}
+
+for (const [input, expected] of [['no-NO','nb'],['JA-jp','ja'],['ko_KR','ko'],['unknown','en']]) {
+ assert.equal(appPolicy('/account', `lang=${input}`).lang, expected);
+}
+assert.equal(appPolicy('/ja/missing').lang, 'ja');

@@ -1,9 +1,12 @@
+import { requestedLanguage } from "../shared/languages.js";
+import baseline from "../src/i18n/baselineSupplement.js";
+import { informationPaths, informationPath, informationAlternates } from "./information-locales.js";
 import { additionalTranslations } from "../src/i18n/extended/index.js";
 import { SITE_URL } from './model.js';
 import { copy } from './copy.js';
 import legalTranslations from '../src/i18n/legalTranslations.js';
 import aboutTranslations from '../src/i18n/aboutTranslations.js';
-export const searchKeys = ['cityName','checkin','checkout','adults','children','infants','departure','returnDate','origin','destination','originName','destinationName','offerId','auto','latitude','longitude','placeId','cabinClass','currency','country','reference','bookingReference','prebookId'];
+export const searchKeys = ['cityName','checkin','checkout','adults','children','infants','departure','returnDate','origin','destination','originName','destinationName','offerId','auto','latitude','longitude','placeId','cabinClass','currency','country','reference','bookingReference','prebookId','bookingRef','cardRef','flightRef','payment_intent','payment_intent_client_secret','redirect_status'];
 const generalSeo = {
  en: {
   '/about': ['About VoyHaven', 'Learn about VoyHaven, a travel platform for hotel discovery and reservations.'],
@@ -18,7 +21,7 @@ const generalSeo = {
 };
 export function appPolicy(pathname, search = '', catalog = []) {
  const params = new URLSearchParams(search);
- const lang = Object.hasOwn(copy, params.get('lang')) ? params.get('lang') : 'en';
+ const lang = requestedLanguage(params.get('lang')) || requestedLanguage(pathname.split('/')[1]) || 'en';
  const empty = [...params.keys()].every(key => key.startsWith('utm_') || key === 'gclid');
  if (pathname === '/travel') return { redirect: `/${search ? `?${params}` : ''}` };
  if (empty && ['/hotels', '/flights'].includes(pathname)) return { redirect: `/${lang}${pathname}${search ? `?${params}` : ''}` };
@@ -34,9 +37,11 @@ export function appPolicy(pathname, search = '', catalog = []) {
  const about = aboutTranslations[lang] || aboutTranslations.en;
  const legal = ['/privacy', '/terms', '/refund'].includes(pathname) ? legalTranslations[lang]?.[pathname.slice(1)] : null;
  const information = legal ? [legal.title, legal.intro] : pathname === '/about' ? [about.seoTitle, about.seoDescription] : (generalSeo[lang] || generalSeo.en)[pathname];
- const title = information?.[0] || (!known ? '404 | VoyHaven' : pathname.startsWith('/flights') ? c.flights : pathname.startsWith('/hotels') || liveHotel ? c.hotels : c.homeTitle);
- const canonicalPath = liveHotel && hotelMatch && catalog.includes(hotelMatch[1]) ? `/${lang}/travel/hotels/${hotelMatch[1]}` : ['/hotels','/flights'].includes(pathname) ? `/${lang}${pathname}` : pathname === "/" ? "/en" : pathname;
- return { status: known ? 200 : 404, noIndex, title: `${title} | VoyHaven`, description: information?.[1] || (pathname.startsWith('/flights') ? c.flightHelp : c.hotelHelp), canonical: SITE_URL + canonicalPath };
+ const title = information?.[0] || (!known ? '404' : pathname.startsWith('/flights') ? c.flights : pathname.startsWith('/hotels') || liveHotel ? c.hotels : c.homeTitle);
+ const canonicalPath = liveHotel && hotelMatch && catalog.includes(hotelMatch[1]) ? `/${lang}/travel/hotels/${hotelMatch[1]}` : ['/hotels','/flights'].includes(pathname) ? `/${lang}${pathname}` : pathname === "/" ? `/${lang}` : pathname;
+ return { lang, status: known ? 200 : 404, noIndex, title: `${title} | VoyHaven`, description: information?.[1] || (pathname.startsWith('/flights') ? c.flightHelp : c.hotelHelp), canonical: SITE_URL + (informationPaths.includes(pathname) ? informationPath(pathname, lang) : canonicalPath), alternates: !noIndex && informationPaths.includes(pathname) ? informationAlternates(pathname) : [] };
 }
 
 Object.assign(generalSeo, additionalTranslations("generalSeo"));
+
+Object.assign(generalSeo, Object.fromEntries(Object.entries(baseline).map(([language, catalog]) => [language, catalog.generalSeo])));

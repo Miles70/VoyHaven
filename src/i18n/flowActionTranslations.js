@@ -1,4 +1,5 @@
 const rows = {
+  pl: ['Zapisano.', 'Usuń podróżnego', 'Przejdź do płatności'],
   en: ['Saved.', 'Delete traveler', 'Proceed to payment'],
   tr: ['Kaydedildi.', 'Yolcu kaydını sil', 'Ödemeye geç'],
   de: ['Gespeichert.', 'Reisenden löschen', 'Weiter zur Zahlung'],

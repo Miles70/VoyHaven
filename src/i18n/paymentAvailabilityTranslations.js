@@ -1,4 +1,5 @@
 const rows = {
+  pl: ['Ten portfel nie obsługuje transakcji w natywnej walucie sieci.', 'Klient blockchain jest niedostępny.'],
   en: ['Wallet native-coin transactions are unavailable.', 'The blockchain client is unavailable.'],
   tr: ['Cüzdanın yerel coin işlemleri kullanılamıyor.', 'Blokzincir istemcisi kullanılamıyor.'],
   de: ['Transaktionen mit der nativen Kryptowährung sind in dieser Wallet nicht verfügbar.', 'Der Blockchain-Client ist nicht verfügbar.'],

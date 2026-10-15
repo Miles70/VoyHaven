@@ -11,6 +11,7 @@ export const airports = {
 export const routes = [{ from: 'AYT', to: 'FRA' }, { from: 'IST', to: 'DXB' }, { from: 'LHR', to: 'AYT' }];
 
 const localizedCities = {
+ pl: ['Antalya', 'Frankfurt nad Menem', 'Stambuł', 'Dubaj', 'Londyn'],
  nl: ['Antalya', 'Frankfurt', 'Istanbul', 'Dubai', 'Londen'],
  nb: ['Antalya', 'Frankfurt', 'Istanbul', 'Dubai', 'London'],
  sv: ['Antalya', 'Frankfurt', 'Istanbul', 'Dubai', 'London'],

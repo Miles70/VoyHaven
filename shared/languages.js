@@ -17,11 +17,12 @@ export const languageOptions = [
   { code: 'fi', flag: '🇫🇮', label: 'Suomi', name: 'Finnish' },
   { code: 'ja', flag: '🇯🇵', label: '日本語', name: 'Japanese' },
   { code: 'ko', flag: '🇰🇷', label: '한국어', name: 'Korean' },
+  { code: 'pl', flag: '🇵🇱', label: 'Polski', name: 'Polish' },
 ];
 export const supportedLanguages = languageOptions.map(({ code }) => code);
 export const languageNames = Object.fromEntries(languageOptions.map(({ code, label }) => [code, label]));
 export const translationLanguageNames = Object.fromEntries(languageOptions.map(({ code, name }) => [code, name]));
-export const addedLanguages = ['nl', 'nb', 'sv', 'da', 'fi', 'ja', 'ko'];
+export const addedLanguages = ['nl', 'nb', 'sv', 'da', 'fi', 'ja', 'ko', 'pl'];
 export function requestedLanguage(value) {
   const code = String(value || '').toLowerCase().split(/[-_]/)[0];
   // Browsers commonly report no-NO; the site's Norwegian locale is Bokmål.

@@ -12,7 +12,7 @@
     "server:dev": "npm --prefix server run dev",
     "server:start": "npm --prefix server start",
     "server:test": "npm --prefix server test",
-    "check": "npm run lint && npm run build && npm run test:flight-results && npm run server:test",
+    "check": "npm run lint && npm run build && npm run test:flight-results && npm run server:test && npm run test:languages && npm run test:localized-flows",
     "security:check": "node scripts/audit-high.mjs",
     "check:readiness": "npm --prefix server run check:readiness",
     "test:flight-results": "node --test scripts/test-flight-results.test.mjs",
@@ -24,7 +24,9 @@
     "test:seo": "node scripts/test-seo.mjs",
     "test:seo-e2e": "node scripts/test-seo-e2e.mjs",
     "seo:refresh": "node scripts/refresh-seo-hotels.mjs",
-    "test:legal-ui": "node scripts/test-legal-ui.mjs"
+    "test:legal-ui": "node scripts/test-legal-ui.mjs",
+    "test:languages": "node scripts/test-languages.mjs",
+    "test:localized-flows": "node scripts/test-localized-flows.mjs"
   },
   "dependencies": {
     "@reown/appkit": "^1.8.23",

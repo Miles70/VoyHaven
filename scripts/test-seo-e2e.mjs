@@ -21,7 +21,7 @@ try {
    assert.ok((await page.locator('h1').textContent()).trim());
    assert.equal(await page.locator('html').getAttribute('lang'), lang);
    assert.equal(await page.locator('link[rel=canonical]').count(), 1);
-   assert.equal(await page.locator('link[rel=alternate][hreflang]').count(), 11);
+   assert.equal(await page.locator('link[rel=alternate][hreflang]').count(), languages.length + 1);
   }
   await context.close();
  }
@@ -80,5 +80,5 @@ try {
   assert.deepEqual(errors, []);
   await context.close();
  }
- console.log('SEO browser tests: 10 languages without JavaScript, hydration, 320/390/1280px, RTL, theme, equivalent language links, route-to-search prefill and HTTP 404 passed.');
+ console.log(`SEO browser tests: ${languages.length} languages without JavaScript, hydration, 320/390/1280px, RTL, theme, equivalent language links, route-to-search prefill and HTTP 404 passed.`);
 } finally { if (browser) await browser.close(); await server.close(); }

@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 import { facilityExtras } from "./hotelRateTranslations.js";
 const hotelDetailTranslations = {
   en: {
@@ -130,6 +131,7 @@ for (const [language, label] of Object.entries(availabilityLabels)) {
   hotelDetailTranslations[language].checkAvailability = label;
 }
 
+Object.assign(hotelDetailTranslations, additionalTranslations("hotelDetailTranslations.js", "default"));
 for (const [language, extra] of Object.entries(facilityExtras)) {
   Object.assign(hotelDetailTranslations[language].facilities, extra);
 }

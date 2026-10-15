@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const brandTranslations = {
   en: {
     journeyTitle: "Your next journey starts with VoyHaven",
@@ -52,3 +53,5 @@ const brandTranslations = {
 };
 
 export default brandTranslations;
+
+Object.assign(brandTranslations, additionalTranslations("brandTranslations.js", "default"));

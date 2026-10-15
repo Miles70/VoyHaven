@@ -1,20 +1,10 @@
+import { languageOptions as languages } from "../../../shared/languages.js";
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import "./LanguageSwitcher.css";
 
-const languages = [
-  { code: "en", flag: "🇬🇧", label: "English" },
-  { code: "de", flag: "🇩🇪", label: "Deutsch" },
-  { code: "fr", flag: "🇫🇷", label: "Français" },
-  { code: "ru", flag: "🇷🇺", label: "Русский" },
-  { code: "es", flag: "🇪🇸", label: "Español" },
-  { code: "ar", flag: "🇸🇦", label: "العربية" },
-  { code: "tr", flag: "🇹🇷", label: "Türkçe" },
-  { code: "pt", flag: "🇧🇷", label: "Português (Brasil)" },
-  { code: "it", flag: "🇮🇹", label: "Italiano" },
-  { code: "zh", flag: "🇨🇳", label: "中文" },
-];
+
 
 function LanguageSwitcher() {
   const [isOpen, setIsOpen] = useState(false);

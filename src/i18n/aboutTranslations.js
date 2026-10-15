@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 // About-page copy describes current product capabilities, without unverified
 // customer counts, awards or promises about prices or support hours.
 const aboutTranslations = {
@@ -5,7 +6,7 @@ const aboutTranslations = {
     eyebrow: "VoyHaven Hakkında", title: "Dünya seni bekliyor.", accent: "Yolculuğunu kendin seç.",
     intro: "VoyHaven, otel keşfini ve uçuş aramasını aynı yerde buluşturur. Yeni rotalar keşfet, konaklama seçeneklerini karşılaştır ve sana uygun yolculuğun ilk adımını at.",
     hotelCta: "Otelleri keşfet", flightCta: "Uçuşları araştır", imageLabel: "Yeni rotalara doğru", imageText: "Keşfet. Seç. Yola çık.",
-    facts: ["10 dilde keşif", "Kart ve kripto seçenekleri", "Hesap içi destek"],
+    facts: ["17 dilde keşif", "Kart ve kripto seçenekleri", "Hesap içi destek"],
     storyLabel: "Bizim yaklaşımımız", storyTitle: "İyi bir yolculuk, doğru seçimle başlar.",
     storyBody: "Seyahat planlamak, seçenekler arasında kaybolmak değil, sana uygun olanı bulmak olmalı. VoyHaven; konaklama bilgilerini, oda seçeneklerini ve rezervasyon koşullarını anlaşılır bir deneyimde bir araya getirir. Sen nereye gitmek istediğine karar ver; biz seçeneklerini keşfetmeni kolaylaştıralım.",
     valuesTitle: "Her adımda daha net.",
@@ -18,7 +19,7 @@ const aboutTranslations = {
   en: {
     eyebrow: "About VoyHaven", title: "The world is waiting.", accent: "Make the journey yours.",
     intro: "VoyHaven brings hotel discovery and flight search together. Explore new destinations, compare places to stay and take the first step towards a journey that fits you.",
-    hotelCta: "Explore hotels", flightCta: "Find flights", imageLabel: "Towards new horizons", imageText: "Explore. Choose. Go.", facts: ["Explore in 10 languages", "Card and crypto options", "Support in your account"],
+    hotelCta: "Explore hotels", flightCta: "Find flights", imageLabel: "Towards new horizons", imageText: "Explore. Choose. Go.", facts: ["Explore in 17 languages", "Card and crypto options", "Support in your account"],
     storyLabel: "Our approach", storyTitle: "A great journey starts with the right choice.",
     storyBody: "Planning a trip should be about finding what suits you. VoyHaven brings hotel information, room options and booking conditions into a clear, connected experience. You choose where to go; we make it easier to explore your options.", valuesTitle: "Clarity at every step.",
     values: [["Information you can compare", "Review room types, meal plans, cancellation terms and the stay total together. Choose around your dates and needs."], ["Current terms before payment", "Your selected room and price are checked again before payment. Review the card and crypto options offered at the booking step."], ["Support you can reach", "Send reservation questions by email or create a support request in your account. Track account requests and replies in one place."]],
@@ -28,7 +29,7 @@ const aboutTranslations = {
   },
   de: {
     eyebrow: "Über VoyHaven", title: "Die Welt wartet auf dich.", accent: "Mach die Reise zu deiner.", intro: "VoyHaven vereint Hotelentdeckung und Flugsuche. Entdecke neue Reiseziele, vergleiche Unterkünfte und mache den ersten Schritt zu einer Reise, die zu dir passt.",
-    hotelCta: "Hotels entdecken", flightCta: "Flüge suchen", imageLabel: "Zu neuen Horizonten", imageText: "Entdecken. Wählen. Losreisen.", facts: ["In 10 Sprachen entdecken", "Karten- und Kryptooptionen", "Support in deinem Konto"],
+    hotelCta: "Hotels entdecken", flightCta: "Flüge suchen", imageLabel: "Zu neuen Horizonten", imageText: "Entdecken. Wählen. Losreisen.", facts: ["In 17 Sprachen entdecken", "Karten- und Kryptooptionen", "Support in deinem Konto"],
     storyLabel: "Unser Ansatz", storyTitle: "Eine gute Reise beginnt mit der richtigen Wahl.", storyBody: "Eine Reise zu planen bedeutet, das Passende zu finden. VoyHaven verbindet Hotelinformationen, Zimmeroptionen und Buchungsbedingungen zu einem verständlichen Erlebnis. Du entscheidest, wohin es geht; wir erleichtern dir die Suche nach deinen Möglichkeiten.", valuesTitle: "Klarheit bei jedem Schritt.",
     values: [["Vergleichbare Informationen", "Prüfe Zimmertypen, Verpflegung, Stornierungsbedingungen und den Gesamtpreis gemeinsam. Entscheide nach deinen Reisedaten und Bedürfnissen."], ["Aktuelle Bedingungen vor der Zahlung", "Das gewählte Zimmer und der Preis werden vor der Zahlung erneut geprüft. Sieh dir die bei der Buchung angebotenen Karten- und Kryptooptionen an."], ["Erreichbarer Support", "Sende Buchungsfragen per E-Mail oder erstelle eine Supportanfrage in deinem Konto. Verfolge Anfragen und Antworten an einem Ort."]],
     processLabel: "Mit VoyHaven", processTitle: "Deine nächste Reise in drei Schritten.", steps: [["Reiseziel entdecken", "Wähle Reiseziel, Daten und Gästezahl. Entdecke Hotels und recherchiere Flüge."], ["Das Passende finden", "Vergleiche Unterkünfte und Zimmerbedingungen. Wähle die passende Option für deine Reise."], ["Aufenthalt abschließen", "Gib die Gästedaten ein, prüfe die aktuellen Bedingungen und fahre mit der Buchung fort."]],
@@ -36,7 +37,7 @@ const aboutTranslations = {
   },
   fr: {
     eyebrow: "À propos de VoyHaven", title: "Le monde t’attend.", accent: "Voyage à ta façon.", intro: "VoyHaven réunit la découverte d’hôtels et la recherche de vols. Explore de nouvelles destinations, compare les hébergements et fais le premier pas vers un voyage qui te ressemble.",
-    hotelCta: "Découvrir les hôtels", flightCta: "Rechercher des vols", imageLabel: "Vers de nouveaux horizons", imageText: "Explorer. Choisir. Partir.", facts: ["Découvrir en 10 langues", "Options carte et crypto", "Assistance dans ton compte"],
+    hotelCta: "Découvrir les hôtels", flightCta: "Rechercher des vols", imageLabel: "Vers de nouveaux horizons", imageText: "Explorer. Choisir. Partir.", facts: ["Découvrir en 17 langues", "Options carte et crypto", "Assistance dans ton compte"],
     storyLabel: "Notre approche", storyTitle: "Un beau voyage commence par le bon choix.", storyBody: "Préparer un voyage, c’est trouver ce qui te convient. VoyHaven rassemble les informations sur les hôtels, les chambres et les conditions de réservation dans une expérience claire. Tu choisis ta destination ; nous facilitons la découverte de tes options.", valuesTitle: "De la clarté à chaque étape.",
     values: [["Des informations à comparer", "Consulte ensemble les chambres, repas, conditions d’annulation et prix total du séjour. Choisis selon tes dates et tes besoins."], ["Des conditions actualisées avant le paiement", "La chambre et le prix choisis sont vérifiés à nouveau avant le paiement. Consulte les options carte et crypto proposées lors de la réservation."], ["Une assistance accessible", "Envoie tes questions par e-mail ou crée une demande dans ton compte. Suis tes demandes et les réponses au même endroit."]],
     processLabel: "Avec VoyHaven", processTitle: "Ton prochain voyage en trois étapes.", steps: [["Explorer ta destination", "Choisis la destination, les dates et le nombre de voyageurs. Découvre les hôtels et recherche des vols."], ["Trouver ce qui te convient", "Compare les hébergements et les conditions des chambres. Choisis l’option adaptée à ton voyage."], ["Finaliser ton séjour", "Renseigne les voyageurs, vérifie les conditions actuelles et passe à la réservation."]],
@@ -44,7 +45,7 @@ const aboutTranslations = {
   },
   ru: {
     eyebrow: "О VoyHaven", title: "Мир ждёт тебя.", accent: "Выбери своё путешествие.", intro: "VoyHaven объединяет поиск отелей и авиарейсов. Открывай новые направления, сравнивай варианты проживания и сделай первый шаг к путешествию, которое подходит тебе.",
-    hotelCta: "Найти отели", flightCta: "Искать рейсы", imageLabel: "К новым горизонтам", imageText: "Открывай. Выбирай. Отправляйся.", facts: ["Поиск на 10 языках", "Опции карты и криптовалюты", "Поддержка в аккаунте"],
+    hotelCta: "Найти отели", flightCta: "Искать рейсы", imageLabel: "К новым горизонтам", imageText: "Открывай. Выбирай. Отправляйся.", facts: ["Поиск на 17 языках", "Опции карты и криптовалюты", "Поддержка в аккаунте"],
     storyLabel: "Наш подход", storyTitle: "Хорошее путешествие начинается с правильного выбора.", storyBody: "Планировать поездку — значит находить то, что подходит именно тебе. VoyHaven объединяет информацию об отелях, номерах и условиях бронирования в понятном интерфейсе. Ты выбираешь направление, а мы помогаем изучить варианты.", valuesTitle: "Ясность на каждом этапе.",
     values: [["Информация для сравнения", "Изучай типы номеров, питание, условия отмены и общую стоимость проживания вместе. Выбирай с учётом своих дат и потребностей."], ["Актуальные условия до оплаты", "Выбранный номер и цена повторно проверяются перед оплатой. Изучи предлагаемые на этапе бронирования варианты оплаты картой и криптовалютой."], ["Доступная поддержка", "Отправь вопросы по бронированию по электронной почте или создай обращение в аккаунте. Отслеживай обращения и ответы в одном месте."]],
     processLabel: "С VoyHaven", processTitle: "Следующее путешествие — в три шага.", steps: [["Открой направление", "Выбери направление, даты и число гостей. Изучи отели и варианты перелёта."], ["Найди свой вариант", "Сравни проживание и условия номеров. Выбери подходящий вариант для поездки."], ["Заверши бронирование проживания", "Введи данные гостей, проверь актуальные условия и перейди к бронированию."]],
@@ -52,7 +53,7 @@ const aboutTranslations = {
   },
   ar: {
     eyebrow: "عن VoyHaven", title: "العالم ينتظرك.", accent: "اختر رحلتك بطريقتك.", intro: "يجمع VoyHaven بين اكتشاف الفنادق والبحث عن الرحلات الجوية. استكشف وجهات جديدة، وقارن خيارات الإقامة، واتخذ الخطوة الأولى نحو رحلة تناسبك.",
-    hotelCta: "استكشف الفنادق", flightCta: "ابحث عن رحلات", imageLabel: "نحو آفاق جديدة", imageText: "استكشف. اختر. انطلق.", facts: ["استكشاف بعشر لغات", "خيارات البطاقات والعملات الرقمية", "دعم داخل حسابك"],
+    hotelCta: "استكشف الفنادق", flightCta: "ابحث عن رحلات", imageLabel: "نحو آفاق جديدة", imageText: "استكشف. اختر. انطلق.", facts: ["متاح بـ17 لغة", "خيارات البطاقات والعملات الرقمية", "دعم داخل حسابك"],
     storyLabel: "نهجنا", storyTitle: "الرحلة الجميلة تبدأ بالاختيار المناسب.", storyBody: "تخطيط السفر يعني العثور على ما يناسبك. يجمع VoyHaven معلومات الفنادق وخيارات الغرف وشروط الحجز في تجربة واضحة. اختر وجهتك، ودعنا نسهّل عليك استكشاف الخيارات.", valuesTitle: "وضوح في كل خطوة.",
     values: [["معلومات يمكنك مقارنتها", "راجع نوع الغرفة ونظام الوجبات وشروط الإلغاء وإجمالي الإقامة معًا. اختر وفق تواريخك واحتياجاتك."], ["شروط محدثة قبل الدفع", "تُراجع الغرفة المختارة والسعر مرة أخرى قبل الدفع. اطلع على خيارات البطاقات والعملات الرقمية المقدمة في خطوة الحجز."], ["دعم يمكنك الوصول إليه", "أرسل أسئلة الحجز بالبريد الإلكتروني أو أنشئ طلب دعم في حسابك. تابع الطلبات والردود في مكان واحد."]],
     processLabel: "مع VoyHaven", processTitle: "رحلتك القادمة في ثلاث خطوات.", steps: [["استكشف وجهتك", "اختر الوجهة والتواريخ وعدد الضيوف. تصفح الفنادق وابحث عن خيارات الرحلات."], ["اعثر على ما يناسبك", "قارن أماكن الإقامة وشروط الغرف. اختر الخيار المناسب لرحلتك."], ["أكمل إقامتك", "أدخل بيانات الضيوف، وراجع الشروط الحالية، وانتقل إلى خطوة الحجز."]],
@@ -60,7 +61,7 @@ const aboutTranslations = {
   },
   es: {
     eyebrow: "Sobre VoyHaven", title: "El mundo te espera.", accent: "Haz tuyo el viaje.", intro: "VoyHaven reúne el descubrimiento de hoteles y la búsqueda de vuelos. Explora nuevos destinos, compara alojamientos y da el primer paso hacia un viaje que encaje contigo.",
-    hotelCta: "Explorar hoteles", flightCta: "Buscar vuelos", imageLabel: "Hacia nuevos horizontes", imageText: "Explora. Elige. Viaja.", facts: ["Explora en 10 idiomas", "Opciones de tarjeta y cripto", "Soporte en tu cuenta"],
+    hotelCta: "Explorar hoteles", flightCta: "Buscar vuelos", imageLabel: "Hacia nuevos horizontes", imageText: "Explora. Elige. Viaja.", facts: ["Explora en 17 idiomas", "Opciones de tarjeta y cripto", "Soporte en tu cuenta"],
     storyLabel: "Nuestro enfoque", storyTitle: "Un gran viaje empieza con la elección adecuada.", storyBody: "Planificar un viaje consiste en encontrar lo que te conviene. VoyHaven reúne información de hoteles, opciones de habitaciones y condiciones de reserva en una experiencia clara. Tú eliges dónde ir; nosotros facilitamos la exploración de tus opciones.", valuesTitle: "Claridad en cada paso.",
     values: [["Información que puedes comparar", "Consulta tipos de habitación, comidas, condiciones de cancelación y precio total juntos. Elige según tus fechas y necesidades."], ["Condiciones actuales antes del pago", "La habitación y el precio seleccionados se comprueban de nuevo antes del pago. Revisa las opciones de tarjeta y cripto ofrecidas al reservar."], ["Soporte a tu alcance", "Envía preguntas por correo o crea una solicitud de soporte en tu cuenta. Sigue las solicitudes y respuestas en un mismo lugar."]],
     processLabel: "Con VoyHaven", processTitle: "Tu próximo viaje, en tres pasos.", steps: [["Explora tu destino", "Elige destino, fechas y número de viajeros. Consulta hoteles e investiga vuelos."], ["Encuentra lo que encaja contigo", "Compara alojamientos y condiciones de habitaciones. Elige la opción adecuada para tu viaje."], ["Completa tu estancia", "Introduce los datos de los huéspedes, revisa las condiciones actuales y continúa con la reserva."]],
@@ -68,7 +69,7 @@ const aboutTranslations = {
   },
   pt: {
     eyebrow: "Sobre a VoyHaven", title: "O mundo espera por ti.", accent: "Faz a viagem à tua medida.", intro: "A VoyHaven reúne a descoberta de hotéis e a pesquisa de voos. Explora novos destinos, compara alojamentos e dá o primeiro passo para uma viagem que combina contigo.",
-    hotelCta: "Explorar hotéis", flightCta: "Pesquisar voos", imageLabel: "Rumo a novos horizontes", imageText: "Explora. Escolhe. Viaja.", facts: ["Explora em 10 idiomas", "Opções de cartão e cripto", "Apoio na tua conta"],
+    hotelCta: "Explorar hotéis", flightCta: "Pesquisar voos", imageLabel: "Rumo a novos horizontes", imageText: "Explora. Escolhe. Viaja.", facts: ["Explora em 17 idiomas", "Opções de cartão e cripto", "Apoio na tua conta"],
     storyLabel: "A nossa abordagem", storyTitle: "Uma boa viagem começa com a escolha certa.", storyBody: "Planear uma viagem é encontrar o que te convém. A VoyHaven reúne informações de hotéis, opções de quartos e condições de reserva numa experiência clara. Tu escolhes o destino; nós facilitamos a descoberta das tuas opções.", valuesTitle: "Clareza em cada passo.",
     values: [["Informação para comparar", "Consulta tipos de quarto, refeições, condições de cancelamento e preço total em conjunto. Escolhe de acordo com as tuas datas e necessidades."], ["Condições atuais antes do pagamento", "O quarto e o preço escolhidos são verificados novamente antes do pagamento. Consulta as opções de cartão e cripto oferecidas na reserva."], ["Apoio acessível", "Envia perguntas por e-mail ou cria um pedido de apoio na tua conta. Acompanha os pedidos e respostas no mesmo lugar."]],
     processLabel: "Com a VoyHaven", processTitle: "A tua próxima viagem em três passos.", steps: [["Explora o destino", "Escolhe o destino, as datas e o número de hóspedes. Descobre hotéis e pesquisa voos."], ["Encontra a opção certa", "Compara alojamentos e condições dos quartos. Escolhe a opção que combina com a tua viagem."], ["Completa a estadia", "Preenche os dados dos hóspedes, revê as condições atuais e avança para a reserva."]],
@@ -76,7 +77,7 @@ const aboutTranslations = {
   },
   it: {
     eyebrow: "Informazioni su VoyHaven", title: "Il mondo ti aspetta.", accent: "Scegli il tuo viaggio.", intro: "VoyHaven unisce la scoperta di hotel e la ricerca di voli. Esplora nuove destinazioni, confronta gli alloggi e fai il primo passo verso un viaggio su misura per te.",
-    hotelCta: "Esplora gli hotel", flightCta: "Cerca voli", imageLabel: "Verso nuovi orizzonti", imageText: "Esplora. Scegli. Parti.", facts: ["Esplora in 10 lingue", "Opzioni carta e cripto", "Assistenza nel tuo account"],
+    hotelCta: "Esplora gli hotel", flightCta: "Cerca voli", imageLabel: "Verso nuovi orizzonti", imageText: "Esplora. Scegli. Parti.", facts: ["Esplora in 17 lingue", "Opzioni carta e cripto", "Assistenza nel tuo account"],
     storyLabel: "Il nostro approccio", storyTitle: "Un bel viaggio inizia con la scelta giusta.", storyBody: "Pianificare un viaggio significa trovare ciò che fa per te. VoyHaven riunisce informazioni sugli hotel, opzioni di camere e condizioni di prenotazione in un’esperienza chiara. Tu scegli dove andare; noi ti aiutiamo a esplorare le opzioni.", valuesTitle: "Chiarezza a ogni passo.",
     values: [["Informazioni da confrontare", "Consulta insieme tipi di camera, pasti, condizioni di cancellazione e prezzo totale del soggiorno. Scegli in base alle tue date ed esigenze."], ["Condizioni aggiornate prima del pagamento", "La camera e il prezzo scelti vengono verificati di nuovo prima del pagamento. Consulta le opzioni carta e cripto offerte durante la prenotazione."], ["Assistenza raggiungibile", "Invia domande via e-mail o crea una richiesta nel tuo account. Segui richieste e risposte nello stesso posto."]],
     processLabel: "Con VoyHaven", processTitle: "Il tuo prossimo viaggio in tre passi.", steps: [["Esplora la destinazione", "Scegli destinazione, date e numero di ospiti. Scopri hotel e cerca opzioni di volo."], ["Trova ciò che fa per te", "Confronta alloggi e condizioni delle camere. Scegli l’opzione adatta al tuo viaggio."], ["Completa il soggiorno", "Inserisci i dati degli ospiti, verifica le condizioni attuali e prosegui con la prenotazione."]],
@@ -84,7 +85,7 @@ const aboutTranslations = {
   },
   zh: {
     eyebrow: "关于 VoyHaven", title: "世界在等你。", accent: "选择属于你的旅程。", intro: "VoyHaven 将酒店探索与航班搜索汇聚一处。发现新目的地，比较住宿选择，迈出适合你的旅程的第一步。",
-    hotelCta: "探索酒店", flightCta: "搜索航班", imageLabel: "走向新的远方", imageText: "探索。选择。出发。", facts: ["支持 10 种语言", "银行卡与加密货币选项", "账户内支持"],
+    hotelCta: "探索酒店", flightCta: "搜索航班", imageLabel: "走向新的远方", imageText: "探索。选择。出发。", facts: ["支持 17 种语言", "银行卡与加密货币选项", "账户内支持"],
     storyLabel: "我们的理念", storyTitle: "美好的旅程，从合适的选择开始。", storyBody: "规划旅行，就是找到适合自己的选择。VoyHaven 将酒店信息、房型选项和预订条件整合为清晰的体验。你决定去哪里，我们帮助你探索各种可能。", valuesTitle: "每一步都更清晰。",
     values: [["可比较的信息", "一起查看房型、餐食计划、取消条件和住宿总价，根据日期与需求作出选择。"], ["付款前确认最新条件", "所选客房和价格会在付款前再次确认。查看预订步骤中提供的银行卡与加密货币支付选项。"], ["触手可及的支持", "通过电子邮件发送预订问题，或在账户中提交支持请求，在同一处跟踪请求和回复。"]],
     processLabel: "使用 VoyHaven", processTitle: "三步开启下一段旅程。", steps: [["探索目的地", "选择目的地、日期和旅客人数，浏览酒店并搜索航班选项。"], ["找到适合的选择", "比较住宿和客房条件，选择适合行程的选项。"], ["完成住宿预订", "填写旅客信息，查看最新条件，继续完成预订步骤。"]],
@@ -93,3 +94,5 @@ const aboutTranslations = {
 };
 
 export default aboutTranslations;
+
+Object.assign(aboutTranslations, additionalTranslations("aboutTranslations.js", "default"));

@@ -1,3 +1,4 @@
+import { supportedLanguages } from "../../shared/languages.js";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cancellationInstant, cancellationTimeLabel, extraFacilityKeys, interpolate } from '../../shared/hotelPresentation.js';
@@ -22,7 +23,7 @@ test('ambiguous zones and invalid dates never produce guessed deadlines', () => 
   assert.equal(cancellationTimeLabel(p, 'tr', 'invalid/zone').label, '2026-11-01 10:00:00 GMT');
 });
 test('all ten languages cover room texts, templates and observed amenity aliases', () => {
-  assert.equal(Object.keys(hotelRateTranslations).length, 10);
+  assert.equal(Object.keys(hotelRateTranslations).length, supportedLanguages.length);
   const keys = Object.keys(hotelRateTranslations.en).sort();
   for (const [language, labels] of Object.entries(hotelRateTranslations)) {
     assert.deepEqual(Object.keys(labels).sort(), keys);

@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const rows = {
  en: ['Travel', 'Hotels', 'Reservation support', 'Cancellation & refunds', 'About', 'Contact', 'Support', 'Legal & policies', 'Privacy policy', 'Terms of service', 'Refund policy', 'Payment methods', 'Cards & digital wallets', 'Crypto payments', 'Card and wallet availability depends on currency, region and payment provider. For crypto, use the network specified at checkout.'],
  tr: ['Seyahat', 'Oteller', 'Rezervasyon desteği', 'İptal ve iadeler', 'Hakkımızda', 'İletişim', 'Destek', 'Hukuki bilgiler', 'Gizlilik politikası', 'Kullanım şartları', 'İade politikası', 'Ödeme yöntemleri', 'Kart ve dijital cüzdan', 'Kripto ödemeleri', 'Kart ve cüzdan kullanılabilirliği para birimine, bölgeye ve ödeme sağlayıcısına bağlıdır. Kriptoda ödeme ekranında belirtilen ağı kullan.'],
@@ -11,4 +12,7 @@ const rows = {
  zh: ['旅行', '酒店', '预订支持', '取消与退款', '关于我们', '联系我们', '支持', '法律与政策', '隐私政策', '使用条款', '退款政策', '支付方式', '银行卡与数字钱包', '加密支付', '银行卡和钱包可用性取决于币种、地区及服务商。加密支付请使用付款页面指定的网络。'],
 };
 const keys = ['travel', 'hotels', 'reservationSupport', 'cancellations', 'about', 'contact', 'support', 'legal', 'privacy', 'terms', 'refund', 'payments', 'wallets', 'crypto', 'paymentNote'];
-export default Object.fromEntries(Object.entries(rows).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [key, values[index]]))]));
+const localizedTranslations = Object.fromEntries(Object.entries(rows).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [key, values[index]]))]));
+export default localizedTranslations;
+
+Object.assign(localizedTranslations, additionalTranslations("footerTranslations.js", "default"));

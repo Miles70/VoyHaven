@@ -1,3 +1,4 @@
+import { supportedLanguages } from "../../../shared/languages.js";
 import { normalizeOfferConditions, publicPrebook, requireAcceptedTerms } from "../services/hotelRateConditions.js";
 import { createBookingAccess, requireBookingAccess } from "../services/bookingAccess.js";
 import { finalizeBooking, bookingPayload } from "../services/finalizeBooking.js";
@@ -343,7 +344,7 @@ hotelsRouter.get(
       }
 
       const language = optionalText(request.query.language || "en", 5).toLowerCase();
-      if (!["en", "tr", "ru", "ar", "zh", "es", "pt", "fr", "de", "it"].includes(language)) {
+      if (!supportedLanguages.includes(language)) {
         throw requestError("language is not supported.");
       }
 
@@ -360,7 +361,7 @@ hotelsRouter.get("/:hotelId/reviews", searchLimiter, async (request, response, n
   try {
     const hotelId = requiredText(request.params.hotelId, "hotelId", 100);
     const language = optionalText(request.query.language || "en", 5).toLowerCase();
-    if (!/^[A-Za-z0-9_-]+$/.test(hotelId) || !["en", "tr", "ru", "ar", "zh", "es", "pt", "fr", "de", "it"].includes(language)) throw requestError("Invalid hotel or language.");
+    if (!/^[A-Za-z0-9_-]+$/.test(hotelId) || !supportedLanguages.includes(language)) throw requestError("Invalid hotel or language.");
     const offset = boundedInteger(request.query.offset, 0, 0, 4990);
     const key = `${hotelId}:${language}:${offset}`;
     let cached = reviewCache.get(key);
@@ -382,7 +383,7 @@ hotelsRouter.get("/:hotelId/information", translationLimiter, async (request, re
   try {
     const hotelId = requiredText(request.params.hotelId, "hotelId", 100);
     const language = optionalText(request.query.language || "en", 5).toLowerCase();
-    if (!/^[A-Za-z0-9_-]+$/.test(hotelId) || !["en", "tr", "ru", "ar", "zh", "es", "pt", "fr", "de", "it"].includes(language)) throw requestError("Invalid hotel or language.");
+    if (!/^[A-Za-z0-9_-]+$/.test(hotelId) || !supportedLanguages.includes(language)) throw requestError("Invalid hotel or language.");
     const result = await getLocalizedHotelDescription(hotelId, language, "information");
     response.set("Cache-Control", "private, max-age=3600");
     response.json({ information: result.description, language: result.language });

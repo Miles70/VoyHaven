@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const keys = ['details', 'connections', 'baggageDetails'];
 const rows = {
   en: ['Flight details', 'Via', 'Baggage details'],
@@ -11,4 +12,7 @@ const rows = {
   ar: ['تفاصيل الرحلة', 'عبر', 'تفاصيل الأمتعة'],
   zh: ['航班详情', '经停', '行李详情'],
 };
-export default Object.fromEntries(Object.entries(rows).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [key, values[index]]))]));
+const localizedTranslations = Object.fromEntries(Object.entries(rows).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [key, values[index]]))]));
+export default localizedTranslations;
+
+Object.assign(localizedTranslations, additionalTranslations("flightCardTranslations.js", "default"));

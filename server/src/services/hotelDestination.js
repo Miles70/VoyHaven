@@ -1,6 +1,7 @@
+import { supportedLanguages } from "../../../shared/languages.js";
 import { listNuiteeCountries, searchNuiteePlaces } from './nuiteeApi.js';
 
-const languages = ['tr', 'en', 'de', 'fr', 'it', 'es', 'pt', 'ru', 'ar', 'zh'];
+const languages = supportedLanguages;
 const normalize = (value) => String(value || '').toLowerCase().normalize('NFD')
   .replace(/\p{M}/gu, '').replace(/ı/g, 'i').replace(/[^\p{L}\p{N}]/gu, '');
 let countryIndex;

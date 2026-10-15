@@ -15,4 +15,4 @@ The verified legal operator name, business contact address and applicable regist
 
 ## Verification
 
-`npm run test:legal-ui` covers all three policies in ten languages at 320px and 1280px, including RTL, contents navigation, localized SEO, support destinations and actual footer navigation. Browser/API requests are intercepted and marked as fixtures. Existing hotel browser tests verify card/crypto checkout separately without making real reservations or payments.
+`npm run test:legal-ui` covers all three policies in all supported languages at 320px and 1280px, including RTL, contents navigation, localized SEO, support destinations and actual footer navigation. Browser/API requests are intercepted and marked as fixtures. Existing hotel browser tests verify card/crypto checkout separately without making real reservations or payments.

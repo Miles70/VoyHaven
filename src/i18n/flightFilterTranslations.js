@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const keys = ['sort', 'low', 'high', 'refund', 'all', 'refundable', 'partial', 'nonRefundable', 'unknown', 'stops', 'anyStops', 'direct', 'oneStop', 'reset', 'noMatches', 'cabinHelp', 'searchCabin'];
 const rows = {
  tr: 'Sırala|Fiyat: düşükten yükseğe|Fiyat: yüksekten düşüğe|İade koşulu|Tümü|İade edilebilir|Kısmen iade edilebilir|İade edilemez|Koşul belirtilmemiş|Aktarma|Tüm uçuşlar|Aktarmasız|En fazla 1 aktarma|Filtreleri temizle|Bu filtrelere uygun uçuş yok.|Daha konforlu bir yolculuk mu istiyorsun? Premium Ekonomi, Business veya First Class seçeneklerine göz atabilirsin. Biletteki “Konfor” adı ise kabin sınıfını değil, bilet paketini anlatır.|Bu sınıfta ara',
@@ -11,7 +12,7 @@ const rows = {
  ar: 'الترتيب|السعر من الأقل للأعلى|السعر من الأعلى للأقل|الاسترداد|الكل|قابل للاسترداد|قابل للاسترداد جزئياً|غير قابل للاسترداد|غير محدد|التوقفات|كل الرحلات|مباشر|توقف واحد كحد أقصى|مسح المرشحات|لا توجد رحلات مطابقة.|هل ترغب في رحلة أكثر راحة؟ اكتشف الاقتصادية الممتازة أو درجة الأعمال أو الدرجة الأولى. يشير Comfort في التذكرة إلى باقة السعر، وليس درجة المقصورة.|ابحث بهذه المقصورة',
  zh: '排序|价格从低到高|价格从高到低|退款条件|全部|可退款|可部分退款|不可退款|未注明|中转|所有航班|直飞|最多一次中转|清除筛选|没有符合条件的航班。|想让旅途更舒适？看看高端经济舱、商务舱或头等舱。机票上的Comfort指票价套餐，而不是舱位。|搜索此舱位',
 };
-export default Object.fromEntries(Object.entries(rows).map(([lang, row]) => [lang, Object.fromEntries(keys.map((key, i) => [key, row.split('|')[i]]))]));
+const localizedTranslations = Object.fromEntries(Object.entries(rows).map(([lang, row]) => [lang, Object.fromEntries(keys.map((key, i) => [key, row.split('|')[i]]))]));
 
 export const cabinOfferMessages = {
  tr: ['Bu uçuşta seçilen kabin için teklif bulunamadı.', 'Kabin fiyatı kontrol ediliyor…'],
@@ -74,3 +75,16 @@ export const flightAuditMessages = {
  ar: ['فحصنا مجموعة التواريخ الأولى. يمكنك متابعة البحث في تواريخ أخرى.', 'ابحث في تواريخ أخرى', 'مقصورات مختلطة', 'المقصورة غير محددة'],
  zh: ['已查询第一组日期，你可以继续查询更多日期。', '查询更多日期', '混合舱位', '舱位未注明'],
 };
+export default localizedTranslations;
+
+Object.assign(cabinAlternativeMessages, additionalTranslations("flightFilterTranslations.js", "cabinAlternativeMessages"));
+
+Object.assign(cabinOfferMessages, additionalTranslations("flightFilterTranslations.js", "cabinOfferMessages"));
+
+Object.assign(localizedTranslations, additionalTranslations("flightFilterTranslations.js", "default"));
+
+Object.assign(flexibleDateLabels, additionalTranslations("flightFilterTranslations.js", "flexibleDateLabels"));
+
+Object.assign(flightAuditMessages, additionalTranslations("flightFilterTranslations.js", "flightAuditMessages"));
+
+Object.assign(nearbyCabinMessages, additionalTranslations("flightFilterTranslations.js", "nearbyCabinMessages"));

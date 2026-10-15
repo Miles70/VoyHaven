@@ -1,3 +1,4 @@
+import { supportedLanguages } from "../shared/languages.js";
 import assert from 'node:assert/strict';
 import { build } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -22,7 +23,7 @@ export function render(language, conditions) {
   await build({ configFile: false, plugins: [react()], logLevel: 'error', publicDir: false, build: { ssr: path.join(temporary, 'entry.jsx'), outDir: path.join(temporary, 'out'), emptyOutDir: true } });
   const { render } = await import(pathToFileURL(path.join(temporary, 'out/entry.js')));
   const withExtra = normalizeRateConditions({ boardType: 'AI', name: 'Long room name '.repeat(100), cancellationPolicies: { refundableTag: 'NRFN', cancelPolicyInfos: [] }, retailRate: { taxesAndFees: [{ included: false, amount: 10.63, currency: 'USD', description: 'City tax' }] } });
-  for (const language of ['en', 'tr', 'ru', 'ar', 'zh', 'es', 'pt', 'fr', 'de', 'it']) {
+  for (const language of supportedLanguages) {
     const html = render(language, { rooms: [withExtra] });
     assert.ok(html.includes('<details') && html.includes('<summary'));
     assert.ok(!html.includes('rateConditions.') && !html.includes('>AI<'));
@@ -35,7 +36,7 @@ export function render(language, conditions) {
   assert.ok(unknown.includes('Yemek planı belirtilmedi') && unknown.includes('Vergi dökümü sağlanmadı'));
   const expired = render('tr', { rooms: [normalizeRateConditions({ boardType: 'RO', cancellationPolicies: { refundableTag: 'RFN', cancelPolicyInfos: [{ cancelTime: '2000-01-01 00:00:00', amount: 100, currency: 'USD', type: 'amount', timezone: 'GMT' }] } })] });
   assert.ok(expired.includes('İptalde ücret uygulanır') && !expired.includes('Ücretsiz iptal'));
-  console.log('Hotel UI: 10 languages, accessible disclosures, mandatory fees, unknown fields and expired cancellation passed.');
+  console.log(`Hotel UI: ${supportedLanguages.length} languages, accessible disclosures, mandatory fees, unknown fields and expired cancellation passed.`);
 } finally {
   await rm(temporary, { recursive: true, force: true });
   delete globalThis.localStorage;

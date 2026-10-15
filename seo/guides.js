@@ -1,3 +1,4 @@
+import { additionalTranslations } from "../src/i18n/extended/index.js";
 // Booking guidance adapted from PR #35; URL and indexing policy remain owned by seo/model.js.
 // Shared by the initial HTML and the React page; no invented fares, reviews or availability.
 const hotels = {
@@ -30,3 +31,7 @@ export function travelGuide(category, language = 'en') {
   const [title, description, heading, intro, guide, ...sections] = row;
   return { title, description, heading, intro, guide, sections: Array.from({ length: 3 }, (_, i) => ({ title: sections[i * 2], text: sections[i * 2 + 1] })) };
 }
+
+Object.assign(hotels, additionalTranslations("hotelGuides"));
+
+Object.assign(flights, additionalTranslations("flights"));

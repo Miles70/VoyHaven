@@ -1,3 +1,4 @@
+import { useFlowText } from '../../i18n/flowTranslations';
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from 'react';
 import { LoaderCircle, X } from 'lucide-react';
@@ -6,6 +7,8 @@ import { flightRequest } from '../../services/flightsApi';
 import { verifiedFlightResult } from '../../services/flightResults';
 
 export default function FlightSelection({ result, copy, language, passengers, onVerified, onClose }) {
+  const ui = useFlowText();
+
   const navigate = useNavigate();
   const dialog = useRef(null);
   const [verified, setVerified] = useState(null);
@@ -50,7 +53,7 @@ export default function FlightSelection({ result, copy, language, passengers, on
           <p>{copy.change}: <strong>{terms?.changeable === true ? copy.allowed : terms?.changeable === false ? copy.notAllowed : copy.unknown}</strong></p>
           {(terms?.summary || []).filter((item) => typeof item.message === 'string').map((item, index) => <p key={index}>{item.message}</p>)}
         </section>
-        <button type="button" className="flightSearchButton" onClick={() => navigate("/flights/checkout", { state: { result: verified, passengers } })}>{language === "tr" ? "Yolcu bilgilerine ve ödemeye geç" : "Continue to passengers and payment"}</button>
+        <button type="button" className="flightSearchButton" onClick={() => navigate("/flights/checkout", { state: { result: verified, passengers } })}>{language === "tr" ? ui("Yolcu bilgilerine ve ödemeye geç") : ui("Continue to passengers and payment")}</button>
       </>}
     </div>
     <footer>{error && error !== 'expired' && <button type="button" className="flightSearchButton" onClick={() => setAttempt((n) => n + 1)}>{copy.retry}</button>}<button type="button" className="flightBackButton" onClick={onClose}>{copy.back}</button></footer>

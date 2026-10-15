@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 import hotelRateTranslations from "./hotelRateTranslations";
 import rateConditionsTranslations from "./rateConditionsTranslations";
 import en from "./locales/en";
@@ -54,4 +55,7 @@ const translations = {
   it: withTravelTranslations(it, "it"),
 };
 
+for (const [language, base] of Object.entries(additionalTranslations('locale'))) {
+  translations[language] = withTravelTranslations(base, language);
+}
 export default translations;

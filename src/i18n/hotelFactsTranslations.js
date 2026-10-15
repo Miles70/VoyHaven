@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const labels = {
   tr: ["Konaklama bilgileri", "Giriş başlangıcı", "Çıkış saati", "Tesisteki yerel saat", "Haritada konumu gör"],
   en: ["Stay information", "Check-in from", "Check-out time", "Local time at the property", "View location on map"],
@@ -11,4 +12,7 @@ const labels = {
   it: ["Informazioni sul soggiorno", "Check-in dalle", "Orario di check-out", "Ora locale della struttura", "Visualizza sulla mappa"],
 };
 const keys = ["title", "checkin", "checkout", "localTime", "map"];
-export default Object.fromEntries(Object.entries(labels).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [key, values[index]]))]));
+const localizedTranslations = Object.fromEntries(Object.entries(labels).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [key, values[index]]))]));
+export default localizedTranslations;
+
+Object.assign(localizedTranslations, additionalTranslations("hotelFactsTranslations.js", "default"));

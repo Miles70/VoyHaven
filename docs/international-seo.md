@@ -30,7 +30,7 @@ On dil: `tr`, `en`, `de`, `fr`, `ru`, `ar`, `es`, `pt`, `it`, `zh`. Ülke varyan
 | Otel profilleri | `/tr/travel/hotels/lp55de7` | 3 |
 | Kalıcı havalimanı rotaları | `/tr/flights/ayt-fra` | 3 |
 
-Gerçek oteller: Megasaray Westbeach Antalya (`lp55de7`), Sealife Family Resort Hotel (`lp4f7bd`), Rixos Downtown Antalya (`lp22e91`). 8 Ekim 2026’da mevcut production backend’in halka açık Nuitee katalog endpointinden alındı. Açıklamalar sağlayıcı metninin 10 dilli editoryal özetleridir; veri kaynağı, kaynak metin ve hash snapshot içinde tutulur. Fiyat, stok, yorum/puan veya oda şartları uydurulmaz. Aile/erişilebilirlik/yıldız filtre sayfaları otomatik üretilmez.
+Gerçek oteller: Megasaray Westbeach Antalya (`lp55de7`), Sealife Family Resort Hotel (`lp4f7bd`), Rixos Downtown Antalya (`lp22e91`). 8 Ekim 2026’da mevcut production backend’in halka açık Nuitee katalog endpointinden alındı. Açıklamalar sağlayıcı metninin 17 dilli editoryal özetleridir (yeni dil kapsamı için `language-support.md`); veri kaynağı, kaynak metin ve hash snapshot içinde tutulur. Fiyat, stok, yorum/puan veya oda şartları uydurulmaz. Aile/erişilebilirlik/yıldız filtre sayfaları otomatik üretilmez.
 
 Rotalar: **AYT → FRA**, **IST → DXB**, **LHR → AYT**. Şehirdeki tüm havalimanları yerine belirli IATA kodları kullanılır. Bunlar arama planlama sayfalarıdır; seferin mevcut olduğunu, direkt uçuşu, havayolunu veya fiyatı garanti etmez. Gerçek sonuçlar mevcut uçuş API’sinde aranır.
 
@@ -58,7 +58,7 @@ npm run build
 npm run test:seo
 ```
 
-Komut production sağlayıcı durumunu doğrular, en fazla 25 oteli sırayla okur ve atomik dosya değişikliği yapar. Hata durumunda eski snapshot korunur. Kaynak açıklama veya herhangi bir yayınlanan tesis bilgisi (ad, adres, şehir, ülke, yıldız, fotoğraf, koordinatlar) değişirse ilgili otel yayımdan kaldırılır; 10 dil özeti gözden geçirilip `published:true` yapılmadan tekrar indekslenebilir içerik üretilmez. Fiyat/rates/booking endpointi çağrılmaz. Çeviri modeli tetiklenmez.
+Komut production sağlayıcı durumunu doğrular, en fazla 25 oteli sırayla okur ve atomik dosya değişikliği yapar. Hata durumunda eski snapshot korunur. Kaynak açıklama veya herhangi bir yayınlanan tesis bilgisi (ad, adres, şehir, ülke, yıldız, fotoğraf, koordinatlar) değişirse ilgili otel yayımdan kaldırılır; desteklenen bütün dillerin özetleri gözden geçirilip `published:true` yapılmadan tekrar indekslenebilir içerik üretilmez. Fiyat/rates/booking endpointi çağrılmaz. Çeviri modeli tetiklenmez.
 
 Yeni otel: gerçek provider detayını al, snapshot’ı aynı şemada ekle, tüm 10 açıklamayı kaynakla karşılaştır, production provenance ve reviewedAt kaydet, ardından yayımla. Sadece sağlayıcı metni kopyalanıp dil etiketi değiştirilmemelidir. Yeni şehir en az üç yayın onaylı profil içerdiğinde `seo/destinations.js` üzerinden açılabilir. Rota katalog girdisi ancak gerçek havaalanı eşleşmeleri ve kullanıcıya faydalı içerik ile genişletilmelidir.
 
@@ -79,7 +79,7 @@ npm run test:seo-e2e
 npm run test:hotel-e2e
 ```
 
-`test:seo`: bütün üretilen HTML’ler; JS’siz içerik; tek canonical; 10 dil ve reciprocal hreflang; schema; dahili bağlantılar; sitemap kapsam/boyutları; sandbox/eksik çeviri/yayımdan kaldırılan tesis kapıları; HTML injection kaçışı; redirect; gerçek function adapter üzerinden 404/noindex/private cache.
+`test:seo`: bütün üretilen HTML’ler; JS’siz içerik; tek canonical; desteklenen bütün diller ve reciprocal hreflang; schema; dahili bağlantılar; sitemap kapsam/boyutları; sandbox/eksik çeviri/yayımdan kaldırılan tesis kapıları; HTML injection kaçışı; redirect; gerçek function adapter üzerinden 404/noindex/private cache.
 
 `test:seo-e2e`: on dilde JavaScript kapalı otel/destinasyon/rota; hydrate; 320/390/1280px; RTL; tema; karşılık gelen dil bağlantısı; uçuş CTA’sından mevcut forma dil ve havalimanı aktarımı; HTTP 404. API tamamen fixture ile intercept edilir. Mevcut hotel-e2e oda seçimi/prebook ve kart/kripto koşul değişikliği akışlarını ayrıca kapsar. CI’a SEO testleri eklendi. CI build’inde yalnızca mevcut uygulamanın açılabilmesi için sahte Reown proje ID’si kullanılır; production Vercel ayarları değiştirilmez.
 

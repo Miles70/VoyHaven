@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const keys = ['reviews','loadReviews','moreReviews','loading','error','noReviews','pros','cons','guest','information','showInformation','roomDetails','size','capacity','beds','single','double','twin','queen','king','sofa','source','noInformation'];
 const copy = {
  tr:['Misafir yorumları','Yorumları göster','Daha fazla yorum','Yükleniyor…','Bilgiler yüklenemedi. Tekrar dene.','Bu otel için yorum bulunamadı.','Beğenilenler','Geliştirilebilecekler','Misafir','Önemli otel bilgileri','Bilgileri göster','Oda fotoğrafları ve özellikleri','Oda büyüklüğü','En fazla misafir','Yataklar','Tek kişilik yatak','Çift kişilik yatak','Tek kişilik yatak','Queen yatak','King yatak','Çekyat','Yorumlar konaklama sağlayıcısından alınır.','Ek bilgi bulunamadı.'],
@@ -11,4 +12,7 @@ const copy = {
  de:['Gästebewertungen','Bewertungen anzeigen','Weitere Bewertungen','Wird geladen…','Informationen konnten nicht geladen werden. Versuche es erneut.','Keine Bewertungen für dieses Hotel gefunden.','Positiv','Verbesserungswürdig','Gast','Wichtige Hotelinformationen','Informationen anzeigen','Zimmerfotos und Ausstattung','Zimmergröße','Maximale Gästezahl','Betten','Einzelbett','Doppelbett','Einzelbett','Queensize-Bett','Kingsize-Bett','Schlafsofa','Bewertungen werden vom Unterkunftsanbieter bereitgestellt.','Keine weiteren Informationen gefunden.'],
  it:['Recensioni degli ospiti','Mostra recensioni','Altre recensioni','Caricamento…','Impossibile caricare le informazioni. Riprova.','Nessuna recensione trovata per questo hotel.','Aspetti apprezzati','Aspetti da migliorare','Ospite','Informazioni importanti sull’hotel','Mostra informazioni','Foto e caratteristiche della camera','Dimensioni della camera','Ospiti massimi','Letti','Letto singolo','Letto matrimoniale','Letto singolo','Letto queen','Letto king','Divano letto','Recensioni fornite dal fornitore dell’alloggio.','Nessuna informazione aggiuntiva trovata.'],
 };
-export default Object.fromEntries(Object.entries(copy).map(([lang,values])=>[lang,Object.fromEntries(keys.map((key,i)=>[key,values[i]]))]));
+const localizedTranslations = Object.fromEntries(Object.entries(copy).map(([lang,values])=>[lang,Object.fromEntries(keys.map((key,i)=>[key,values[i]]))]));
+export default localizedTranslations;
+
+Object.assign(localizedTranslations, additionalTranslations("hotelContentTranslations.js", "default"));

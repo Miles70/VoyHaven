@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const travelPaymentTranslations = {
   en: {
       tag: "Payment confirmed",
@@ -502,3 +503,5 @@ const travelPaymentTranslations = {
 };
 
 export default travelPaymentTranslations;
+
+Object.assign(travelPaymentTranslations, additionalTranslations("travelPaymentTranslations.js", "default"));

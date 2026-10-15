@@ -1,3 +1,4 @@
+import { additionalTranslations } from "../i18n/extended/index.js";
 import LegalPage from "./LegalPage";
 import AboutPage from "./AboutPage";
 import { Link } from "react-router-dom";
@@ -77,3 +78,9 @@ function InformationPage({ page }) {
 }
 
 export default InformationPage;
+
+Object.assign(supportCopy, additionalTranslations("information-supportCopy"));
+
+Object.assign(mailSupportCopy, additionalTranslations("information-mailSupportCopy"));
+
+Object.assign(content, additionalTranslations("information-content"));

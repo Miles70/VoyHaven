@@ -24,7 +24,7 @@ for (const id of ids) {
  const hash = createHash('sha256').update(description).digest('hex');
  const changed = hotelFactsChanged(existing, hotel, hash);
  const next = { ...existing, ...publicHotelFacts(hotel), deletedAt: hotel.deletedAt || null, source: { provider: 'Nuitee/LiteAPI', environment: 'production', fetchedAt: new Date().toISOString(), description, descriptionHash: hash }, published: changed || hotel.deletedAt ? false : existing.published };
- // Changed facts fail closed; a reviewer must recheck all 10 summaries before publication.
+ // Changed facts fail closed; a reviewer must recheck all supported-language summaries before publication.
  await writeFile(`${path}.tmp`, JSON.stringify(next, null, 2) + '\n');
  await rename(`${path}.tmp`, path);
  console.log(`${id}: ${changed ? 'description changed; unpublished until translation review' : 'refreshed'}${hotel.deletedAt ? '; provider removed hotel' : ''}`);

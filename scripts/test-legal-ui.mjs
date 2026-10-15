@@ -7,6 +7,7 @@ import legalTranslations from '../src/i18n/legalTranslations.js';
 import footerTranslations from '../src/i18n/footerTranslations.js';
 
 const server = await createServer({ server: { host: '127.0.0.1', port: 5181, strictPort: true }, define: { 'import.meta.env.VITE_REOWN_PROJECT_ID': JSON.stringify('00000000000000000000000000000000'), 'import.meta.env.VITE_SUPPORT_EMAIL': JSON.stringify('support@voyhaven.com'), 'import.meta.env.VITE_API_BASE_URL': JSON.stringify('') } });
+// Match the standalone beta label; Scandinavian payment words such as betalning are valid copy.
 let browser;
 try {
   await server.listen();
@@ -37,7 +38,7 @@ try {
         const footerLegal = page.locator('.footerColumn').filter({ has: page.getByRole('heading', { name: footerTranslations[language].legal, exact: true }) });
         assert.equal(await footerLegal.locator('a').count(), 3);
         for (const key of ['privacy', 'terms', 'refund']) assert.equal(await footerLegal.getByRole('link', { name: footerTranslations[language][key], exact: true }).getAttribute('href'), `/${key}?lang=${language}`);
-        assert.ok(!/beta|rotavoy/i.test(await page.locator('.legalPage').innerText()));
+        assert.ok(!/\bbeta\b|rotavoy/i.test(await page.locator('.legalPage').innerText()));
         await page.locator('.legalSidebar a').last().click();
         assert.equal(new URL(page.url()).hash, `#${policy}-6`);
         await page.waitForFunction(id => { const top = globalThis.document.getElementById(id).getBoundingClientRect().top; return top >= 0 && top < 450; }, `${policy}-6`);
@@ -54,6 +55,6 @@ try {
       assert.equal(new URL(page.url()).searchParams.get('lang'), language);
       await context.close();
     }
-    console.log(`Legal pages passed at ${width}px in 10 languages: footer navigation, contents anchors, RTL, metadata, support links and layout.`);
+    console.log(`Legal pages passed at ${width}px in ${Object.keys(legalTranslations).length} languages: footer navigation, contents anchors, RTL, metadata, support links and layout.`);
   }
 } finally { if (browser) await browser.close(); await server.close(); }

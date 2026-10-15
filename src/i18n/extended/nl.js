@@ -2,58 +2,58 @@
 export default {
   "aboutTranslations.js": {
     "default": {
-      "eyebrow": "Ongeveer VoyHaven",
-      "title": "De wereld wacht.",
-      "accent": "Maak de reis van jou.",
-      "intro": "VoyHaven brengt hotel ontdekking en vluchtzoeking samen. Ontdek nieuwe bestemmingen, vergelijk plaatsen om te verblijven en maak de eerste stap naar een reis die bij jou past.",
+      "eyebrow": "Over VoyHaven",
+      "title": "De wereld wacht op je.",
+      "accent": "Maak er jouw reis van.",
+      "intro": "VoyHaven brengt hotels en vluchten samen. Ontdek nieuwe bestemmingen, vergelijk accommodaties en zet de eerste stap naar een reis die bij je past.",
       "hotelCta": "Ontdek hotels",
-      "flightCta": "Vluchten vinden",
-      "imageLabel": "Naar nieuwe horizonten",
-      "imageText": "Verken. Kies maar. Ga maar.",
+      "flightCta": "Zoek vluchten",
+      "imageLabel": "Op naar nieuwe bestemmingen",
+      "imageText": "Ontdek. Kies. Vertrek.",
       "facts": [
-        "Beschikbaar in 17 talen",
-        "Kaart- en cryptoopties",
-        "Ondersteuning op uw account"
+        "Ontdek in 17 talen",
+        "Betalen met kaart of crypto",
+        "Ondersteuning via je account"
       ],
       "storyLabel": "Onze aanpak",
-      "storyTitle": "Een grote reis begint met de juiste keuze.",
-      "storyBody": "Het plannen van een reis zou moeten gaan om het vinden van wat bij je past. VoyHaven brengt hotelinformatie, kameropties en boekingsvoorwaarden in een duidelijke, verbonden ervaring. Je kiest waar je heen gaat; wij maken het gemakkelijker om je opties te verkennen.",
-      "valuesTitle": "Klare bij elke stap.",
+      "storyTitle": "Een mooie reis begint met de juiste keuze.",
+      "storyBody": "Een reis plannen begint bij wat bij jou past. VoyHaven brengt hotelinformatie, kameropties en boekingsvoorwaarden overzichtelijk samen. Jij kiest waar je naartoe gaat; wij helpen je de mogelijkheden te bekijken.",
+      "valuesTitle": "Duidelijkheid bij elke stap.",
       "values": [
         [
-          "Informatie die u kunt vergelijken",
-          "Reviews van kamers, maaltijdplannen, annuleringsvoorwaarden en het totale verblijf. Kies rond uw data en behoeften."
+          "Informatie die je kunt vergelijken",
+          "Bekijk kamertypes, maaltijdopties, annuleringsvoorwaarden en de totale verblijfskosten bij elkaar. Kies op basis van je reisdata en wensen."
         ],
         [
-          "Tegenlopende voorwaarden vóór betaling",
-          "Uw geselecteerde kamer en prijs worden opnieuw gecontroleerd voordat u betaalt. Bekijk de kaart en crypto-opties die worden aangeboden bij de boekingsstap."
+          "Actuele voorwaarden vóór betaling",
+          "De gekozen kamer en prijs worden vóór de betaling opnieuw gecontroleerd. Bekijk bij het boeken welke kaart- en crypto-opties beschikbaar zijn."
         ],
         [
-          "Ondersteuning die u kunt bereiken",
-          "Stuur vragen over reserveringen per e-mail of maak een ondersteuningsvraag in je account. Volg accountverzoeken en antwoorden op één plaats."
+          "Bereikbare ondersteuning",
+          "Stel vragen over je boeking per e-mail of maak een ondersteuningsverzoek aan in je account. Volg je verzoeken en onze antwoorden op één plek."
         ]
       ],
       "processLabel": "Met VoyHaven",
-      "processTitle": "Je volgende reis, in drie stappen.",
+      "processTitle": "Je volgende reis in drie stappen.",
       "steps": [
         [
           "Ontdek je bestemming",
-          "Kies je bestemming, datum en aantal gasten. Bekijk hotels en zoek naar vluchtopties."
+          "Kies je bestemming, reisdata en aantal gasten. Bekijk hotels en zoek naar vluchten."
         ],
         [
-          "Vind je pasvorm.",
-          "Vergelijk de verblijfsomstandigheden met de kameromstandigheden. Kies de optie die bij je reis past."
+          "Kies wat bij je past",
+          "Vergelijk accommodaties en kamervoorwaarden. Kies de optie die bij je reis past."
         ],
         [
-          "Voltooi uw verblijf",
-          "Voer de details van de gasten in, bekijk de huidige voorwaarden en ga door naar de reserveringsstap."
+          "Rond je boeking af",
+          "Vul de gastgegevens in, bekijk de actuele voorwaarden en ga verder met boeken."
         ]
       ],
-      "ctaTitle": "Waar ga je dan heen?",
-      "ctaBody": "Nieuwe plekken, nieuwe ervaringen en een verblijf dat bij jou past. Begin je reis te verkennen.",
-      "supportCta": "Neem contact op met ons.",
-      "seoTitle": "Over ons · Hotels en ontdekking van vluchten",
-      "seoDescription": "Ontmoet VoyHaven: hotel- en vluchtontdekking, vergelijkingen van kamers en boekingen, kaart- en crypto-betalingsmogelijkheden en reisondersteuning die u kunt bereiken."
+      "ctaTitle": "Waar gaat je volgende reis naartoe?",
+      "ctaBody": "Nieuwe plekken, nieuwe ervaringen en een verblijf dat bij je past. Begin met het ontdekken van je volgende reis.",
+      "supportCta": "Neem contact op",
+      "seoTitle": "Over ons · Hotels en vluchten ontdekken",
+      "seoDescription": "Ontdek VoyHaven: hotels en vluchten zoeken, kamers en boekingsvoorwaarden vergelijken, betalen met kaart of crypto en bereikbare reisondersteuning."
     }
   },
   "brandTranslations.js": {

@@ -2,58 +2,58 @@
 export default {
   "aboutTranslations.js": {
     "default": {
-      "eyebrow": "Noin VoyHaven",
+      "eyebrow": "Tietoa VoyHavenista",
       "title": "Maailma odottaa.",
-      "accent": "Tee matkan omaksi.",
-      "intro": "VoyHaven yhdistää hotellien löytö- ja lentotutkimuksen. Tutki uusia kohteita, vertaile majoituspaikkoja ja tee ensimmäinen askel sinulle sopivalle matkalle.",
-      "hotelCta": "Tutki hotelleja",
-      "flightCta": "Löydä lentoja",
-      "imageLabel": "Uusien horisonttien suuntaan",
-      "imageText": "Tutki. Valitse. - Menkää nyt.",
+      "accent": "Tee matkasta omannäköisesi.",
+      "intro": "VoyHaven tuo hotellit ja lentohaun yhteen. Tutustu uusiin kohteisiin, vertaile majoituspaikkoja ja ota ensimmäinen askel kohti sinulle sopivaa matkaa.",
+      "hotelCta": "Tutustu hotelleihin",
+      "flightCta": "Etsi lentoja",
+      "imageLabel": "Kohti uusia maisemia",
+      "imageText": "Tutustu. Valitse. Matkusta.",
       "facts": [
-        "Saatavilla 17 kielellä",
-        "Kortti- ja kryptovaluuttakaupat",
-        "Tukea tililläsi"
+        "Käytettävissä 17 kielellä",
+        "Kortti- ja kryptomaksut",
+        "Tuki oman tilin kautta"
       ],
-      "storyLabel": "Meidän lähestymistavamme",
+      "storyLabel": "Toimintatapamme",
       "storyTitle": "Hyvä matka alkaa oikeasta valinnasta.",
-      "storyBody": "Matkan suunnittelussa pitäisi pyrkiä löytämään sinulle sopivan. VoyHaven tuo hotellin tietoja, huoneenvaihtoehtoja ja varausehtoja selkeään ja yhteiseen kokemukseen. Sinä päätät, mihin haluat mennä. Me helpotamme vaihtoehtoisi.",
-      "valuesTitle": "Selvyys jokaisessa vaiheessa.",
+      "storyBody": "Matkan suunnittelussa tärkeintä on löytää itselle sopivat vaihtoehdot. VoyHaven kokoaa hotellitiedot, huonevaihtoehdot ja varausehdot selkeäksi kokonaisuudeksi. Sinä päätät, minne matkustat; me helpotamme vaihtoehtoihin tutustumista.",
+      "valuesTitle": "Selkeyttä joka vaiheessa.",
       "values": [
         [
-          "Tietoja, joita voit verrata",
-          "Huoneen tyypit, aterioiden suunnitelmat, peruutusehdot ja oleskelun kokonaismäärä. Valitse päivämäärät ja tarpeet."
+          "Vertailukelpoiset tiedot",
+          "Tarkastele huonetyyppejä, ateriavaihtoehtoja, peruutusehtoja ja majoituksen kokonaishintaa yhdessä. Valitse päivämääriesi ja tarpeidesi mukaan."
         ],
         [
-          "Nykyinen määräaika ennen maksua",
-          "Valittu huone ja hinta tarkistetaan uudelleen ennen maksua. Tarkista varausvaiheessa tarjotut kortti- ja salausvaihtoehdot."
+          "Ajantasaiset ehdot ennen maksua",
+          "Valittu huone ja hinta tarkistetaan uudelleen ennen maksua. Tutustu varausvaiheessa tarjolla oleviin kortti- ja kryptomaksutapoihin."
         ],
         [
-          "Voit saada tukea",
-          "Lähetä varauspyyntöjä sähköpostitse tai luo tukipyyntö tilillesi. Seuraa tilipyyntöjä ja vastauksia yhdessä paikassa."
+          "Tukea tarvittaessa",
+          "Lähetä varaukseen liittyvä kysymys sähköpostitse tai luo tukipyyntö tililläsi. Seuraa pyyntöjäsi ja vastauksiamme samassa paikassa."
         ]
       ],
-      "processLabel": "Sellainen kuin VoyHaven",
-      "processTitle": "Seuraava matkasi on kolme askelta.",
+      "processLabel": "VoyHavenin kanssa",
+      "processTitle": "Seuraava matkasi kolmessa vaiheessa.",
       "steps": [
         [
-          "Tutki kohteesi",
-          "Valitse määränpääsi, päivämäärät ja vieraiden lukumäärä. Katso hotelleja ja etsi lentopalveluja."
+          "Tutustu kohteeseen",
+          "Valitse kohde, päivämäärät ja vieraiden määrä. Selaa hotelleja ja tutki lentovaihtoehtoja."
         ],
         [
-          "Etsi sopivasi",
-          "Vertaa yöpaikkoja huoneen olosuhteisiin. Valitse matkasi mukainen vaihtoehto."
+          "Löydä sopiva vaihtoehto",
+          "Vertaile majoituspaikkoja ja huoneiden varausehtoja. Valitse matkaasi sopiva vaihtoehto."
         ],
         [
-          "Lopeta oleskelusi.",
-          "Kirjoita vieraiden tiedot, tarkista voimassa olevat ehdot ja jatka varausvaiheeseen."
+          "Viimeistele varaus",
+          "Anna vieraiden tiedot, tarkista voimassa olevat ehdot ja jatka varaukseen."
         ]
       ],
-      "ctaTitle": "Minne aiot mennä seuraavaksi?",
-      "ctaBody": "Uusia paikkoja, uusia kokemuksia ja sopivan paikan. Aloita tutkia matkasi.",
-      "supportCta": "Ota yhteyttä.",
-      "seoTitle": "Meistä · Hotelleja ja lentojen löytö",
-      "seoDescription": "Tutki VoyHaven: hotelli- ja lentotiedot, huoneiden ja varausten vertailut, kortti- ja kryptovaluuttakelpoisuudet sekä matka tuke, johon voit päästä."
+      "ctaTitle": "Minne matkustat seuraavaksi?",
+      "ctaBody": "Uusia paikkoja, uusia kokemuksia ja sinulle sopiva majoitus. Aloita seuraavan matkasi suunnittelu.",
+      "supportCta": "Ota yhteyttä",
+      "seoTitle": "Tietoa meistä · Hotellit ja lennot",
+      "seoDescription": "Tutustu VoyHaveniin: etsi hotelleja ja lentoja, vertaile huoneita ja varausehtoja, maksa kortilla tai kryptovaluutalla ja saa apua matkallesi."
     }
   },
   "brandTranslations.js": {

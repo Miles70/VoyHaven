@@ -84,6 +84,7 @@ try {
   await page.locator('.languageButton').click();
   await page.getByRole('option', { name: /日本語/ }).click();
   await page.waitForURL('**/flights/checkout?lang=ja');
+  await page.waitForFunction(() => globalThis.document.documentElement.lang === 'ja');
   assert.equal(await page.locator('.accountForm').count(), 1);
   assert.ok((await page.locator('h1').innerText()).includes('AYT'));
   assert.ok(!(await page.locator('.accountForm').innerText()).match(/Yetişkin|Çocuk|Bebek|Belgedeki|İletişim/));

@@ -128,7 +128,7 @@ function TravelCheckout() {
   const selectedNetwork = NETWORK_LABELS[selectedNetworkKey];
 
   const confirmedHotelId = prebook?.hotelId || hotel?.hotelId || hotel?.id;
-  const hotelName = hotel?.name || hotel?.hotelName || "Seçilen otel";
+  const hotelName = hotel?.name || hotel?.hotelName || ui("Seçilen otel");
   const price = Number(
     cardSession?.amount ??
       prebook?.sellingPriceToUser ??
@@ -469,7 +469,7 @@ function TravelCheckout() {
                           <div
                             className="travelCryptoNetworkOptions"
                             role="group"
-                            aria-label={`${networkPickerOpen} ağı`}
+                            aria-label={`${networkPickerOpen} · ${t("travelPayment.network")}`}
                           >
                             {["BSC", "ETH"].map((networkKey) => (
                               <button
@@ -526,14 +526,14 @@ function TravelCheckout() {
                     ? ui("Fiyat ve oda doğrulanıyor")
                     : paymentMethod === "card"
                       ? ui("Güvenli kart ödeme formunu aç")
-                      : `${cryptoAsset} · ${selectedNetwork} ödeme adımına geç`}
+                      : `${cryptoAsset} · ${selectedNetwork} · ${ui("Ödemeye geç")}`}
                 </button>
 
                 <p className="travelCheckoutSecurity">
                   <ShieldCheck size={16} />
                   {paymentMethod === "card"
                     ? ui("Kart bilgileri VoyHaven sunucusuna girmez; güvenli ödeme altyapısında işlenir.")
-                    : `Rezervasyon yalnızca ${cryptoAsset} transferi ${selectedNetwork} ağında zincirde doğrulandıktan sonra oluşturulur.`}
+                    : ui("{network} ağında tam tutarı gönder. Transfer zincirde doğrulandıktan sonra rezervasyon işleme alınır.", { network: selectedNetwork })}
                 </p>
               </form>
             )}

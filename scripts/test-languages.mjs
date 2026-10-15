@@ -4,6 +4,7 @@ import { supportedLanguages, addedLanguages, normalizeLanguage, languageNames } 
 import { additionalTranslations } from '../src/i18n/extended/index.js';
 import { copy, languages } from '../seo/copy.js';
 import { travelGuide } from '../seo/guides.js';
+import categoryCopy from '../src/i18n/categoryTranslations.js';
 import { airports, destinations } from '../seo/destinations.js';
 assert.equal(supportedLanguages.length, 17);
 assert.equal(new Set(supportedLanguages).size, 17);
@@ -23,23 +24,24 @@ function parity(base, translated, path) {
     for (const key of Object.keys(base)) parity(base[key], translated[key], `${path}.${key}`);
   }
 }
-for (const file of (await readdir('src/i18n')).filter(file => file.endsWith('.js') && !['translations.js', 'flowTranslations.js'].includes(file))) {
+for (const file of (await readdir('src/i18n')).filter(file => file.endsWith('.js') && !['translations.js', 'flowTranslations.js', 'baselineFlows.js'].includes(file))) {
   const module = await import(`../src/i18n/${file}`);
   for (const [name, dictionary] of Object.entries(module)) {
     if (typeof dictionary === 'function') {
-      for (const language of addedLanguages) parity(dictionary('en'), dictionary(language), `${file}.${language}`);
+      for (const language of supportedLanguages) parity(dictionary('en'), dictionary(language), `${file}.${language}`);
     } else if (dictionary?.en) {
-      for (const language of addedLanguages) parity(dictionary.en, dictionary[language], `${file}.${name}.${language}`);
+      for (const language of supportedLanguages) parity(dictionary.en, dictionary[language], `${file}.${name}.${language}`);
     }
   }
 }
-for (const language of addedLanguages) {
-  parity(additionalTranslations('locale').nl, additionalTranslations('locale')[language], `locale.${language}`);
+for (const language of supportedLanguages) {
+  if (addedLanguages.includes(language)) parity(additionalTranslations('locale').nl, additionalTranslations('locale')[language], `locale.${language}`);
   parity(copy.en, copy[language], `seo.${language}`);
   for (const kind of ['hotels','flights']) parity(travelGuide(kind, 'en'), travelGuide(kind, language), `guide.${kind}.${language}`);
   for (const destination of destinations) assert.ok(destination.names[language]);
   for (const airport of Object.values(airports)) assert.ok(airport.names[language]);
   assert.ok(languageNames[language]);
-  for (const module of ['information-supportCopy','information-mailSupportCopy','information-content','fare-modifiers','fare-fullyFlexible']) parity(additionalTranslations(module).nl, additionalTranslations(module)[language], `${module}.${language}`);
+  if (language !== "en") assert.notEqual(categoryCopy(language).carsText, categoryCopy("en").carsText, `category fallback: ${language}`);
+  if (addedLanguages.includes(language)) for (const module of ['information-supportCopy','information-mailSupportCopy','information-content','fare-modifiers','fare-fullyFlexible']) parity(additionalTranslations(module).nl, additionalTranslations(module)[language], `${module}.${language}`);
 }
 console.log(`Language coverage passed: ${supportedLanguages.length} languages, ${checked} translated values, placeholder parity and locale detection.`);

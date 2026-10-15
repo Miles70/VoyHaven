@@ -27,7 +27,7 @@ try {
       const headline = await page.locator('h1').textContent();
       assert.ok(headline.includes(copy.title) && headline.includes(copy.accent));
       assert.equal(await page.title(), `${copy.seoTitle} | VoyHaven`);
-      assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), 'https://voyhaven.com/about');
+      assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), `https://voyhaven.com/about${language === 'en' ? '' : `?lang=${language}`}`);
       assert.equal(await page.locator('meta[name=description]').getAttribute('content'), copy.seoDescription);
       assert.equal(await page.locator('.aboutPage').getAttribute('dir'), language === 'ar' ? 'rtl' : 'ltr');
       assert.equal(await page.locator('.aboutValue').count(), 3);

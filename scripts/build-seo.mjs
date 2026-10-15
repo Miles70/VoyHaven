@@ -1,3 +1,4 @@
+import { informationPaths, informationPath, informationAlternates } from "../seo/information-locales.js";
 import { supportedLanguages } from "../shared/languages.js";
 import { readFile, readdir, mkdir, writeFile, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -15,11 +16,21 @@ try {
  await build({ configFile: false, plugins: [react()], logLevel: 'warn', build: { ssr: 'scripts/seo-render-entry.jsx', outDir: tmp, emptyOutDir: true, rollupOptions: { external: ['react', 'react/jsx-runtime', 'react-dom/server'] } } });
  const { render } = await import(pathToFileURL(join(tmp, 'seo-render-entry.js')));
  const template = await readFile('dist/seo.html', 'utf8');
+ // Keep the SPA template outside the public output. Otherwise / bypasses the
+ // page adapter and serves English metadata even when ?lang is supplied.
+ await mkdir('.seo-server', { recursive: true });
+ await writeFile('.seo-server/app-shell.html', await readFile('dist/index.html', 'utf8'));
+ await rm('dist/index.html');
  for (const page of pages) {
   const file = join('dist', `${page.path.slice(1)}.html`);
   await mkdir(join(file, '..'), { recursive: true });
   await writeFile(file, renderDocument(template, page, render(page)));
  }
+ // Render public information pages for every query-language variant too.
+ await build({ configFile: false, plugins: [react()], logLevel: 'warn', build: { ssr: 'scripts/information-render-entry.jsx', outDir: join(tmp, 'information'), emptyOutDir: true, rollupOptions: { external: ['react', 'react/jsx-runtime', 'react-dom/server', 'react-router-dom'] } } });
+ const { renderInformation } = await import(pathToFileURL(join(tmp, 'information/information-render-entry.js')));
+ const information = Object.fromEntries(supportedLanguages.map(language => [language, Object.fromEntries(informationPaths.map(path => [path, renderInformation(path.slice(1), language)]))]));
+ await writeFile('.seo-server/information.json', JSON.stringify(information));
  const xml = value => escapeHtml(value).replaceAll('&#39;', '&apos;');
  await mkdir('dist/sitemaps', { recursive: true });
  const chunks = [];
@@ -30,8 +41,8 @@ try {
   await writeFile(`dist/sitemaps/${filename}`, `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${body}</urlset>`);
   chunks.push(`/sitemaps/${filename}`);
  }
- const general = [ '/about', '/contact', '/support', '/privacy', '/terms', '/refund'];
- await writeFile('dist/sitemaps/general.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${general.map(path => `<url><loc>${SITE_URL}${path}</loc></url>`).join('')}</urlset>`);
+ const general = informationPaths.flatMap(path => supportedLanguages.map(language => ({ path: informationPath(path, language), alternates: informationAlternates(path) })));
+ await writeFile('dist/sitemaps/general.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${general.map(page => `<url><loc>${xml(SITE_URL + page.path)}</loc>${page.alternates.map(a => `<xhtml:link rel="alternate" hreflang="${a.language}" href="${xml(SITE_URL + a.path)}"/>`).join('')}</url>`).join('')}</urlset>`);
  chunks.push('/sitemaps/general.xml');
  await writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${chunks.map(path => `<sitemap><loc>${SITE_URL}${path}</loc></sitemap>`).join('')}</sitemapindex>`);
  await writeFile('dist/seo-manifest.json', JSON.stringify({ pages: pages.map(({ path, kind, lang }) => ({ path, kind, lang })), hotels: pages.filter(p => p.kind === 'hotel' && p.lang === 'en').map(p => p.hotel.id) }, null, 2));

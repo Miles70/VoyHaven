@@ -36,3 +36,5 @@ server/.rotavoy-cj-stock-harvest.json.tmp
 test-results/
 
 .seo-render-*
+
+/.seo-server/

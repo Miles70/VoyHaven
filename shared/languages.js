@@ -22,9 +22,11 @@ export const supportedLanguages = languageOptions.map(({ code }) => code);
 export const languageNames = Object.fromEntries(languageOptions.map(({ code, label }) => [code, label]));
 export const translationLanguageNames = Object.fromEntries(languageOptions.map(({ code, name }) => [code, name]));
 export const addedLanguages = ['nl', 'nb', 'sv', 'da', 'fi', 'ja', 'ko'];
-export function normalizeLanguage(value) {
+export function requestedLanguage(value) {
   const code = String(value || '').toLowerCase().split(/[-_]/)[0];
   // Browsers commonly report no-NO; the site's Norwegian locale is Bokmål.
   if (code === 'no') return 'nb';
-  return supportedLanguages.includes(code) ? code : 'en';
+  return supportedLanguages.includes(code) ? code : null;
 }
+
+export function normalizeLanguage(value) { return requestedLanguage(value) || 'en'; }

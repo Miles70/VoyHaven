@@ -60,7 +60,7 @@ try {
     await card.screenshot({ path: `test-results/hotel-ui/card-${width}.png` });
     await page.getByRole('button', { name: 'Bu odayı seç', exact: true }).click();
     await page.locator('.hotelBookSelected').click();
-    await page.waitForURL('**/travel/checkout');
+    await page.waitForURL(url => url.pathname === '/travel/checkout');
     const submit = page.locator('.travelCheckoutSubmit');
     assert.equal(await submit.isDisabled(), true);
     await page.getByLabel('Ad', { exact: true }).first().fill('Miles');

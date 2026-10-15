@@ -1,0 +1,20 @@
+const rows = {
+  en: ['Saved.', 'Delete traveler', 'Proceed to payment'],
+  tr: ['Kaydedildi.', 'Yolcu kaydını sil', 'Ödemeye geç'],
+  de: ['Gespeichert.', 'Reisenden löschen', 'Weiter zur Zahlung'],
+  fr: ['Enregistré.', 'Supprimer le voyageur', 'Passer au paiement'],
+  ru: ['Сохранено.', 'Удалить путешественника', 'Перейти к оплате'],
+  es: ['Guardado.', 'Eliminar viajero', 'Continuar al pago'],
+  ar: ['تم الحفظ.', 'حذف المسافر', 'المتابعة إلى الدفع'],
+  pt: ['Salvo.', 'Excluir viajante', 'Continuar para o pagamento'],
+  it: ['Salvato.', 'Elimina viaggiatore', 'Procedi al pagamento'],
+  zh: ['已保存。', '删除旅客', '前往付款'],
+  nl: ['Opgeslagen.', 'Reiziger verwijderen', 'Doorgaan naar betalen'],
+  nb: ['Lagret.', 'Slett reisende', 'Gå til betaling'],
+  sv: ['Sparat.', 'Ta bort resenär', 'Gå till betalning'],
+  da: ['Gemt.', 'Slet rejsende', 'Gå til betaling'],
+  fi: ['Tallennettu.', 'Poista matkustaja', 'Siirry maksamaan'],
+  ja: ['保存しました。', '旅行者情報を削除', 'お支払いに進む'],
+  ko: ['저장되었습니다.', '여행자 정보 삭제', '결제하기'],
+};
+export default Object.fromEntries(Object.entries(rows).map(([language, values]) => [language, Object.fromEntries(['Kaydedildi.', 'Yolcu kaydını sil', 'Ödemeye geç'].map((key, index) => [key, values[index]]))]));

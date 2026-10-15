@@ -275,7 +275,7 @@ function Header() {
                     role="menuitem"
                   >
                     <LogOut size={18} />
-                    {text("account.signOut", "Sign out")}
+                    {text("auth.signOut", "Sign out")}
                   </button>
                 </div>
               )}

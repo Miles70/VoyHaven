@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build && node scripts/build-seo.mjs",
     "lint": "eslint .",
-    "preview": "vite preview",
+    "preview": "node scripts/preview.mjs",
     "server:install": "npm --prefix server install",
     "server:dev": "npm --prefix server run dev",
     "server:start": "npm --prefix server start",

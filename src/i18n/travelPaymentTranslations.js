@@ -1,3 +1,4 @@
+import availability from "./paymentAvailabilityTranslations.js";
 import { additionalTranslations } from "./extended/index.js";
 const travelPaymentTranslations = {
   en: {
@@ -505,3 +506,5 @@ const travelPaymentTranslations = {
 export default travelPaymentTranslations;
 
 Object.assign(travelPaymentTranslations, additionalTranslations("travelPaymentTranslations.js", "default"));
+
+for (const [language, messages] of Object.entries(availability)) Object.assign(travelPaymentTranslations[language], messages);

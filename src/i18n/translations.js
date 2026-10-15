@@ -1,3 +1,4 @@
+import accountTranslations from "./accountTranslations.js";
 import { additionalTranslations } from "./extended/index.js";
 import hotelRateTranslations from "./hotelRateTranslations";
 import rateConditionsTranslations from "./rateConditionsTranslations";
@@ -31,6 +32,7 @@ function withTravelTranslations(baseTranslations, language) {
     hotelFacts: hotelFactsTranslations[language] || hotelFactsTranslations.en,
     hotelContent: hotelContentTranslations[language] || hotelContentTranslations.en,
     auth,
+    account: accountTranslations[language],
     hotelRate: hotelRateTranslations[language],
     rateConditions: rateConditionsTranslations[language] || rateConditionsTranslations.en,
     hotelDetail: hotelDetailTranslations[language] || hotelDetailTranslations.en,

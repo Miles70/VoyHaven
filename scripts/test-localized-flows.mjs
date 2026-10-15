@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
 import { build } from 'vite';
 import react from '@vitejs/plugin-react';
-import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, writeFile, readFile, readdir, rm } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
-import catalogs from '../src/i18n/extended/flows.js';
-import { addedLanguages } from '../shared/languages.js';
+import catalogs from '../src/i18n/flowCatalogs.js';
+import actions from '../src/i18n/flowActionTranslations.js';
+import { supportedLanguages } from '../shared/languages.js';
 const root = process.cwd(), temporary = await mkdtemp(path.join(root, 'node_modules/.localized-flows-'));
 try {
+  await writeFile(path.join(temporary, 'auth-mock.js'), `export const useCustomerAuth = () => ({ isAuthenticated: true, customerSession: { token: 'fixture' }, displayName: 'Fixture traveler', isGuest: false, openAuthModal() {} });`);
   await writeFile(path.join(temporary, 'wallet-mock.js'), `
 export const useAppKit = () => ({ open() {} });
 export const useAppKitAccount = () => ({ isConnected: false, address: '' });
@@ -23,26 +25,36 @@ import { MemoryRouter } from 'react-router-dom';
 import { LanguageProvider } from '${root}/src/i18n/LanguageContext.jsx';
 import ReservationResult from '${root}/src/components/ReservationResult.jsx';
 import FlightCheckout from '${root}/src/pages/FlightCheckout.jsx';
+import TravelAccount from '${root}/src/pages/TravelAccount.jsx';
 import StripePayment from '${root}/src/components/StripePayment.jsx';
 import CryptoPayment from '${root}/src/components/CryptoPayment/CryptoPayment.jsx';
+export { default as dictionaries } from '${root}/src/i18n/translations.js';
 export { flowText } from '${root}/src/i18n/flowTranslations.js';
 export function render(language, status = 'confirmed', reference = 'fixture-reference') {
  globalThis.localStorage = { getItem: () => language };
  const result = { total: 123.45, currency: 'EUR', offer: { offerId: 'fixture' }, segments: [{ originCode: 'AYT', destinationCode: 'FRA', departureTime: '2099-10-01T10:00:00', direction: 'OUTBOUND' }] };
- return renderToStaticMarkup(<MemoryRouter initialEntries={[{ pathname:'/flights/checkout', state:{result,passengers:{adults:1}} }]}><LanguageProvider><FlightCheckout/><StripePayment session={{amount:123.45,currency:'EUR'}}/><ReservationResult booking={{status,kind:'hotel',clientReference:reference}}/><CryptoPayment booking={{id:'fixture',paymentMethod:'crypto',paymentStatus:'unpaid',total:12.345,payment:{expectedAmount:'12.345',token:'USDT',network:'BNB Chain',chainId:56,tokenDecimals:18,tokenAddress:'0x0000000000000000000000000000000000000001',recipientAddress:'0x0000000000000000000000000000000000000002'}}}/></LanguageProvider></MemoryRouter>);
+ return renderToStaticMarkup(<MemoryRouter initialEntries={[{ pathname:'/flights/checkout', state:{result,passengers:{adults:1,children:1,infants:1}} }]}><LanguageProvider><TravelAccount/><FlightCheckout/><StripePayment session={{amount:123.45,currency:'EUR'}}/><ReservationResult booking={{status,kind:'hotel',clientReference:reference}}/><CryptoPayment booking={{id:'fixture',paymentMethod:'crypto',paymentStatus:'unpaid',total:12.345,payment:{expectedAmount:'12.345',token:'USDT',network:'BNB Chain',chainId:56,tokenDecimals:18,tokenAddress:'0x0000000000000000000000000000000000000001',recipientAddress:'0x0000000000000000000000000000000000000002'}}}/></LanguageProvider></MemoryRouter>);
 }
 `);
-  await build({ configFile: false, resolve: { alias: [{ find: '@reown/appkit/react', replacement: path.join(temporary, 'wallet-mock.js') }, { find: 'wagmi', replacement: path.join(temporary, 'wallet-mock.js') }] }, plugins: [react()], logLevel: 'error', publicDir: false, build: { ssr: path.join(temporary, 'entry.jsx'), outDir: path.join(temporary, 'out'), emptyOutDir: true } });
-  const { render, flowText } = await import(pathToFileURL(path.join(temporary, 'out/entry.js')));
+  await build({ configFile: false, resolve: { alias: [{ find: '@reown/appkit/react', replacement: path.join(temporary, 'wallet-mock.js') }, { find: 'wagmi', replacement: path.join(temporary, 'wallet-mock.js') }] }, plugins: [{ name: 'auth-fixture', enforce: 'pre', resolveId(source) { if (/CustomerAuthContext(?:\.jsx)?$/.test(source)) return path.join(temporary, 'auth-mock.js'); } }, react()], logLevel: 'error', publicDir: false, build: { ssr: path.join(temporary, 'entry.jsx'), outDir: path.join(temporary, 'out'), emptyOutDir: true } });
+  const { render, flowText, dictionaries } = await import(pathToFileURL(path.join(temporary, 'out/entry.js')));
+  for (const file of (await readdir('src', { recursive: true })).filter(file => /\.[jt]sx?$/.test(file))) {
+    const source = await readFile(path.join('src', file), 'utf8');
+    for (const match of source.matchAll(/\b(?:t|text)\(\s*["']([\w.]+)["']/g)) {
+      if (!match[1].includes('.')) continue;
+      for (const language of supportedLanguages) assert.notEqual(match[1].split('.').reduce((value, key) => value?.[key], dictionaries[language]), undefined, `${file}: missing ${language}.${match[1]}`);
+    }
+  }
   const keys = Object.keys(catalogs.nl).sort();
-  for (const language of addedLanguages) {
+  for (const language of supportedLanguages.filter(language => language !== 'tr')) {
     assert.deepEqual(Object.keys(catalogs[language]).sort(), keys, language);
     for (const [source, text] of Object.entries(catalogs[language])) {
       assert.ok(text.trim() && !/98765\d+|<unk>/.test(text), language);
       assert.deepEqual((source.match(/\{\w+\}/g) || []).sort(), (text.match(/\{\w+\}/g) || []).sort(), source);
     }
-    const html = render(language);
-    for (const key of ['İletişim bilgileri','Kartla güvenli ödeme','Otel rezervasyonun onaylandı']) assert.ok(html.includes(catalogs[language][key]), `${language}: ${key}`);
+    const html = render(language).replaceAll('&#x27;', "'").replaceAll('&#39;', "'").replaceAll('&quot;', '"').replaceAll('&amp;', '&');
+    for (const key of ['İletişim bilgileri','Kartla güvenli ödeme','Otel rezervasyonun onaylandı','Favorilerim','Yolcu bilgilerim','Destek taleplerim']) assert.ok(html.includes(catalogs[language][key]), `${language}: ${key}`);
+    assert.ok(!/Yetişkin|Çocuk|Bebek|Belgedeki/.test(html), language);
     assert.ok(!html.includes('İletişim bilgileri') && !html.includes('Otel rezervasyonun onaylandı'), language);
     assert.ok(html.includes('fixture-reference') && html.includes('AYT') && html.includes('FRA'));
     assert.ok(render(language, 'processing').includes(catalogs[language]['Rezervasyonun kontrol ediliyor']));
@@ -65,9 +77,9 @@ export function render(language, status = 'confirmed', reference = 'fixture-refe
       const token = match[1];
       const value = (token.startsWith('"') ? JSON.parse(token) : token.slice(1, -1).replace(/\\'/g, "'")).trim();
       if (!value || !/[A-Za-zığüşöçİĞÜŞÖÇ]/.test(value) || unchanged.has(value)) continue;
-      for (const language of addedLanguages) assert.ok(catalogs[language][value], `${file}: missing ${language} display string: ${value}`);
+      for (const language of supportedLanguages.filter(language => language !== 'tr')) assert.ok(catalogs[language][value] || actions[language][value], `${file}: missing ${language} display string: ${value}`);
     }
   }
   assert.equal(flowText('İletişim bilgileri', 'tr'), 'İletişim bilgileri');
-  console.log(`Account/payment copy: ${addedLanguages.length} new locales, ${keys.length} strings each; flight checkout, card/crypto instructions and pending reservation-result rendering passed without payment requests.`);
+  console.log(`Account/payment copy: ${supportedLanguages.length} locales, ${keys.length} strings each; flight checkout, card/crypto instructions and pending reservation-result rendering passed without payment requests.`);
 } finally { await rm(temporary, { recursive: true, force: true }); delete globalThis.localStorage; }

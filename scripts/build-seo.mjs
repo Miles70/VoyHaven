@@ -1,3 +1,4 @@
+import { copy, languageNames } from "../seo/copy.js";
 import { informationPaths, informationPath, informationAlternates } from "../seo/information-locales.js";
 import { supportedLanguages } from "../shared/languages.js";
 import { readFile, readdir, mkdir, writeFile, mkdtemp, rm } from 'node:fs/promises';
@@ -30,6 +31,10 @@ try {
  await build({ configFile: false, plugins: [react()], logLevel: 'warn', build: { ssr: 'scripts/information-render-entry.jsx', outDir: join(tmp, 'information'), emptyOutDir: true, rollupOptions: { external: ['react', 'react/jsx-runtime', 'react-dom/server', 'react-router-dom'] } } });
  const { renderInformation } = await import(pathToFileURL(join(tmp, 'information/information-render-entry.js')));
  const information = Object.fromEntries(supportedLanguages.map(language => [language, Object.fromEntries(informationPaths.map(path => [path, renderInformation(path.slice(1), language)]))]));
+ for (const language of supportedLanguages) {
+  const c = copy[language];
+  information[language]['/'] = `<main><h1>${escapeHtml(c.homeTitle)}</h1><p>${escapeHtml(c.hotelHelp)}</p><nav><a href="/${language}/hotels">${escapeHtml(c.hotels)}</a> · <a href="/${language}/flights">${escapeHtml(c.flights)}</a></nav><nav>${supportedLanguages.map(lang => `<a href="/${lang}" lang="${lang}" hreflang="${lang}">${escapeHtml(languageNames[lang])}</a>`).join(' · ')}</nav></main>`;
+ }
  await writeFile('.seo-server/information.json', JSON.stringify(information));
  const xml = value => escapeHtml(value).replaceAll('&#39;', '&apos;');
  await mkdir('dist/sitemaps', { recursive: true });

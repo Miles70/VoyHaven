@@ -133,6 +133,7 @@ console.log(`SEO passed: ${pages.length} JavaScript-free HTML pages, ${languages
 for (const lang of languages) {
  const root = await request(`/?lang=${lang}`);
  assert.equal(root.status, 200);
+ assert.ok(root.body.includes(`<h1>${copy[lang].homeTitle.replaceAll('&', '&amp;').replaceAll("'", '&#39;')}</h1>`));
  assert.ok(root.body.includes(`<html lang="${lang}" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">`));
  assert.ok(root.body.includes(`rel="canonical" href="${SITE_URL}/${lang}"`));
  assert.equal(root.headers['Cache-Control'], 'private, no-store');

@@ -6,6 +6,7 @@ import { markAnalyticsTest } from './analytics-test-context.mjs';
 import aboutTranslations from '../src/i18n/aboutTranslations.js';
 
 const server = await createServer({ server: { host: '127.0.0.1', port: 5180, strictPort: true }, define: { 'import.meta.env.VITE_REOWN_PROJECT_ID': JSON.stringify('00000000000000000000000000000000'), 'import.meta.env.VITE_SUPPORT_EMAIL': JSON.stringify('support@voyhaven.com'), 'import.meta.env.VITE_API_BASE_URL': JSON.stringify('') } });
+// Match the standalone beta label; Scandinavian payment words such as betalning are valid copy.
 let browser;
 try {
   await server.listen();
@@ -34,7 +35,7 @@ try {
       assert.equal(await page.locator('.aboutButtonPrimary').getAttribute('href'), `/hotels?lang=${language}`);
       assert.equal(await page.locator('.aboutButtonSecondary').getAttribute('href'), `/flights?lang=${language}`);
       assert.equal(await page.locator('.aboutSupportLink').getAttribute('href'), `/support?lang=${language}`);
-      assert.ok(!/beta|travel-first|rotavoy/i.test(await page.locator('.aboutPage').innerText()));
+      assert.ok(!/\bbeta\b|travel-first|rotavoy/i.test(await page.locator('.aboutPage').innerText()));
       assert.equal(await page.locator('.aboutHeroVisual img').evaluate(node => node.complete && node.naturalWidth > 0), true);
       const overflow = await page.evaluate(() => [...globalThis.document.querySelectorAll('.aboutPage *')].filter(node => { const rect = node.getBoundingClientRect(); return rect.right > globalThis.innerWidth + 1 || rect.left < -1; }).map(node => node.className));
       assert.deepEqual(overflow, [], `${language}, ${width}px: overflowing elements`);

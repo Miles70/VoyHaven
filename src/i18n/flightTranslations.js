@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const keys = ['title', 'intro', 'hotels', 'flights', 'from', 'to', 'airportHint', 'oneWay', 'roundTrip', 'departure', 'returnDate', 'adults', 'children', 'infants', 'cabin', 'sandbox', 'preview', 'total', 'outbound', 'inbound', 'stops', 'nonstop', 'baggage', 'unknown', 'empty', 'selectAirport', 'error', 'invalid', 'timeout', 'rateLimit', 'localTimes', 'results', 'more', 'economy', 'premium', 'business', 'first', 'currency', 'country'];
 const rows = {
 tr: 'Bir sonraki rotan gökyüzünde|Uçuşları bul, saatleri ve fiyatları karşılaştır.|Oteller|Uçak Biletleri|Nereden?|Nereye?|Şehir, havalimanı veya IATA kodu|Tek yön|Gidiş dönüş|Gidiş tarihi|Dönüş tarihi|Yetişkin (12+)|Çocuk (2–11)|Bebek (0–1)|Kabin sınıfı|Sandbox · Test sonuçları gerçek fiyat ve müsaitliği yansıtmaz.|Şimdilik arama ve karşılaştırma açık. Bilet satın alma henüz aktif değil.|Tüm yolcular için toplam|Gidiş|Dönüş|Durak / aktarma|Aktarmasız|Dahil bagaj|Belirtilmemiş|Bu aramada uçuş bulunamadı. Başka tarih veya rota dene.|Listeden bir havalimanı seç.|Uçuş servisine ulaşılamadı veya hesap erişimi açık değil. Lütfen tekrar dene.|Havalimanlarını, tarihleri ve yolcu sayılarını kontrol et. En fazla 9 yolcu; her bebek için bir yetişkin gerekir.|Arama zaman aşımına uğradı. Tekrar dene.|Çok fazla arama yapıldı. Biraz sonra tekrar dene.|Saatler havalimanlarının yerel saatidir.|Uçuş seçenekleri|Daha fazla göster|Ekonomi|Premium ekonomi|Business|First class|Para birimi|İkamet ülkesi',
@@ -23,5 +24,7 @@ const searchLabels = {
   pt: ['Buscar voos', 'Buscando voos…'],
   zh: ['搜索航班', '正在搜索航班…'],
 };
-export default Object.fromEntries(Object.entries(rows).map(([language, row]) => [language, { ...Object.fromEntries(keys.map((key, index) => [key, row.split('|')[index]])), search: (searchLabels[language] || searchLabels.en)[0], searching: (searchLabels[language] || searchLabels.en)[1] }]));
+const localizedTranslations = Object.fromEntries(Object.entries(rows).map(([language, row]) => [language, { ...Object.fromEntries(keys.map((key, index) => [key, row.split('|')[index]])), search: (searchLabels[language] || searchLabels.en)[0], searching: (searchLabels[language] || searchLabels.en)[1] }]));
+export default localizedTranslations;
 
+Object.assign(localizedTranslations, additionalTranslations("flightTranslations.js", "default"));

@@ -1,3 +1,4 @@
+import { additionalTranslations } from "../src/i18n/extended/index.js";
 import { SITE_URL } from './model.js';
 import { copy } from './copy.js';
 import legalTranslations from '../src/i18n/legalTranslations.js';
@@ -37,3 +38,5 @@ export function appPolicy(pathname, search = '', catalog = []) {
  const canonicalPath = liveHotel && hotelMatch && catalog.includes(hotelMatch[1]) ? `/${lang}/travel/hotels/${hotelMatch[1]}` : ['/hotels','/flights'].includes(pathname) ? `/${lang}${pathname}` : pathname === "/" ? "/en" : pathname;
  return { status: known ? 200 : 404, noIndex, title: `${title} | VoyHaven`, description: information?.[1] || (pathname.startsWith('/flights') ? c.flightHelp : c.hotelHelp), canonical: SITE_URL + canonicalPath };
 }
+
+Object.assign(generalSeo, additionalTranslations("generalSeo"));

@@ -47,7 +47,7 @@ jobs:
           VITE_REOWN_PROJECT_ID: "00000000000000000000000000000000"
 
       - name: Validate all SEO HTML and sitemap relationships
-        run: npm run test:seo
+        run: npm run test:languages && npm run test:localized-flows && npm run test:seo
 
       - name: Test hotel UI
         run: npm run test:hotel-ui

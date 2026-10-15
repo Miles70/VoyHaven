@@ -54,6 +54,6 @@ try {
       assert.equal(new URL(page.url()).searchParams.get('lang'), language);
       await context.close();
     }
-    console.log(`Legal pages passed at ${width}px in 10 languages: footer navigation, contents anchors, RTL, metadata, support links and layout.`);
+    console.log(`Legal pages passed at ${width}px in ${Object.keys(legalTranslations).length} languages: footer navigation, contents anchors, RTL, metadata, support links and layout.`);
   }
 } finally { if (browser) await browser.close(); await server.close(); }

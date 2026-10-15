@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const travelAuthTranslations = {
   en: {
     headerSignIn: "Sign in",
@@ -382,3 +383,5 @@ const travelAuthTranslations = {
 };
 
 export default travelAuthTranslations;
+
+Object.assign(travelAuthTranslations, additionalTranslations("travelAuthTranslations.js", "default"));

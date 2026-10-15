@@ -1,3 +1,4 @@
+import { additionalTranslations } from "../i18n/extended/index.js";
 import flights from '../i18n/flightTranslations.js';
 const modifiers = {
  en: ['Partially refundable', 'Non-refundable', 'Refundable', 'Comfort', 'Flexible', 'Basic', 'Standard', 'Light', 'Plus', 'Saver'],
@@ -31,3 +32,7 @@ export function flightFareLabel(value, language = 'en') {
  const description = index >= 0 ? (modifiers[language] || modifiers.en)[index] : rest;
  return `${copy[key]} · ${description}`;
 }
+
+Object.assign(modifiers, additionalTranslations("fare-modifiers"));
+
+Object.assign(fullyFlexible, additionalTranslations("fare-fullyFlexible"));

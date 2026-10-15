@@ -42,6 +42,6 @@ try {
       if (['tr', 'ar'].includes(language)) await page.screenshot({ path: `test-results/about/${language}-${width}.png`, fullPage: true });
       await context.close();
     }
-    console.log(`About page passed at ${width}px in 10 languages: copy, layout, RTL, metadata, working destinations and no browser exceptions.`);
+    console.log(`About page passed at ${width}px in ${Object.keys(aboutTranslations).length} languages: copy, layout, RTL, metadata, working destinations and no browser exceptions.`);
   }
 } finally { if (browser) await browser.close(); await server.close(); }

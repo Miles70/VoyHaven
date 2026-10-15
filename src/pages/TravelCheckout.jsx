@@ -1,3 +1,4 @@
+import { useFlowText } from '../i18n/flowTranslations';
 import { trackTravel } from '../services/analytics';
 import RateConditions from "../components/RateConditions";
 import { useLanguage } from "../i18n/LanguageContext";
@@ -40,8 +41,8 @@ const CRYPTO_ASSETS = [
   { symbol: "ETH", networks: ["ETH"] },
 ];
 
-function money(amount, currency = "EUR") {
-  return new Intl.NumberFormat("tr-TR", {
+function formatMoney(amount, currency = "EUR", language = "en") {
+  return new Intl.NumberFormat(language, {
     style: "currency",
     currency,
     maximumFractionDigits: 2,
@@ -49,6 +50,8 @@ function money(amount, currency = "EUR") {
 }
 
 function TravelCheckout() {
+  const ui = useFlowText();
+
   const { customerSession } = useCustomerAuth();
   const [savedTravelers, setSavedTravelers] = useState([]);
   const [travelerError, setTravelerError] = useState("");
@@ -92,7 +95,8 @@ function TravelCheckout() {
   }, [cardReturnReference, isCardPaymentReturn, returnAttempt]);
 
   const hotel = state?.hotel;
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const money = (amount, currency) => formatMoney(amount, currency, language);
   const [updatedPrebook, setUpdatedPrebook] = useState(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const prebook = updatedPrebook || state?.prebook;
@@ -250,20 +254,20 @@ function TravelCheckout() {
     }
   }
 
-  if (isCardReturn) return <main className="travelCheckoutState">{returnError && <p role="alert">{returnError}</p>}{returnBooking ? <ReservationResult booking={returnBooking} onRefresh={() => setReturnAttempt(v => v + 1)} /> : <><h1>{returnState === "error" ? "Rezervasyon kontrol edilemedi" : "Rezervasyon kontrol ediliyor"}</h1><strong>Referans: {cardReturnReference}</strong><button onClick={() => setReturnAttempt(v => v + 1)}>Durumu kontrol et</button></>}</main>;
+  if (isCardReturn) return <main className="travelCheckoutState">{ui(returnError && <p role="alert">{ui(returnError)}</p>)}{ui(returnBooking ? <ReservationResult booking={returnBooking} onRefresh={() => setReturnAttempt(v => v + 1)} /> : <><h1>{ui(returnState === "error" ? "Rezervasyon kontrol edilemedi" : "Rezervasyon kontrol ediliyor")}</h1><strong>{ui("Referans: ")}{ui(cardReturnReference)}</strong><button onClick={() => setReturnAttempt(v => v + 1)}>{ui("Durumu kontrol et")}</button></>)}</main>;
 
   if (!hotel || !prebook || !offer?.offerId) {
     return (
       <main className="travelCheckoutState">
         <AlertCircle size={30} />
-        <h1>Rezervasyon oturumu bulunamadı</h1>
-        <p>Oda ve güncel fiyat yeniden kontrol edilmelidir.</p>
-        <Link to="/travel">Otel aramasına dön</Link>
+        <h1>{ui("Rezervasyon oturumu bulunamadı")}</h1>
+        <p>{ui("Oda ve güncel fiyat yeniden kontrol edilmelidir.")}</p>
+        <Link to="/travel">{ui("Otel aramasına dön")}</Link>
       </main>
     );
   }
 
-  if (cryptoBooking?.status === "confirmed" || cryptoBooking?.paymentStatus === "paid") return <main className="travelCheckoutState"><ReservationResult booking={cryptoBooking} onRefresh={async () => { try { setCryptoBooking(await getTravelReservation(cryptoBooking.clientReference)); } catch (e) { setError(e.message); } }} />{error && <p role="alert">{error}</p>}<Link to={`/travel/checkout?bookingRef=${encodeURIComponent(cryptoBooking.clientReference)}`}>Rezervasyon durum sayfasını aç</Link></main>;
+  if (cryptoBooking?.status === "confirmed" || cryptoBooking?.paymentStatus === "paid") return <main className="travelCheckoutState"><ReservationResult booking={cryptoBooking} onRefresh={async () => { try { setCryptoBooking(await getTravelReservation(cryptoBooking.clientReference)); } catch (e) { setError(e.message); } }} />{ui(error && <p role="alert">{ui(error)}</p>)}<Link to={`/travel/checkout?bookingRef=${encodeURIComponent(cryptoBooking.clientReference)}`}>{ui("Rezervasyon durum sayfasını aç")}</Link></main>;
 
   const cardReturnUrl = cardSession
     ? `${window.location.origin}/travel/checkout?cardRef=${encodeURIComponent(
@@ -278,19 +282,15 @@ function TravelCheckout() {
           className="travelCheckoutBack"
           to={`/travel/hotels/${encodeURIComponent(confirmedHotelId)}`}
         >
-          <ArrowLeft size={18} /> Otele dön
-        </Link>
+          <ArrowLeft size={18} />{ui(" Otele dön ")}</Link>
 
         <div className="travelCheckoutGrid">
           <section>
-            <span className="travelCheckoutEyebrow">GÜVENLİ REZERVASYON</span>
-            <h1>Misafir bilgileri</h1>
-            <p className="travelCheckoutLead">
-              Bilgileri kontrol et. Oda ve toplam fiyat yeniden doğrulanır;
-              ardından kart veya kripto ile güvenli ödeme adımına geçersin.
-            </p>
+            <span className="travelCheckoutEyebrow">{ui("GÜVENLİ REZERVASYON")}</span>
+            <h1>{ui("Misafir bilgileri")}</h1>
+            <p className="travelCheckoutLead">{ui(" Bilgileri kontrol et. Oda ve toplam fiyat yeniden doğrulanır; ardından kart veya kripto ile güvenli ödeme adımına geçersin. ")}</p>
 
-            {cardSession ? (
+            {ui(cardSession ? (
               <NuiteeCardPayment
                 session={cardSession}
                 returnUrl={cardReturnUrl}
@@ -304,12 +304,10 @@ function TravelCheckout() {
               />
             ) : (
               <form onSubmit={submit} className="travelCheckoutForm">
-                {savedTravelers.length > 0 && <label className="checkoutSavedTraveler">Kayıtlı yolcu bilgilerini kullan<select defaultValue="" onChange={event => { const person = savedTravelers.find(p => p._id === event.target.value); if (!person) return; setForm(current => ({ ...current, firstName: person.firstName, lastName: person.lastName, email: person.email || current.email, phone: person.phone || current.phone, guests: current.guests.map((g, i) => i === 0 ? { ...g, firstName: person.firstName, lastName: person.lastName } : g) })); }}><option value="">Yolcu seç</option>{savedTravelers.map(p => <option key={p._id} value={p._id}>{p.firstName} {p.lastName}</option>)}</select></label>}
-                {travelerError && <p role="status">Kayıtlı yolcular yüklenemedi. Bilgilerini aşağıdan doldurabilirsin.</p>}
+                {ui(savedTravelers.length > 0 && <label className="checkoutSavedTraveler">{ui("Kayıtlı yolcu bilgilerini kullan")}<select defaultValue="" onChange={event => { const person = savedTravelers.find(p => p._id === event.target.value); if (!person) return; setForm(current => ({ ...current, firstName: person.firstName, lastName: person.lastName, email: person.email || current.email, phone: person.phone || current.phone, guests: current.guests.map((g, i) => i === 0 ? { ...g, firstName: person.firstName, lastName: person.lastName } : g) })); }}><option value="">{ui("Yolcu seç")}</option>{ui(savedTravelers.map(p => <option key={p._id} value={p._id}>{ui(p.firstName)} {ui(p.lastName)}</option>))}</select></label>)}
+                {ui(travelerError && <p role="status">{ui("Kayıtlı yolcular yüklenemedi. Bilgilerini aşağıdan doldurabilirsin.")}</p>)}
                 <div className="travelCheckoutFormGrid">
-                  <label>
-                    Ad
-                    <input
+                  <label>{ui(" Ad ")}<input
                       required
                       value={form.firstName}
                       onChange={(event) =>
@@ -318,9 +316,7 @@ function TravelCheckout() {
                       autoComplete="given-name"
                     />
                   </label>
-                  <label>
-                    Soyad
-                    <input
+                  <label>{ui(" Soyad ")}<input
                       required
                       value={form.lastName}
                       onChange={(event) =>
@@ -329,9 +325,7 @@ function TravelCheckout() {
                       autoComplete="family-name"
                     />
                   </label>
-                  <label className="travelCheckoutWide">
-                    E-posta
-                    <input
+                  <label className="travelCheckoutWide">{ui(" E-posta ")}<input
                       required
                       type="email"
                       value={form.email}
@@ -341,9 +335,7 @@ function TravelCheckout() {
                       autoComplete="email"
                     />
                   </label>
-                  <label className="travelCheckoutWide">
-                    Telefon
-                    <input
+                  <label className="travelCheckoutWide">{ui(" Telefon ")}<input
                       required
                       type="tel"
                       value={form.phone}
@@ -356,18 +348,14 @@ function TravelCheckout() {
                 </div>
 
                 <div className="travelGuestFields">
-                  <h2>Oda ana misafiri</h2>
-                  <p className="travelCheckoutSecurity">
-                    Rezervasyon sistemi oda başına bir ana misafir ister.{" "}
-                    {adults} yetişkin bilgisi rezervasyonda korunur.
-                  </p>
+                  <h2>{ui("Oda ana misafiri")}</h2>
+                  <p className="travelCheckoutSecurity">{ui(" Rezervasyon sistemi oda başına bir ana misafir ister.")}{ui(" ")}
+                    {ui(adults)}{ui(" yetişkin bilgisi rezervasyonda korunur. ")}</p>
 
-                  {form.guests.map((guest, index) => (
+                  {ui(form.guests.map((guest, index) => (
                     <div className="travelCheckoutFormGrid" key={index}>
-                      <strong className="travelCheckoutWide">Oda 1</strong>
-                      <label>
-                        Ad
-                        <input
+                      <strong className="travelCheckoutWide">{ui("Oda 1")}</strong>
+                      <label>{ui(" Ad ")}<input
                           required
                           value={guest.firstName}
                           onChange={(event) =>
@@ -375,9 +363,7 @@ function TravelCheckout() {
                           }
                         />
                       </label>
-                      <label>
-                        Soyad
-                        <input
+                      <label>{ui(" Soyad ")}<input
                           required
                           value={guest.lastName}
                           onChange={(event) =>
@@ -386,13 +372,13 @@ function TravelCheckout() {
                         />
                       </label>
                     </div>
-                  ))}
+                  )))}
                 </div>
 
                 <div
                   className="travelPaymentChoice"
                   role="group"
-                  aria-label="Ödeme yöntemi"
+                  aria-label={ui("Ödeme yöntemi")}
                 >
                   <button
                     type="button"
@@ -405,8 +391,8 @@ function TravelCheckout() {
                   >
                     <CreditCard size={21} />
                     <span>
-                      <strong>Kart / Cüzdan</strong>
-                      <small>VoyHaven · 3D Secure destekli</small>
+                      <strong>{ui("Kart / Cüzdan")}</strong>
+                      <small>{ui("VoyHaven · 3D Secure destekli")}</small>
                     </span>
                   </button>
 
@@ -421,20 +407,20 @@ function TravelCheckout() {
                   >
                     <WalletCards size={21} />
                     <span>
-                      <strong>Kripto</strong>
-                      <small>USDT · USDC · BNB · ETH</small>
+                      <strong>{ui("Kripto")}</strong>
+                      <small>{ui("USDT · USDC · BNB · ETH")}</small>
                     </span>
                   </button>
                 </div>
 
-                {paymentMethod === "crypto" && (
+                {ui(paymentMethod === "crypto" && (
                   <div className="travelCryptoPicker">
                     <div
                       className="travelCryptoAssetChoice"
                       role="group"
-                      aria-label="Kripto ödeme birimi"
+                      aria-label={ui("Kripto ödeme birimi")}
                     >
-                      {CRYPTO_ASSETS.map((asset) => {
+                      {ui(CRYPTO_ASSETS.map((asset) => {
                         const isSelected = cryptoAsset === asset.symbol;
                         const hasNetworkChoice = asset.networks.length > 1;
                         const assetNetworkKey = isSelected
@@ -458,10 +444,10 @@ function TravelCheckout() {
                             }
                           >
                             <span className="travelCryptoAssetText">
-                              <strong>{asset.symbol}</strong>
-                              <small>{NETWORK_LABELS[assetNetworkKey]}</small>
+                              <strong>{ui(asset.symbol)}</strong>
+                              <small>{ui(NETWORK_LABELS[assetNetworkKey])}</small>
                             </span>
-                            {hasNetworkChoice && (
+                            {ui(hasNetworkChoice && (
                               <ChevronDown
                                 className={
                                   networkPickerOpen === asset.symbol
@@ -470,22 +456,22 @@ function TravelCheckout() {
                                 }
                                 size={17}
                               />
-                            )}
+                            ))}
                           </button>
                         );
-                      })}
+                      }))}
                     </div>
 
-                    {networkPickerOpen &&
+                    {ui(networkPickerOpen &&
                       ["USDT", "USDC"].includes(networkPickerOpen) && (
                         <div className="travelCryptoNetworkPicker">
-                          <span>{networkPickerOpen} için ağ seç</span>
+                          <span>{ui(networkPickerOpen)}{ui(" için ağ seç")}</span>
                           <div
                             className="travelCryptoNetworkOptions"
                             role="group"
-                            aria-label={`${networkPickerOpen} ağı`}
+                            aria-label={ui(`${networkPickerOpen} ağı`)}
                           >
-                            {["BSC", "ETH"].map((networkKey) => (
+                            {ui(["BSC", "ETH"].map((networkKey) => (
                               <button
                                 key={networkKey}
                                 type="button"
@@ -500,117 +486,115 @@ function TravelCheckout() {
                                   selectCryptoNetwork(networkKey);
                                 }}
                               >
-                                <strong>{NETWORK_LABELS[networkKey]}</strong>
+                                <strong>{ui(NETWORK_LABELS[networkKey])}</strong>
                                 <small>
-                                  {networkKey === "BSC"
+                                  {ui(networkKey === "BSC"
                                     ? "BNB ile gas"
-                                    : "ETH ile gas"}
+                                    : "ETH ile gas")}
                                 </small>
                               </button>
-                            ))}
+                            )))}
                           </div>
                         </div>
-                      )}
+                      ))}
                   </div>
-                )}
+                ))}
 
-                {prebook.changes?.length > 0 && <div className="rateTermsUpdate" role="alert">
-                  <h2>{t('rateConditions.updated')}</h2>
-                  <ul>{prebook.changes.map(change => <li key={change}>{t(`rateConditions.${change === 'price' ? 'priceChanged' : change === 'cancellation' ? 'cancellationChanged' : change === 'meal' ? 'mealChanged' : change === 'charges' ? 'chargesChanged' : change === 'room' ? 'roomChanged' : 'conditionsChanged'}`)}</li>)}</ul>
-                </div>}
+                {ui(prebook.changes?.length > 0 && <div className="rateTermsUpdate" role="alert">
+                  <h2>{ui(t('rateConditions.updated'))}</h2>
+                  <ul>{ui(prebook.changes.map(change => <li key={change}>{ui(t(`rateConditions.${change === 'price' ? 'priceChanged' : change === 'cancellation' ? 'cancellationChanged' : change === 'meal' ? 'mealChanged' : change === 'charges' ? 'chargesChanged' : change === 'room' ? 'roomChanged' : 'conditionsChanged'}`))}</li>))}</ul>
+                </div>)}
                 <RateConditions conditions={prebook.conditions} bookingConditions={prebook.bookingConditions} confirmed />
-                <label className="rateTermsAccept"><input type="checkbox" checked={termsAccepted} required onChange={event => setTermsAccepted(event.target.checked)} /><span>{t('rateConditions.accept')} · {money(price, currency)}</span></label>
-                {error && (
+                <label className="rateTermsAccept"><input type="checkbox" checked={termsAccepted} required onChange={event => setTermsAccepted(event.target.checked)} /><span>{ui(t('rateConditions.accept'))} · {ui(money(price, currency))}</span></label>
+                {ui(error && (
                   <p className="travelCheckoutError">
-                    <AlertCircle size={17} /> {error}
+                    <AlertCircle size={17} /> {ui(error)}
                   </p>
-                )}
+                ))}
 
                 <button
                   className="travelCheckoutSubmit"
                   disabled={submitState === "loading" || !termsAccepted}
                   type="submit"
                 >
-                  {submitState === "loading" ? (
+                  {ui(submitState === "loading" ? (
                     <LoaderCircle className="travelSpin" size={19} />
                   ) : (
                     <LockKeyhole size={18} />
-                  )}
-                  {submitState === "loading"
+                  ))}
+                  {ui(submitState === "loading"
                     ? "Fiyat ve oda doğrulanıyor"
                     : paymentMethod === "card"
                       ? "Güvenli kart ödeme formunu aç"
-                      : `${cryptoAsset} · ${selectedNetwork} ödeme adımına geç`}
+                      : `${cryptoAsset} · ${selectedNetwork} ödeme adımına geç`)}
                 </button>
 
                 <p className="travelCheckoutSecurity">
                   <ShieldCheck size={16} />
-                  {paymentMethod === "card"
+                  {ui(paymentMethod === "card"
                     ? "Kart bilgileri VoyHaven sunucusuna girmez; güvenli ödeme altyapısında işlenir."
-                    : `Rezervasyon yalnızca ${cryptoAsset} transferi ${selectedNetwork} ağında zincirde doğrulandıktan sonra oluşturulur.`}
+                    : `Rezervasyon yalnızca ${cryptoAsset} transferi ${selectedNetwork} ağında zincirde doğrulandıktan sonra oluşturulur.`)}
                 </p>
               </form>
-            )}
+            ))}
           </section>
 
           <aside className="travelCheckoutSummary">
-            <span>REZERVASYON ÖZETİ</span>
-            <h2>{hotelName}</h2>
+            <span>{ui("REZERVASYON ÖZETİ")}</span>
+            <h2>{ui(hotelName)}</h2>
             <dl>
               <div>
-                <dt>Giriş</dt>
-                <dd>{state.checkin}</dd>
+                <dt>{ui("Giriş")}</dt>
+                <dd>{ui(state.checkin)}</dd>
               </div>
               <div>
-                <dt>Çıkış</dt>
-                <dd>{state.checkout}</dd>
+                <dt>{ui("Çıkış")}</dt>
+                <dd>{ui(state.checkout)}</dd>
               </div>
               <div>
-                <dt>Misafir</dt>
-                <dd>{adults} yetişkin</dd>
+                <dt>{ui("Misafir")}</dt>
+                <dd>{ui(adults)}{ui(" yetişkin")}</dd>
               </div>
-              {cardSession && (
+              {ui(cardSession && (
                 <div>
-                  <dt>Ödeme</dt>
-                  <dd>Kart · VoyHaven</dd>
+                  <dt>{ui("Ödeme")}</dt>
+                  <dd>{ui("Kart · VoyHaven")}</dd>
                 </div>
-              )}
-              {!cardSession &&
+              ))}
+              {ui(!cardSession &&
                 !cryptoBooking &&
                 paymentMethod === "crypto" && (
                   <div>
-                    <dt>Kripto</dt>
+                    <dt>{ui("Kripto")}</dt>
                     <dd>
-                      {cryptoAsset} · {selectedNetwork}
+                      {ui(cryptoAsset)} · {ui(selectedNetwork)}
                     </dd>
                   </div>
-                )}
-              {cryptoBooking && (
+                ))}
+              {ui(cryptoBooking && (
                 <div>
-                  <dt>Ödeme</dt>
+                  <dt>{ui("Ödeme")}</dt>
                   <dd>
-                    {cryptoBooking.payment?.token} ·{" "}
-                    {cryptoBooking.payment?.network}
+                    {ui(cryptoBooking.payment?.token)} ·{ui(" ")}
+                    {ui(cryptoBooking.payment?.network)}
                   </dd>
                 </div>
-              )}
+              ))}
             </dl>
 
             <div className="travelCheckoutTotal">
               <span>
-                {cardSession
+                {ui(cardSession
                   ? "Kartla çekilecek toplam"
-                  : "Toplam konaklama"}
+                  : "Toplam konaklama")}
               </span>
-              <strong>{money(price, currency)}</strong>
+              <strong>{ui(money(price, currency))}</strong>
             </div>
 
-            {(cardSession || cryptoBooking) && <RateConditions conditions={prebook.conditions} bookingConditions={prebook.bookingConditions} confirmed />}
-            {cardSession && (
-              <p className="travelCheckoutPriceVerified">
-                Fiyat ödeme öncesi yeniden doğrulandı.
-              </p>
-            )}
+            {ui((cardSession || cryptoBooking) && <RateConditions conditions={prebook.conditions} bookingConditions={prebook.bookingConditions} confirmed />)}
+            {ui(cardSession && (
+              <p className="travelCheckoutPriceVerified">{ui(" Fiyat ödeme öncesi yeniden doğrulandı. ")}</p>
+            ))}
           </aside>
         </div>
       </div>

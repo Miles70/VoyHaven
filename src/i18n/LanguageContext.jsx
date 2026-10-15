@@ -1,39 +1,9 @@
+import { supportedLanguages, normalizeLanguage } from "../../shared/languages.js";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import translations from "./translations";
 
 const LanguageContext = createContext(null);
-
-const supportedLanguages = [
-  "en",
-  "tr",
-  "ru",
-  "ar",
-  "zh",
-  "es",
-  "pt",
-  "fr",
-  "de",
-  "it",
-];
-
-function normalizeLanguage(language) {
-  if (!language) return "en";
-
-  const lowerLanguage = language.toLowerCase();
-
-  if (lowerLanguage.startsWith("tr")) return "tr";
-  if (lowerLanguage.startsWith("ru")) return "ru";
-  if (lowerLanguage.startsWith("ar")) return "ar";
-  if (lowerLanguage.startsWith("zh")) return "zh";
-  if (lowerLanguage.startsWith("es")) return "es";
-  if (lowerLanguage.startsWith("pt")) return "pt";
-  if (lowerLanguage.startsWith("fr")) return "fr";
-  if (lowerLanguage.startsWith("de")) return "de";
-  if (lowerLanguage.startsWith("it")) return "it";
-
-  return "en";
-}
 
 function detectInitialLanguage() {
   const urlLanguage = new URLSearchParams(globalThis.window?.location?.search || "").get("lang");

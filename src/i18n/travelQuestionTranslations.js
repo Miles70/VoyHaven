@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const keys = ['priceQuestion','priceAnswer','baggageQuestion','baggageAnswer','checkQuestion','checkAnswer'];
 const rows = {
  tr: ['Fiyat neden değişebilir?', 'Fiyatlar müsaitliğe göre güncellenir. Seçtiğin teklif ödeme öncesinde yeniden kontrol edilir; bir değişiklik varsa devam etmeden önce görebilirsin.', 'Uçuş bagajımı nereden görebilirim?', 'Her uçuşun bagaj bilgileri, ilgili biletin “Bagaj detayları” bölümünde yer alır. Bagaj bilgisi belirtilmemişse rezervasyon öncesinde destek ekibimizden bilgi alabilirsin.', 'Bilet ve oda detaylarında neler yer alır?', 'Seçtiğin oda veya biletin fiyatı, tarihleri ve mevcut koşulları ilgili detaylarda gösterilir. Bilgiler, seçilen oda veya bilete özeldir.'],
@@ -11,4 +12,7 @@ const rows = {
  ar: ['لماذا قد يتغير السعر؟', 'تتغير الأسعار بحسب التوفر. نتحقق من العرض مجدداً قبل الدفع، ونوضح أي تغيير قبل المتابعة.', 'أين أجد معلومات أمتعة رحلتي؟', 'تظهر معلومات الأمتعة في تفاصيل التذكرة. إذا لم تُذكر معلومات الأمتعة، يمكنك التواصل مع فريق الدعم قبل الحجز.', 'ماذا تتضمن تفاصيل الغرف والتذاكر؟', 'تظهر الأسعار والتواريخ والشروط المتاحة في تفاصيل الغرفة أو التذكرة المختارة. تخص المعلومات هذا الخيار تحديداً.'],
  zh: ['为什么价格可能变化？', '价格会随供应情况更新。付款前会再次核实所选报价，如有变化，会在继续之前显示。', '在哪里查看航班行李信息？', '每趟航班的行李信息显示在机票的行李详情中。如果未注明行李信息，你可以在预订前咨询我们的支持团队。', '客房和机票详情包含什么？', '所选客房或机票的价格、日期及可用条款显示在详情中。信息仅适用于该客房或机票。'],
 };
-export default Object.fromEntries(Object.entries(rows).map(([lang, values]) => [lang, Object.fromEntries(keys.map((key,index) => [key,values[index]]))]));
+const localizedTranslations = Object.fromEntries(Object.entries(rows).map(([lang, values]) => [lang, Object.fromEntries(keys.map((key,index) => [key,values[index]]))]));
+export default localizedTranslations;
+
+Object.assign(localizedTranslations, additionalTranslations("travelQuestionTranslations.js", "default"));

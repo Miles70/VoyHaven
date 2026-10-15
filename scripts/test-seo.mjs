@@ -38,7 +38,7 @@ for (const page of pages) {
  assert.ok(html.includes(`property="og:url" content="${SITE_URL}${page.path}"`));
  assert.ok(html.includes(`dir="${page.lang === 'ar' ? 'rtl' : 'ltr'}"`));
  assert.ok(html.includes('<h1>') && html.includes('application/ld+json'));
- assert.equal((html.match(/hreflang=/g) || []).length, 11);
+ assert.equal((html.match(/hreflang=/g) || []).length, languages.length + 1);
  assert.ok(!html.includes('noindex') && !html.includes('<!--seo-'));
  const data = JSON.parse(html.match(/<script id="seo-page-data" type="application\/json">([\s\S]*?)<\/script>/)[1]);
  assert.equal(data.path, page.path);
@@ -122,4 +122,4 @@ for (const path of ['/account','/travel/checkout','/flights/checkout','/flights?
 }
 assert.equal((await request('/flights')).status, 308);
 assert.equal((await request('/flights?lang=tr')).headers['Cache-Control'], 'private, no-store');
-console.log(`SEO passed: ${pages.length} JavaScript-free HTML pages, 10 languages, reciprocal hreflang, canonical, schema, links, sitemap, publication gates, redirects, HTTP 404 and private noindex.`);
+console.log(`SEO passed: ${pages.length} JavaScript-free HTML pages, ${languages.length} languages, reciprocal hreflang, canonical, schema, links, sitemap, publication gates, redirects, HTTP 404 and private noindex.`);

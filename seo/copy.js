@@ -1,5 +1,6 @@
-export const languages = ['tr', 'en', 'de', 'fr', 'ru', 'ar', 'es', 'pt', 'it', 'zh'];
-export const languageNames = { tr: 'Türkçe', en: 'English', de: 'Deutsch', fr: 'Français', ru: 'Русский', ar: 'العربية', es: 'Español', pt: 'Português', it: 'Italiano', zh: '中文' };
+import { additionalTranslations } from "../src/i18n/extended/index.js";
+import { supportedLanguages as languages, languageNames } from "../shared/languages.js";
+export { languages, languageNames };
 // Generic language targeting: no artificial country-specific copies.
 const rows = {
  tr: ['Oteller', 'Uçuşlar', '{city} otelleri', '{from} – {to} uçuşları', 'Otel ve uçuş planını oluştur', 'Tarih seç ve oda ara', 'Uçuş ara', 'Otel bilgileri', 'Adres', 'Yıldız sınıfı', 'Destinasyonlar', 'Uçuş rotaları', 'Tesisin sunduğu bilgiler', 'Tarihlerini ve misafir sayısını seçerek güncel oda seçeneklerini, toplam fiyatı ve iptal koşullarını kontrol et. Fiyat ve müsaitlik arama sırasında doğrulanır.', 'Seyahat tarihini, yolcu sayısını ve kabin sınıfını seç. Havayolu, aktarma, bagaj ve toplam fiyat bilgilerini güncel sonuçlarda karşılaştır. Bu sayfa direkt uçuş veya sabit fiyat garantisi vermez.', 'Aramadan rezervasyona', 'Tarih ve misafirlerini seç. Uygun seçenekleri karşılaştır. Seçtiğin teklifin koşulları ödeme öncesinde yeniden doğrulanır.', 'Diğer rotalar', 'Ana sayfa', 'Gece / gündüz', 'Otel bilgileri sağlayıcıdan alınmıştır; hizmetlerin kapsamı ve ek ücretler oda teklifine göre değişebilir.', '{city} için otel profillerini incele; konum ve tesis bilgilerini karşılaştır. Tarihlerini seçerek güncel oda fiyatlarını ve koşullarını kontrol et.', 'Havalimanları', 'Gidiş yönü', 'Dönüş rotası'],
@@ -16,3 +17,5 @@ const rows = {
 const keys = ['hotels','flights','destinationTitle','routeTitle','homeTitle','hotelCta','flightCta','hotelInfo','address','stars','destinations','routes','propertyInfo','hotelHelp','flightHelp','steps','stepsText','related','home','theme','sourceNote','destinationIntro','airports','outbound','reverse'];
 export const copy = Object.fromEntries(Object.entries(rows).map(([lang, row]) => [lang, Object.fromEntries(keys.map((key, i) => [key, row[i]]))]));
 export const interpolate = (text, values) => text.replace(/\{(\w+)\}/g, (_, key) => values[key] || '');
+
+Object.assign(copy, additionalTranslations("seoCopy"));

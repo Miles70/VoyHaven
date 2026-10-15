@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const fields = ['details','unknownMeal','nonRefundable','refundable','unknownCancellation','freeUntil','penalty','included','extra','unknownTax','after','charge','unknownPenalty','now','updated','priceChanged','cancellationChanged','mealChanged','chargesChanged','roomChanged','conditionsChanged','accept','select','selected','roomOnly','breakfast','halfBoard','fullBoard','allInclusive','dinner','lunch','breakfastDinner','breakfastLunch','lunchDinner'];
 const rows = {
   en: ['Price and cancellation details','Meal plan confirmed before payment','Non-refundable','Refundable · see conditions','Cancellation conditions confirmed before payment','Free cancellation until','Cancellation charges apply','Taxes and fees included','Pay separately at the property','Tax details confirmed before payment','From','Cancellation charge','See cancellation conditions','Payment is collected now','Reservation conditions updated','Price updated','Cancellation conditions updated','Meal plan updated','Taxes or fees updated','Room details updated','Booking conditions updated','I accept the current price and reservation conditions','Select this room','Selected','Room only','Breakfast included','Half board','Full board','All inclusive','Dinner included','Lunch included','Breakfast and dinner included','Breakfast and lunch included','Lunch and dinner included'],
@@ -23,7 +24,10 @@ const missing = {
   ar: ['الوجبات غير محددة', 'معلومات الإلغاء غير متوفرة', 'تفاصيل الضرائب غير متوفرة', 'المبلغ غير محدد'],
   zh: ['未提供餐食计划', '未提供取消信息', '未提供税费明细', '未提供金额'],
 };
-export default Object.fromEntries(Object.entries(rows).map(([language, values]) => [language, {
+const localizedTranslations = Object.fromEntries(Object.entries(rows).map(([language, values]) => [language, {
   ...Object.fromEntries(fields.map((key, index) => [key, values[index]])),
   ...Object.fromEntries(['unknownMeal', 'unknownCancellation', 'unknownTax', 'unknownAmount'].map((key, index) => [key, missing[language][index]])),
 }]));
+export default localizedTranslations;
+
+Object.assign(localizedTranslations, additionalTranslations("rateConditionsTranslations.js", "default"));

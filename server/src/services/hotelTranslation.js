@@ -1,21 +1,11 @@
+import { supportedLanguages, translationLanguageNames } from "../../../shared/languages.js";
 import crypto from "node:crypto";
 import { HotelTranslation } from "../models/HotelTranslation.js";
 import { getNuiteeHotel } from "./nuiteeApi.js";
 
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
-const LANGUAGES = ["en", "tr", "ru", "ar", "zh", "es", "pt", "fr", "de", "it"];
-const LANGUAGE_NAMES = {
-  en: "English",
-  tr: "Turkish",
-  ru: "Russian",
-  ar: "Arabic",
-  zh: "Simplified Chinese",
-  es: "Spanish",
-  pt: "Brazilian Portuguese",
-  fr: "French",
-  de: "German",
-  it: "Italian",
-};
+const LANGUAGES = supportedLanguages;
+const LANGUAGE_NAMES = translationLanguageNames;
 
 let translationQueue = Promise.resolve();
 
@@ -123,7 +113,7 @@ async function generateTranslations(source) {
               schema: getSchema(),
             },
           },
-          max_output_tokens: 12_000,
+          max_output_tokens: 24_000,
         }),
       });
 

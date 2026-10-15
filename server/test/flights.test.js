@@ -1,3 +1,4 @@
+import { supportedLanguages } from "../../shared/languages.js";
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { once } from 'node:events';
@@ -32,9 +33,9 @@ test('provider batches preserve complete itineraries, total prices and baggage',
   assert.throws(() => flightResults({ unexpected: [] }, 'USD'));
   assert.deepEqual(flightResults({ data: [] }, 'USD'), []);
 });
-test('airport response and all ten language dictionaries are complete', () => {
+test('airport response and all supported language dictionaries are complete', () => {
   assert.deepEqual(airportResults({ data: [{ airports: [{ iata: 'AYT', city: 'Antalya' }, { iata: null }] }] }), [{ iata: 'AYT', city: 'Antalya' }]);
-  assert.equal(Object.keys(flightTranslations).length, 10);
+  assert.equal(Object.keys(flightTranslations).length, supportedLanguages.length);
   for (const dictionary of Object.values(flightTranslations)) {
     assert.ok(dictionary.search?.trim(), "flight search button needs an accessible label");
     assert.ok(dictionary.searching?.trim(), "flight loading state needs a label");

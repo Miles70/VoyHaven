@@ -1,3 +1,4 @@
+import { useFlowText } from '../../i18n/flowTranslations';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CreditCard, LoaderCircle, ShieldCheck } from "lucide-react";
 
@@ -52,6 +53,8 @@ function loadPaymentSdk() {
 }
 
 function NuiteeCardPayment({ session, returnUrl }) {
+  const ui = useFlowText();
+
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
   const startedRef = useRef(false);
@@ -123,29 +126,25 @@ function NuiteeCardPayment({ session, returnUrl }) {
       <div className="nuiteeCardPanelHeader">
         <div className="nuiteeCardIcon"><CreditCard size={22} /></div>
         <div>
-          <span>VoyHaven Secure Payment</span>
-          <h2>Kartla güvenli ödeme</h2>
+          <span>{ui("VoyHaven Secure Payment")}</span>
+          <h2>{ui("Kartla güvenli ödeme")}</h2>
         </div>
 
       </div>
 
-      <p className="nuiteeCardIntro">
-        Kart bilgilerin VoyHaven sunucusuna gönderilmez. Güvenli ödeme altyapısı kart bilgilerini işler; gerekiyorsa 3D Secure doğrulaması açılır.
-      </p>
+      <p className="nuiteeCardIntro">{ui(" Kart bilgilerin VoyHaven sunucusuna gönderilmez. Güvenli ödeme altyapısı kart bilgilerini işler; gerekiyorsa 3D Secure doğrulaması açılır. ")}</p>
 
-      {status === "loading" && (
+      {ui(status === "loading" && (
         <div className="nuiteeCardLoading">
-          <LoaderCircle className="travelSpin" size={20} /> Güvenli ödeme formu hazırlanıyor…
-        </div>
-      )}
+          <LoaderCircle className="travelSpin" size={20} />{ui(" Güvenli ödeme formu hazırlanıyor… ")}</div>
+      ))}
 
-      {error && <p className="nuiteeCardError">{error}</p>}
+      {ui(error && <p className="nuiteeCardError">{ui(error)}</p>)}
       <div id={targetId} className="nuiteeCardTarget" />
 
 
       <p className="nuiteeCardSecurity">
-        <ShieldCheck size={17} /> Ödeme başarılı olduğunda VoyHaven&apos;a dönüp rezervasyonu otomatik olarak tamamlayacağız.
-      </p>
+        <ShieldCheck size={17} />{ui(" Ödeme başarılı olduğunda VoyHaven'a dönüp rezervasyonu otomatik olarak tamamlayacağız. ")}</p>
     </section>
   );
 }

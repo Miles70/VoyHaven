@@ -1,3 +1,4 @@
+import { addedLanguages } from "../../shared/languages.js";
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createApp } from '../src/app.js';
@@ -37,6 +38,16 @@ test('review API bounds results, separates language caches and validates IDs; im
     await realFetch(`${base}/reviews?language=tr`); assert.equal(calls.length, 1);
     await realFetch(`${base}/reviews?language=de`); assert.equal(calls.length, 2);
     await realFetch(`${base}/reviews?language=tr&offset=6`); assert.equal(calls.at(-1).searchParams.get('offset'), '6');
+    for (const language of addedLanguages) {
+      const before = calls.length;
+      const response = await realFetch(`${base}/reviews?language=${language}`);
+      assert.equal(response.status, 200, language);
+      assert.equal((await response.json()).language, language);
+      assert.equal(calls.at(-1).searchParams.get('language'), language);
+      assert.equal(calls.length, before + 1, `${language} uses its own cache`);
+      await realFetch(`${base}/reviews?language=${language}`);
+      assert.equal(calls.length, before + 1, `${language} reuses its cache`);
+    }
     assert.equal((await realFetch(`${base}/reviews?language=xx`)).status, 400);
     const info = await (await realFetch(`${base}/information?language=en`)).json(); assert.equal(info.information, 'Photo ID is required at check-in.');
   } finally { await new Promise(resolve => server.close(resolve)); globalThis.fetch = realFetch; if (previousKey === undefined) delete process.env.NUITEE_API_KEY; else process.env.NUITEE_API_KEY = previousKey; }

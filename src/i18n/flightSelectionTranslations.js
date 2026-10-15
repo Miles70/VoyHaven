@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 const keys = ['select', 'selected', 'selectionTitle', 'verifying', 'verified', 'priceChanged', 'conditions', 'refund', 'change', 'allowed', 'notAllowed', 'back', 'retry', 'expired', 'verifyError'];
 const rows = {
 tr: 'Uçuşu seç|Seçildi · Detayları gör|Seçtiğin uçuş|Fiyat ve müsaitlik doğrulanıyor…|Uçuş seçildi. Güncel teklif doğrulandı.|Fiyat güncellendi|Bilet koşulları|İade|Değişiklik|Koşullara bağlı olarak mümkün|İzin verilmiyor|Sonuçlara dön|Tekrar dene|Bu teklifin süresi dolmuş veya artık mevcut değil. Sonuçlara dönüp yeniden uçuş ara.|Uçuş doğrulanamadı. Tekrar dene veya başka bir uçuş seç.',
@@ -11,4 +12,7 @@ ru: 'Выбрать рейс|Выбрано · Подробнее|Выбранн
 ar: 'اختر الرحلة|تم الاختيار · التفاصيل|رحلتك المختارة|جارٍ التحقق من السعر والتوفر…|تم اختيار الرحلة والتحقق من العرض الحالي.|تم تحديث السعر|شروط التذكرة|الاسترداد|التغييرات|متاح وفق الشروط|غير مسموح|العودة للنتائج|حاول مجدداً|انتهت صلاحية العرض أو لم يعد متاحاً. ابحث مجدداً.|تعذر التحقق من الرحلة. حاول مجدداً أو اختر رحلة أخرى.',
 zh: '选择航班|已选择 · 查看详情|你选择的航班|正在核实价格和余票…|航班已选择，当前报价已核实。|价格已更新|机票条款|退票|改签|符合条件时可办理|不允许|返回结果|重试|此报价已过期或不再可用，请重新搜索。|无法核实航班，请重试或选择其他航班。',
 };
-export default Object.fromEntries(Object.entries(rows).map(([language, row]) => [language, Object.fromEntries(keys.map((key, index) => [key, row.split('|')[index]]))]));
+const localizedTranslations = Object.fromEntries(Object.entries(rows).map(([language, row]) => [language, Object.fromEntries(keys.map((key, index) => [key, row.split('|')[index]]))]));
+export default localizedTranslations;
+
+Object.assign(localizedTranslations, additionalTranslations("flightSelectionTranslations.js", "default"));

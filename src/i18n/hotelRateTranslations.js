@@ -1,3 +1,4 @@
+import { additionalTranslations } from "./extended/index.js";
 export const facilityExtras = {
   "en": {
     "nonSmokingRooms": "Non-smoking rooms",
@@ -423,3 +424,7 @@ const hotelRateTranslations = {
   }
 };
 export default hotelRateTranslations;
+
+Object.assign(hotelRateTranslations, additionalTranslations("hotelRateTranslations.js", "default"));
+
+Object.assign(facilityExtras, additionalTranslations("hotelRateTranslations.js", "facilityExtras"));

@@ -9,3 +9,17 @@ export const airports = {
 };
 // Specific airports, not all-airport city codes. No schedule, airline, direct-flight or price claims.
 export const routes = [{ from: 'AYT', to: 'FRA' }, { from: 'IST', to: 'DXB' }, { from: 'LHR', to: 'AYT' }];
+
+const localizedCities = {
+ nl: ['Antalya', 'Frankfurt', 'Istanbul', 'Dubai', 'Londen'],
+ nb: ['Antalya', 'Frankfurt', 'Istanbul', 'Dubai', 'London'],
+ sv: ['Antalya', 'Frankfurt', 'Istanbul', 'Dubai', 'London'],
+ da: ['Antalya', 'Frankfurt', 'Istanbul', 'Dubai', 'London'],
+ fi: ['Antalya', 'Frankfurt', 'Istanbul', 'Dubai', 'Lontoo'],
+ ja: ['アンタルヤ', 'フランクフルト', 'イスタンブール', 'ドバイ', 'ロンドン'],
+ ko: ['안탈리아', '프랑크푸르트', '이스탄불', '두바이', '런던'],
+};
+for (const [language, names] of Object.entries(localizedCities)) {
+ destinations[0].names[language] = names[0];
+ ['AYT', 'FRA', 'IST', 'DXB', 'LHR'].forEach((code, index) => { airports[code].names[language] = names[index]; });
+}

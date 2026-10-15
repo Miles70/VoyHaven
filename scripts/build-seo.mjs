@@ -1,3 +1,4 @@
+import { supportedLanguages } from "../shared/languages.js";
 import { readFile, readdir, mkdir, writeFile, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -22,7 +23,7 @@ try {
  const xml = value => escapeHtml(value).replaceAll('&#39;', '&apos;');
  await mkdir('dist/sitemaps', { recursive: true });
  const chunks = [];
- // 1,000 entries with 11 alternates remains well below 50MB / 50,000 limits.
+ // 1,000 entries with 18 alternates remains well below 50MB / 50,000 limits.
  for (let i = 0; i < pages.length; i += 1000) {
   const filename = `pages-${Math.floor(i / 1000) + 1}.xml`;
   const body = pages.slice(i, i + 1000).map(p => `<url><loc>${SITE_URL}${p.path}</loc>${p.modified ? `<lastmod>${p.modified}</lastmod>` : ''}${p.alternates.map(a => `<xhtml:link rel="alternate" hreflang="${a.language}" href="${xml(SITE_URL + a.path)}"/>`).join('')}</url>`).join('\n');
@@ -36,5 +37,5 @@ try {
  await writeFile('dist/seo-manifest.json', JSON.stringify({ pages: pages.map(({ path, kind, lang }) => ({ path, kind, lang })), hotels: pages.filter(p => p.kind === 'hotel' && p.lang === 'en').map(p => p.hotel.id) }, null, 2));
  // Entry shell contains placeholders, never expose it as an indexable page.
  await rm('dist/seo.html');
- console.log(`SEO: ${pages.length} HTML pages, 10 languages, ${chunks.length} sitemap shards; zero build-time provider requests.`);
+ console.log(`SEO: ${pages.length} HTML pages, ${supportedLanguages.length} languages, ${chunks.length} sitemap shards; zero build-time provider requests.`);
 } finally { await rm(tmp, { recursive: true, force: true }); }

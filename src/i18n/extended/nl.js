@@ -11,7 +11,7 @@ export default {
       "imageLabel": "Naar nieuwe horizonten",
       "imageText": "Verken. Kies maar. Ga maar.",
       "facts": [
-        "Verken in 17 talen",
+        "Beschikbaar in 17 talen",
         "Kaart- en cryptoopties",
         "Ondersteuning op uw account"
       ],

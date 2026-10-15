@@ -11,7 +11,7 @@ export default {
       "imageLabel": "Uusien horisonttien suuntaan",
       "imageText": "Tutki. Valitse. - Menkää nyt.",
       "facts": [
-        "Tutki 17 kielellä",
+        "Saatavilla 17 kielellä",
         "Kortti- ja kryptovaluuttakaupat",
         "Tukea tililläsi"
       ],

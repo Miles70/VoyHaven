@@ -11,7 +11,7 @@ export default {
       "imageLabel": "Ind mod nye horisonter",
       "imageText": "Udforsk. Vælg. - Gå nu.",
       "facts": [
-        "Udforsk på 17 sprog",
+        "Tilgængelig på 17 sprog",
         "Kort- og kryptooptioner",
         "Støtte på din konto"
       ],

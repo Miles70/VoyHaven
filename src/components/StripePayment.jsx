@@ -39,5 +39,5 @@ export default function StripePayment({ session, returnUrl }) {
     catch (err) { setError(err.message); }
     finally { setBusy(false); }
   }
-  return <form className="accountForm" onSubmit={pay}><h2>{ui("Kartla güvenli ödeme")}</h2><p>{ui(new Intl.NumberFormat(language, { style: 'currency', currency: session.currency }).format(session.amount))}</p><div ref={target} />{ui(!ready && !error && <p role="status">{ui("Ödeme formu yükleniyor…")}</p>)}{ui(error && <p role="alert" className="accountError">{ui(error)}</p>)}<button className="accountPrimary" disabled={!ready || busy}>{ui(busy ? 'Ödeme işleniyor…' : 'Ödemeyi tamamla')}</button></form>;
+  return <form className="accountForm" onSubmit={pay}><h2>{ui("Kartla güvenli ödeme")}</h2><p>{new Intl.NumberFormat(language, { style: 'currency', currency: session.currency }).format(session.amount)}</p><div ref={target} />{!ready && !error && <p role="status">{ui("Ödeme formu yükleniyor…")}</p>}{error && <p role="alert" className="accountError">{ui(error)}</p>}<button className="accountPrimary" disabled={!ready || busy}>{busy ? ui('Ödeme işleniyor…') : ui('Ödemeyi tamamla')}</button></form>;
 }

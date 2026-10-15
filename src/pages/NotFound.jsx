@@ -12,9 +12,9 @@ function NotFound() {
   return (
     <main className="informationPage container">
       <p className="informationEyebrow">404</p>
-      <h1>{ui(isTurkish ? "Bu rota kaybolmuş." : "This route got lost.")}</h1>
-      <p>{ui(isTurkish ? "Aradığın sayfa taşınmış veya hiç var olmamış olabilir." : "The page may have moved or may never have existed.")}</p>
-      <Link to="/" className="informationBack">← {ui(isTurkish ? "Ana sayfaya dön" : "Back to home")}</Link>
+      <h1>{isTurkish ? ui("Bu rota kaybolmuş.") : ui("This route got lost.")}</h1>
+      <p>{isTurkish ? ui("Aradığın sayfa taşınmış veya hiç var olmamış olabilir.") : ui("The page may have moved or may never have existed.")}</p>
+      <Link to="/" className="informationBack">← {isTurkish ? ui("Ana sayfaya dön") : ui("Back to home")}</Link>
     </main>
   );
 }

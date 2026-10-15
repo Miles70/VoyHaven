@@ -134,12 +134,12 @@ function NuiteeCardPayment({ session, returnUrl }) {
 
       <p className="nuiteeCardIntro">{ui(" Kart bilgilerin VoyHaven sunucusuna gönderilmez. Güvenli ödeme altyapısı kart bilgilerini işler; gerekiyorsa 3D Secure doğrulaması açılır. ")}</p>
 
-      {ui(status === "loading" && (
+      {status === "loading" && (
         <div className="nuiteeCardLoading">
           <LoaderCircle className="travelSpin" size={20} />{ui(" Güvenli ödeme formu hazırlanıyor… ")}</div>
-      ))}
+      )}
 
-      {ui(error && <p className="nuiteeCardError">{ui(error)}</p>)}
+      {error && <p className="nuiteeCardError">{ui(error)}</p>}
       <div id={targetId} className="nuiteeCardTarget" />
 
 

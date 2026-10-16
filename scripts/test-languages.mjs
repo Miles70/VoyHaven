@@ -4,12 +4,13 @@ import { supportedLanguages, addedLanguages, normalizeLanguage, languageNames } 
 import { additionalTranslations } from '../src/i18n/extended/index.js';
 import { copy, languages } from '../seo/copy.js';
 import { travelGuide } from '../seo/guides.js';
+import aboutTranslations from '../src/i18n/aboutTranslations.js';
 import categoryCopy from '../src/i18n/categoryTranslations.js';
 import { airports, destinations } from '../seo/destinations.js';
-assert.equal(supportedLanguages.length, 17);
-assert.equal(new Set(supportedLanguages).size, 17);
+assert.equal(supportedLanguages.length, 18);
+assert.equal(new Set(supportedLanguages).size, 18);
 assert.deepEqual(languages, supportedLanguages);
-for (const [input, expected] of [['nl-NL','nl'],['no-NO','nb'],['nb-NO','nb'],['sv-SE','sv'],['da-DK','da'],['fi-FI','fi'],['ja-JP','ja'],['ko-KR','ko'],['xx','en']]) assert.equal(normalizeLanguage(input), expected);
+for (const [input, expected] of [['pl-PL','pl'],['nl-NL','nl'],['no-NO','nb'],['nb-NO','nb'],['sv-SE','sv'],['da-DK','da'],['fi-FI','fi'],['ja-JP','ja'],['ko-KR','ko'],['xx','en']]) assert.equal(normalizeLanguage(input), expected);
 function placeholders(text) { return [...text.matchAll(/\{\w+\}/g)].map(m => m[0]).sort(); }
 let checked = 0;
 function parity(base, translated, path) {
@@ -41,6 +42,7 @@ for (const language of supportedLanguages) {
   for (const destination of destinations) assert.ok(destination.names[language]);
   for (const airport of Object.values(airports)) assert.ok(airport.names[language]);
   assert.ok(languageNames[language]);
+  assert.ok(aboutTranslations[language].facts[0].includes(String(supportedLanguages.length)), `stale language count: ${language}`);
   if (language !== "en") assert.notEqual(categoryCopy(language).carsText, categoryCopy("en").carsText, `category fallback: ${language}`);
   if (addedLanguages.includes(language)) for (const module of ['information-supportCopy','information-mailSupportCopy','information-content','fare-modifiers','fare-fullyFlexible']) parity(additionalTranslations(module).nl, additionalTranslations(module)[language], `${module}.${language}`);
 }

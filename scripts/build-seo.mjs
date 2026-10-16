@@ -17,11 +17,11 @@ try {
  await build({ configFile: false, plugins: [react()], logLevel: 'warn', build: { ssr: 'scripts/seo-render-entry.jsx', outDir: tmp, emptyOutDir: true, rollupOptions: { external: ['react', 'react/jsx-runtime', 'react-dom/server'] } } });
  const { render } = await import(pathToFileURL(join(tmp, 'seo-render-entry.js')));
  const template = await readFile('dist/seo.html', 'utf8');
- // Keep the SPA template outside the public output. Otherwise / bypasses the
- // page adapter and serves English metadata even when ?lang is supplied.
+ // Keep the public Vite entry as a static, independently servable homepage.
+ // Removing it caused the production root route to return 404. Localized SEO
+ // lives at /{language}; the adapter uses its own copy for dynamic routes.
  await mkdir('.seo-server', { recursive: true });
  await writeFile('.seo-server/app-shell.html', await readFile('dist/index.html', 'utf8'));
- await rm('dist/index.html');
  for (const page of pages) {
   const file = join('dist', `${page.path.slice(1)}.html`);
   await mkdir(join(file, '..'), { recursive: true });
@@ -33,13 +33,13 @@ try {
  const information = Object.fromEntries(supportedLanguages.map(language => [language, Object.fromEntries(informationPaths.map(path => [path, renderInformation(path.slice(1), language)]))]));
  for (const language of supportedLanguages) {
   const c = copy[language];
-  information[language]['/'] = `<main><h1>${escapeHtml(c.homeTitle)}</h1><p>${escapeHtml(c.hotelHelp)}</p><nav><a href="/${language}/hotels">${escapeHtml(c.hotels)}</a> · <a href="/${language}/flights">${escapeHtml(c.flights)}</a></nav><nav>${supportedLanguages.map(lang => `<a href="/${lang}" lang="${lang}" hreflang="${lang}">${escapeHtml(languageNames[lang])}</a>`).join(' · ')}</nav></main>`;
+  information[language]['/'] = `<noscript><main><h1>${escapeHtml(c.homeTitle)}</h1><p>${escapeHtml(c.hotelHelp)}</p><nav><a href="/${language}/hotels">${escapeHtml(c.hotels)}</a> · <a href="/${language}/flights">${escapeHtml(c.flights)}</a></nav><nav>${supportedLanguages.map(lang => `<a href="/${lang}" lang="${lang}" hreflang="${lang}">${escapeHtml(languageNames[lang])}</a>`).join(' · ')}</nav></main></noscript>`;
  }
  await writeFile('.seo-server/information.json', JSON.stringify(information));
  const xml = value => escapeHtml(value).replaceAll('&#39;', '&apos;');
  await mkdir('dist/sitemaps', { recursive: true });
  const chunks = [];
- // 1,000 entries with 18 alternates remains well below 50MB / 50,000 limits.
+ // 1,000 entries with all locale alternates remains well below 50MB / 50,000 limits.
  for (let i = 0; i < pages.length; i += 1000) {
   const filename = `pages-${Math.floor(i / 1000) + 1}.xml`;
   const body = pages.slice(i, i + 1000).map(p => `<url><loc>${SITE_URL}${p.path}</loc>${p.modified ? `<lastmod>${p.modified}</lastmod>` : ''}${p.alternates.map(a => `<xhtml:link rel="alternate" hreflang="${a.language}" href="${xml(SITE_URL + a.path)}"/>`).join('')}</url>`).join('\n');

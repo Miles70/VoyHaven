@@ -1,3 +1,4 @@
+import { supportedLanguages } from "../../shared/languages.js";
 import { additionalTranslations } from "./extended/index.js";
 // About-page copy describes current product capabilities, without unverified
 // customer counts, awards or promises about prices or support hours.
@@ -96,3 +97,5 @@ const aboutTranslations = {
 export default aboutTranslations;
 
 Object.assign(aboutTranslations, additionalTranslations("aboutTranslations.js", "default"));
+
+for (const copy of Object.values(aboutTranslations)) copy.facts[0] = copy.facts[0].replace(/\d+/, String(supportedLanguages.length));

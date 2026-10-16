@@ -1,4 +1,5 @@
 export default {
+  pl: { title: 'Moje konto' },
   en: { title: 'My account' }, tr: { title: 'Hesabım' },
   de: { title: 'Mein Konto' }, fr: { title: 'Mon compte' },
   ru: { title: 'Мой аккаунт' }, es: { title: 'Mi cuenta' },

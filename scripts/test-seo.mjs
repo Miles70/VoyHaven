@@ -1,3 +1,4 @@
+import { startSeoTestServer } from './seo-test-server.mjs';
 import { travelGuide } from "../seo/guides.js";
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
@@ -159,3 +160,27 @@ for (const [input, expected] of [['no-NO','nb'],['JA-jp','ja'],['ko_KR','ko'],['
  assert.equal(appPolicy('/account', `lang=${input}`).lang, expected);
 }
 assert.equal(appPolicy('/ja/missing').lang, 'ja');
+
+// Exercise the emitted public directory, not only the function in-process.
+// A successful function unit test previously hid a missing dist/index.html.
+const publicEntry = await readFile('dist/index.html', 'utf8');
+assert.ok(publicEntry.includes('id="root"'));
+assert.ok(/<script[^>]+src="\/assets\//.test(publicEntry));
+assert.ok(publicEntry.includes('<noscript>'));
+const hosting = await startSeoTestServer();
+try {
+ for (const path of ['/', '/?lang=pl', '/?cityName=Antalya&lang=pl']) {
+  const response = await fetch(hosting.base + path);
+  assert.equal(response.status, 200, `Public entry missing: ${path}`);
+  assert.equal(await response.text(), publicEntry, `Root must work from the public Vite entry: ${path}`);
+  if (path.includes('cityName')) assert.ok(response.headers.get('x-robots-tag')?.includes('noindex'));
+ }
+ for (const path of ['/pl','/pl/hotels','/pl/flights','/pl/travel/hotels/lp55de7','/about?lang=pl','/contact?lang=pl']) {
+  const response = await fetch(hosting.base + path);
+  assert.equal(response.status, 200, path);
+  assert.ok((await response.text()).includes('<html lang="pl"'), path);
+ }
+ const missing = await fetch(hosting.base + '/pl/missing-hosting-check');
+ assert.equal(missing.status, 404);
+} finally { await hosting.close(); }
+console.log('Public hosting regression passed: static Vite root, Polish SEO, dynamic information pages and real HTTP 404.');

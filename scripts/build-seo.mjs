@@ -17,11 +17,11 @@ try {
  await build({ configFile: false, plugins: [react()], logLevel: 'warn', build: { ssr: 'scripts/seo-render-entry.jsx', outDir: tmp, emptyOutDir: true, rollupOptions: { external: ['react', 'react/jsx-runtime', 'react-dom/server'] } } });
  const { render } = await import(pathToFileURL(join(tmp, 'seo-render-entry.js')));
  const template = await readFile('dist/seo.html', 'utf8');
- // Keep the SPA template outside the public output. Otherwise / bypasses the
- // page adapter and serves English metadata even when ?lang is supplied.
+ // Keep the public Vite entry as a static, independently servable homepage.
+ // Removing it caused the production root route to return 404. Localized SEO
+ // lives at /{language}; the adapter uses its own copy for dynamic routes.
  await mkdir('.seo-server', { recursive: true });
  await writeFile('.seo-server/app-shell.html', await readFile('dist/index.html', 'utf8'));
- await rm('dist/index.html');
  for (const page of pages) {
   const file = join('dist', `${page.path.slice(1)}.html`);
   await mkdir(join(file, '..'), { recursive: true });

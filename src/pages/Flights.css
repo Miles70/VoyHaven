@@ -1,21 +1,36 @@
 .flightsPage { color:#071B3A; background:#f4f8fc; min-height:80vh; padding-bottom:64px; }
 .flightsHero { padding:40px max(20px, calc((100vw - 1200px)/2)) 45px; background:radial-gradient(ellipse at top right, #125785, transparent 65%),linear-gradient(135deg,#071B3A,#26244a); color:white; }
 .flightsPage:not(.flightsPage--embedded) > .flightsHero {
-  background-color:#071b3a;
-  background-image:linear-gradient(90deg,#071b3af5 0%,#071b3ab3 35%,#071b3a26 70%),linear-gradient(0deg,#071b3a 0%,#071b3a00 100%),url('/images/voyhaven-flight-overhead.webp');
-  background-size:100% 100%,100% 640px,auto 740px;
-  background-position:center,top,right -20px top -140px;
-  background-repeat:no-repeat;
+  position:relative;
+  isolation:isolate;
+  background:#071b3a;
+}
+.flightHeroVideo {
+  position:absolute;
+  inset:0 0 auto;
+  width:100%;
+  height:440px;
+  object-fit:cover;
+  object-position:center 50%;
+  pointer-events:none;
+  z-index:-2;
+}
+.flightsPage:not(.flightsPage--embedded) > .flightsHero::before {
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:460px;
+  z-index:-1;
+  pointer-events:none;
+  background:linear-gradient(90deg,#071b3ad9 0%,#071b3a66 38%,#071b3a00 75%),linear-gradient(180deg,#071b3a00 240px,#071b3a 440px);
 }
 .flightsPage:not(.flightsPage--embedded) > .flightsHero > h1,
 .flightsPage:not(.flightsPage--embedded) > .flightsHero > p { max-width:650px; }
 .flightsPage:not(.flightsPage--embedded) > .flightsHero > .flightSearchForm { margin-top:210px; }
 @media(max-width:700px) {
-  .flightsPage:not(.flightsPage--embedded) > .flightsHero {
-    padding-top:28px;
-    background-image:linear-gradient(0deg,#071b3a 0%,#071b3a00 100%),url('/images/voyhaven-flight-overhead.webp');
-    background-size:100% 510px,auto 460px;
-    background-position:top,center top 30px;
+  .flightsPage:not(.flightsPage--embedded) > .flightsHero { padding-top:28px; }
+  .flightsPage:not(.flightsPage--embedded) > .flightsHero::before {
+    background:linear-gradient(180deg,#071b3ab3 0%,#071b3a00 180px,#071b3a00 290px,#071b3a 440px);
   }
   .flightsPage:not(.flightsPage--embedded) > .flightsHero > .flightSearchForm { margin-top:225px; }
 }

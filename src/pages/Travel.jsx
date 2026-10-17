@@ -46,6 +46,14 @@ const services = [
 ];
 
 const SHOWCASE_LIMIT = 21;
+// Replace The Marmara Antalya with a verified video hotel from the same country.
+const SHOWCASE_REPLACED_HOTEL_ID = "lp3917c";
+const SHOWCASE_VIDEO_REPLACEMENT = {
+  hotelId: "lp77b4b",
+  cityName: "Kemer",
+  countryCode: "TR",
+  videoUrl: "https://nuitee-static-content.s3.us-east-1.amazonaws.com/videos/lp77b4b.mp4",
+};
 // Nuitee availability can vary from one request to the next. Scan a wider
 // catalog window, then keep previously found live offers while new results
 // replenish the showcase. This prevents the 5★ shelf from jumping from 20
@@ -461,7 +469,7 @@ function Travel({ hotelsOnly = false }) {
 
     try {
       const collected = [];
-      const knownIds = new Set();
+      const knownIds = new Set([SHOWCASE_REPLACED_HOTEL_ID]);
 
       const publishCollectedHotels = ({ final = false } = {}) => {
         if (silent && !final) return;
@@ -482,9 +490,13 @@ function Travel({ hotelsOnly = false }) {
           : [];
         const indexedById = new Map(
           indexedHotels
-            .filter((hotel) => hotel?.hotelId)
+            .filter((hotel) => hotel?.hotelId && hotel.hotelId !== SHOWCASE_REPLACED_HOTEL_ID)
             .map((hotel) => [hotel.hotelId, hotel]),
         );
+        indexedById.set(SHOWCASE_VIDEO_REPLACEMENT.hotelId, {
+          ...indexedById.get(SHOWCASE_VIDEO_REPLACEMENT.hotelId),
+          ...SHOWCASE_VIDEO_REPLACEMENT,
+        });
         const indexedHotelIds = [...indexedById.keys()];
 
         if (indexedHotelIds.length) {

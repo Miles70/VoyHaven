@@ -1,4 +1,26 @@
 .flightsPage { color:#071B3A; background:#f4f8fc; min-height:80vh; padding-bottom:64px; }
+.flightInspirationGallery {
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:16px;
+  max-width:1240px;
+  margin:32px auto 0;
+  padding:0 24px;
+}
+.flightInspirationCard {
+  min-width:0;
+  aspect-ratio:2 / 3;
+  overflow:hidden;
+  border-radius:18px;
+  background:#dff5f7;
+  box-shadow:0 8px 24px #071b3a12;
+}
+.flightInspirationCard img { display:block; width:100%; height:100%; object-fit:cover; }
+@media(max-width:1050px) { .flightInspirationGallery { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:600px) {
+  .flightInspirationGallery { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:0 20px; margin-top:24px; }
+  .flightInspirationCard { border-radius:14px; }
+}
 .flightsHero { padding:40px max(20px, calc((100vw - 1200px)/2)) 45px; background:radial-gradient(ellipse at top right, #125785, transparent 65%),linear-gradient(135deg,#071B3A,#26244a); color:white; }
 .flightsPage:not(.flightsPage--embedded) > .flightsHero {
   position:relative;

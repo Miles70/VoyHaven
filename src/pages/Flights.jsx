@@ -246,7 +246,7 @@ export default function Flights({ embedded = false }) {
 
       </form>
     </section>
-    {!embedded && <section ref={resultsRef} className="flightResults" aria-live="polite" aria-busy={loading}>
+    {!embedded && (state === 'loading' || state === 'done' || scanContinuation || dateProgress.length > 0) && <section ref={resultsRef} className="flightResults" aria-live="polite" aria-busy={loading}>
       {dateProgress.length > 0 && <p className="flightCabinNotice" role="status">{dateLabels[5]}: {dateProgress.map(date => flightDisplayDate(date, language)).join(" · ")} <button type="button" className="flightBackButton" onClick={() => { searchVersion.current += 1; searchController.current?.abort(); searchController.current = null; cabinController.current?.abort(); setDateProgress([]); setScanBusy(false); setState(results.length ? 'done' : 'idle'); }}>{copy.back}</button></p>}
       {loading && <p className="flightStatus">{copy.searching}</p>}
       {state === 'done' && <><h2>{copy.results} · {filteredResults.length} / {results.length}</h2><p>{copy.localTimes}</p>{results.length === 0 && !scanContinuation && <p className="flightStatus">{copy.empty}</p>}</>}
@@ -265,6 +265,11 @@ export default function Flights({ embedded = false }) {
       {filteredResults.slice(0, visible).map((result) => <FlightCard key={result.offer.offerId} result={result} copy={copy} language={language} searchedCabin={completedSearch?.cabinClass} onCabinChange={changeOfferCabin} onSelect={result => { trackTravel('flight_view', { offerId: result.offer.offerId, origin: origin?.iata, destination: destination?.iata }); setFocusedFlight({ ...result, passengers: { adults: completedSearch?.adults ?? adults, children: completedSearch?.children ?? children, infants: completedSearch?.infants ?? infants } }); }} selected={chosenOfferId === result.offer.offerId} />)}
       {visible < filteredResults.length && <button className="flightSearchButton" onClick={() => setVisible((count) => count + 20)}>{copy.more}</button>}
     </section>}
+    {!embedded && <div className="flightInspirationGallery">
+      {[1, 2, 3, 4, 5, 6].map(image => <div className="flightInspirationCard" key={image}>
+        <img src={`/images/voyhaven-flight-inspiration-${image}.webp`} alt="" width="450" height="675" loading="lazy" decoding="async" />
+      </div>)}
+    </div>}
     {focusedFlight && <FlightSelection key={focusedFlight.offer.offerId} result={focusedFlight} copy={copy} language={language} passengers={focusedFlight.passengers} onVerified={handleVerified} onClose={() => setFocusedFlight(null)} />}
   </Container>;
 }

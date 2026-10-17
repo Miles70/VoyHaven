@@ -236,3 +236,26 @@
 .flightCardNotice strong { display:block; margin-top:6px; font-size:.8rem; line-height:1.6; }
 .flightCabinNotice { background:linear-gradient(110deg,#ffe39b,#fff0c2); border-color:#ddb454; }
 @media(max-width:700px) { .flightCard > .flightCardNotice { padding:16px; } }
+
+/* Translucent flight search panel, scoped to the full flight page. */
+.flightsPage:not(.flightsPage--embedded) .flightSearchForm {
+  background:linear-gradient(135deg,rgba(255,255,255,.88),rgba(238,247,255,.78));
+  border:1px solid rgba(255,255,255,.66);
+  box-shadow:0 20px 60px rgba(0,12,35,.2),inset 0 1px 0 rgba(255,255,255,.8);
+  -webkit-backdrop-filter:blur(18px) saturate(125%);
+  backdrop-filter:blur(18px) saturate(125%);
+}
+.flightsPage:not(.flightsPage--embedded) .flightSearchForm :is(input:not([type="radio"]),select) {
+  background:rgba(255,255,255,.88);
+  border-color:rgba(142,171,202,.58);
+}
+.flightsPage:not(.flightsPage--embedded) .flightSearchForm .flightCabinPicker button:not([aria-pressed="true"]) {
+  background:rgba(255,255,255,.82);
+}
+@media(prefers-reduced-transparency:reduce) {
+  .flightsPage:not(.flightsPage--embedded) .flightSearchForm {
+    background:#f4f8fc;
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+}

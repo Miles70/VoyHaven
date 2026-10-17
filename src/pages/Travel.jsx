@@ -54,6 +54,24 @@ const SHOWCASE_VIDEO_REPLACEMENT = {
   countryCode: "TR",
   videoUrl: "https://nuitee-static-content.s3.us-east-1.amazonaws.com/videos/lp77b4b.mp4",
 };
+// Keep the selected international video hotels first, alternating destinations.
+const SHOWCASE_FEATURED_VIDEOS = [
+  ["lp34e82", "Patong Beach", "TH"],
+  ["lp42f57", "Dubai", "AE"],
+  ["lp1d30e", "Las Vegas", "US"],
+  ["lp1fb31", "Rio de Janeiro", "BR"],
+  ["lp4c163", "Barcelona", "ES"],
+  ["lpb18c9", "Patong Beach", "TH"],
+  ["lp68cb3", "Dubai", "AE"],
+  ["lp656bbd6b", "Las Vegas", "US"],
+  ["lp1e278", "Rio de Janeiro", "BR"],
+  ["lp3d2ee", "Barcelona", "ES"],
+].map(([hotelId, cityName, countryCode]) => ({
+  hotelId,
+  cityName,
+  countryCode,
+  videoUrl: `https://nuitee-static-content.s3.us-east-1.amazonaws.com/videos/${hotelId}.mp4`,
+}));
 // Nuitee availability can vary from one request to the next. Scan a wider
 // catalog window, then keep previously found live offers while new results
 // replenish the showcase. This prevents the 5★ shelf from jumping from 20
@@ -216,6 +234,13 @@ function diversifyShowcaseHotels(hotels, limit) {
 
   const output = [];
   const outputIds = new Set();
+
+  for (const featured of SHOWCASE_FEATURED_VIDEOS) {
+    const hotel = unique.find((candidate) => candidate.hotelId === featured.hotelId);
+    if (!hotel || output.length >= limit) continue;
+    output.push(hotel);
+    outputIds.add(hotel.hotelId);
+  }
 
   const takeRoundRobin = (items) => {
     const groups = new Map();
@@ -497,6 +522,12 @@ function Travel({ hotelsOnly = false }) {
           ...indexedById.get(SHOWCASE_VIDEO_REPLACEMENT.hotelId),
           ...SHOWCASE_VIDEO_REPLACEMENT,
         });
+        for (const featured of SHOWCASE_FEATURED_VIDEOS) {
+          indexedById.set(featured.hotelId, {
+            ...indexedById.get(featured.hotelId),
+            ...featured,
+          });
+        }
         const indexedHotelIds = [...indexedById.keys()];
 
         if (indexedHotelIds.length) {

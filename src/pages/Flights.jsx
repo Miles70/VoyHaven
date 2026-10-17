@@ -18,21 +18,28 @@ function FlightHeroVideo() {
   const videoRef = useRef(null);
   useEffect(() => {
     const video = videoRef.current;
-    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    video.muted = true;
+    video.defaultMuted = true;
     const updatePlayback = () => {
-      if (motion.matches || document.hidden) video.pause();
+      if (document.hidden) video.pause();
       else video.play().catch(() => {});
     };
     updatePlayback();
-    motion.addEventListener('change', updatePlayback);
+    video.addEventListener('loadeddata', updatePlayback);
+    video.addEventListener('canplay', updatePlayback);
+    document.addEventListener('pointerdown', updatePlayback, { passive: true });
+    document.addEventListener('keydown', updatePlayback);
     document.addEventListener('visibilitychange', updatePlayback);
     return () => {
       video.pause();
-      motion.removeEventListener('change', updatePlayback);
+      video.removeEventListener('loadeddata', updatePlayback);
+      video.removeEventListener('canplay', updatePlayback);
+      document.removeEventListener('pointerdown', updatePlayback);
+      document.removeEventListener('keydown', updatePlayback);
       document.removeEventListener('visibilitychange', updatePlayback);
     };
   }, []);
-  return <video ref={videoRef} className="flightHeroVideo" muted loop playsInline preload="none"
+  return <video ref={videoRef} className="flightHeroVideo" autoPlay muted loop playsInline preload="auto"
     poster="/images/voyhaven-flight-clouds-poster.jpg" aria-hidden="true" tabIndex={-1}
     src="/images/voyhaven-flight-clouds.mp4" />;
 }

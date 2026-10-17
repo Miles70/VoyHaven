@@ -325,7 +325,6 @@ function ShowcaseHotelMedia({ hotel, to, ariaLabel, starLabel, language }) {
       ) : null}
 
       <span className="travelHotelMediaOverlay" aria-hidden="true">
-        {hotel.videoUrl ? <span className="travelVideoBadge">VIDEO</span> : null}
 
         <span className="travelCountryBadge">
           {countryFlagImage(hotel.showcaseCountryCode) ? (

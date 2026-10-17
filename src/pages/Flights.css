@@ -1,5 +1,24 @@
 .flightsPage { color:#071B3A; background:#f4f8fc; min-height:80vh; padding-bottom:64px; }
 .flightsHero { padding:40px max(20px, calc((100vw - 1200px)/2)) 45px; background:radial-gradient(ellipse at top right, #125785, transparent 65%),linear-gradient(135deg,#071B3A,#26244a); color:white; }
+.flightsPage:not(.flightsPage--embedded) > .flightsHero {
+  background-color:#071b3a;
+  background-image:linear-gradient(90deg,#071b3af5 0%,#071b3ab3 35%,#071b3a26 70%),linear-gradient(0deg,#071b3a 0%,#071b3a00 100%),url('/images/voyhaven-flight-overhead.webp');
+  background-size:100% 100%,100% 640px,auto 740px;
+  background-position:center,top,right -20px top -140px;
+  background-repeat:no-repeat;
+}
+.flightsPage:not(.flightsPage--embedded) > .flightsHero > h1,
+.flightsPage:not(.flightsPage--embedded) > .flightsHero > p { max-width:650px; }
+.flightsPage:not(.flightsPage--embedded) > .flightsHero > .flightSearchForm { margin-top:210px; }
+@media(max-width:700px) {
+  .flightsPage:not(.flightsPage--embedded) > .flightsHero {
+    padding-top:28px;
+    background-image:linear-gradient(0deg,#071b3a 0%,#071b3a00 100%),url('/images/voyhaven-flight-overhead.webp');
+    background-size:100% 510px,auto 460px;
+    background-position:top,center top 30px;
+  }
+  .flightsPage:not(.flightsPage--embedded) > .flightsHero > .flightSearchForm { margin-top:225px; }
+}
 .flightsHero h1 { font-size:clamp(1.8rem,4vw,3rem); margin:25px 0 12px; }
 .flightsHero > p { color:#cfdfed; }
 .flightTabs { display:flex; gap:10px; flex-wrap:wrap; }

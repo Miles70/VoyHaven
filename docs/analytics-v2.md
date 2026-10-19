@@ -37,7 +37,7 @@ For completely intercepted/local fixture tests, `markAnalyticsTest(context, { fi
 
 ## Data and access
 
-New events do not store raw IP, email, customer ID, or city. Existing data is preserved. IP is used transiently for the pre-existing country lookup and bounded in-memory cache, never as classification evidence. V2 responses/CSV omit legacy identity and IP fields. Paths omit query/fragment; details use a bounded allowlist. Card data, guest forms and booking access tokens are not analytics fields. Booking references are used transiently for access checks and stored only as a SHA-256-derived event ID.
+New events do not store raw IP, email, or customer ID. They store approximate IP-derived country/city and geoSource/geoVersion. Existing data is preserved. IP is used transiently for the country/city lookup and bounded in-memory cache, never as classification evidence. V2 responses/CSV omit legacy identity and IP fields. Paths omit query/fragment; details use a bounded allowlist. Card data, guest forms and booking access tokens are not analytics fields. Booking references are used transiently for access checks and stored only as a SHA-256-derived event ID.
 
 Reports use admin authentication, private/no-store responses, bounded pages/date ranges and a database timeout. New indexes support date/traffic and session/date access. Old endpoints and production checkout/provider contracts remain unchanged.
 
@@ -59,3 +59,9 @@ ANALYTICS_TEST_MONGODB_URI=mongodb://127.0.0.1:27017 npm run test:analytics-e2e
 The analytics test refuses non-local MongoDB URLs and never reads production `MONGODB_URI`. It checks actual Express/Mongo aggregation and Chromium at 320/390/1440px in light/dark themes, classification, legacy preservation, date/filter scope, pagination, ordered funnel, protected/deduplicated conversions, visitor timeline, empty state and the browser ingestion queue. `CHROMIUM_EXECUTABLE_PATH` is an optional local test-browser override. Screenshots are in `test-results/analytics-v2` and uploaded by CI.
 
 Rollout after approval: deploy backend support before the new frontend. Old clients are safely marked unknown during a staggered rollout. No data rewrite is necessary. Rollback to the old UI leaves V2 metadata and all history intact.
+
+## Location correction (geoVersion 2)
+
+Railway deployments use its public ingress X-Real-IP header for analytics only; other deployments retain Express request.ip. Missing/invalid ingress IP, private IP, timeout, unsuccessful lookup or mismatched returned IP yield unknown, never a default country. Country/city are approximate IP locations, not GPS or proof of a physical presence; VPN/mobile routing can differ. No raw IP is persisted. Failed lookups cache for 30 seconds, successful lookups for one hour.
+
+V2 reports mask historical locations without geoVersion 2 as unknown without deleting their events. Historical raw IPs were not recorded, so accurate backfill is unavailable. Admin/test traffic remains excluded by the existing default filter. Validate deployment with an authorized signed test context from a known Turkish connection; this repository test suite uses isolated fixtures and does not validate production geography.

@@ -21,7 +21,8 @@ const stages = ['hotel_view', 'room_select', 'checkout_view', 'payment_start', '
 export async function analyticsV2(request, response) {
   const { filter, traffic, from, to } = analyticsFilter(request.query);
   const page = bounded(request.query.page, 1, 10000), limit = bounded(request.query.limit, 25, 100);
-  const pipeline = [{ $match: filter }, { $set: { trafficType: effectiveTraffic } }];
+  const pipeline = [{ $match: filter }, { $set: { trafficType: effectiveTraffic, country: { $cond: [{ $eq: ['$geoVersion', 2] }, '$country', ''] }, city: { $cond: [{ $eq: ['$geoVersion', 2] }, '$city', ''] } } }];
+  if (filter.country) { const country = filter.country; delete filter.country; pipeline.push({ $match: { country } }); }
   if (traffic !== 'all') pipeline.push({ $match: { trafficType: traffic } });
   const facets = {
     totals: [{ $group: { _id: null, visitors: { $addToSet: '$visitorId' }, sessions: { $addToSet: '$sessionId' }, events: { $sum: { $cond: [{ $eq: ['$type', 'heartbeat'] }, 0, 1] } }, pageViews: { $sum: { $cond: [{ $eq: ['$type', 'page_view'] }, 1, 0] } } } }, { $project: { visitors: { $size: '$visitors' }, sessions: { $size: '$sessions' }, events: 1, pageViews: 1 } }],
@@ -32,7 +33,7 @@ export async function analyticsV2(request, response) {
     types: [{ $match: { type: { $ne: 'heartbeat' } } }, { $group: { _id: '$type', count: { $sum: 1 } } }, { $sort: { count: -1 } }],
     hotels: [{ $match: { type: 'hotel_view' } }, { $group: { _id: '$details.hotelId', name: { $first: '$details.hotelName' }, count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 8 }],
     flights: [{ $match: { type: 'flight_search' } }, { $group: { _id: { origin: '$details.origin', destination: '$details.destination' }, count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 8 }],
-    visitors: [{ $sort: { createdAt: -1, _id: -1 } }, { $group: { _id: '$visitorId', firstSeen: { $min: '$createdAt' }, lastSeen: { $first: '$createdAt' }, country: { $first: '$country' }, device: { $first: '$device' }, browser: { $first: '$browser' }, source: { $first: '$source' }, trafficTypes: { $addToSet: '$trafficType' }, sessionIds: { $addToSet: '$sessionId' }, events: { $sum: { $cond: [{ $eq: ['$type', 'heartbeat'] }, 0, 1] } }, lastType: { $first: '$type' } } }, { $sort: { lastSeen: -1, _id: 1 } }, { $skip: (page - 1) * limit }, { $limit: limit }, { $set: { sessionCount: { $size: '$sessionIds' } } }, { $project: { sessionIds: 0 } }],
+    visitors: [{ $sort: { createdAt: -1, _id: -1 } }, { $group: { _id: '$visitorId', firstSeen: { $min: '$createdAt' }, lastSeen: { $first: '$createdAt' }, country: { $first: '$country' }, city: { $first: '$city' }, device: { $first: '$device' }, browser: { $first: '$browser' }, source: { $first: '$source' }, trafficTypes: { $addToSet: '$trafficType' }, sessionIds: { $addToSet: '$sessionId' }, events: { $sum: { $cond: [{ $eq: ['$type', 'heartbeat'] }, 0, 1] } }, lastType: { $first: '$type' } } }, { $sort: { lastSeen: -1, _id: 1 } }, { $skip: (page - 1) * limit }, { $limit: limit }, { $set: { sessionCount: { $size: '$sessionIds' } } }, { $project: { sessionIds: 0 } }],
     // Consume chronological stages so an earlier out-of-order click does not hide a later valid journey.
     funnel: [{ $match: { type: { $in: stages }, sessionId: { $type: 'string', $ne: '' } } }, { $sort: { createdAt: 1, _id: 1 } },
       { $group: { _id: { visitor: '$visitorId', session: '$sessionId' }, sequence: { $push: '$type' } } },

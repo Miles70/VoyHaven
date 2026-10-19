@@ -4,7 +4,7 @@ import { requireBookingAccess } from '../services/bookingAccess.js';
 import { classifyTraffic } from '../services/analyticsTraffic.js';
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { isIP } from 'node:net';
+import { analyticsClientIp, analyticsGeo } from '../services/analyticsGeo.js';
 import { optionalCustomer } from '../middleware/customerAuth.js';
 import { TravelAnalytics } from '../models/TravelAnalytics.js';
 export const analyticsTypes = ['hotel_open', 'page_view', 'hotel_view', 'hotel_search', 'hotel_select', 'room_select', 'flight_search', 'flight_view', 'flight_select', 'category_select', 'checkout_view', 'payment_start', 'payment_ready', 'payment_error', 'booking_confirmation_view', 'heartbeat', 'car_plan', 'activity_plan'];
@@ -18,31 +18,17 @@ export function sanitizeAnalytics(body) {
   try { const url = new URL(body.referrer); if (['https:', 'http:'].includes(url.protocol)) referrer = url.origin; } catch { /* Direct visit. */ }
   return { eventId: body.eventId, visitorId: body.visitorId, sessionId: body.sessionId, type: body.type, path, referrer, source: clean(body.source, 100) || referrer || 'direct', details: Object.fromEntries(fields.filter(key => clean(body.details?.[key])).map(key => [key, clean(body.details[key])])) };
 }
-const geoCache = new Map();
-async function geo(ip) {
-  if (!isIP(ip) || /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|::1$|f[cd]|fe80)/i.test(ip)) return { country: '', city: '' };
-  const cached = geoCache.get(ip);
-  if (cached && cached.expires > Date.now()) return cached.value;
-  let value = { country: '', city: '' };
-  try {
-    const response = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { signal: AbortSignal.timeout(1800) });
-    const data = await response.json();
-    if (data.success) value = { country: clean(data.country, 80), city: clean(data.city, 80) };
-  } catch { /* Location lookup never blocks analytics ingestion. */ }
-  if (geoCache.size >= 1000) geoCache.delete(geoCache.keys().next().value);
-  geoCache.set(ip, { value, expires: Date.now() + 3600000 }); return value;
-}
 export const analyticsRouter = Router();
 analyticsRouter.use(rateLimit({ windowMs: 60000, limit: 90, standardHeaders: 'draft-8', legacyHeaders: false }));
 analyticsRouter.post('/events', optionalCustomer, async (request, response) => {
   const event = sanitizeAnalytics(request.body);
   if (!event) return response.status(400).json({ message: 'Geçersiz analitik olayı.' });
-  const ip = clean(request.ip, 80).replace(/^::ffff:/, '');
+  const ip = analyticsClientIp(request);
   const ua = clean(request.get('user-agent'), 500);
-  const location = await geo(ip);
+  const location = await analyticsGeo(ip);
   const classification = classifyTraffic(request.body.analyticsProof, ua);
   if (!request.body.analyticsProof && request.body.schemaVersion !== 2) { classification.trafficType = 'unknown'; classification.classificationReason = 'legacy_client'; }
-  const entry = { ...event, country: location.country, ...classification,
+  const entry = { ...event, ...location, ...classification,
     customerId: '', identity: '',
     device: /tablet|ipad/i.test(ua) ? 'Tablet' : /mobile|iphone|android/i.test(ua) ? 'Mobil' : 'Masaüstü',
     browser: /edg/i.test(ua) ? 'Edge' : /firefox/i.test(ua) ? 'Firefox' : /chrome|crios/i.test(ua) ? 'Chrome' : /safari/i.test(ua) ? 'Safari' : 'Diğer',
@@ -66,13 +52,13 @@ analyticsRouter.post(['/booking-ready', '/booking-confirmed'], optionalCustomer,
   if (confirmation && booking.status !== 'confirmed') return response.status(204).end();
   const key = crypto.createHash('sha256').update(reference).digest('hex');
   const eventId = `${confirmation ? 'confirmed' : 'ready'}-${key}`;
-  const context = await TravelAnalytics.findOne({ visitorId: event.visitorId, sessionId: event.sessionId, type: { $ne: 'booking_confirmed' } }).sort({ createdAt: -1 }).select('country device browser source').lean();
+  const context = await TravelAnalytics.findOne({ visitorId: event.visitorId, sessionId: event.sessionId, type: { $ne: 'booking_confirmed' } }).sort({ createdAt: -1 }).select('country city geoSource geoVersion device browser source').lean();
   const traffic = classifyTraffic(request.body.analyticsProof, clean(request.get('user-agent'), 500));
-  let attribution = { ...event, ...(context ? { country: context.country, device: context.device, browser: context.browser, source: context.source } : {}), ...traffic };
+  let attribution = { ...event, ...(context ? { country: context.country, city: context.city, geoSource: context.geoSource, geoVersion: context.geoVersion, device: context.device, browser: context.browser, source: context.source } : {}), ...traffic };
   if (confirmation) {
     const binding = await TravelAnalytics.findOne({ eventId: `ready-${key}` }).lean();
     if (binding) {
-      for (const field of ['visitorId', 'sessionId', 'country', 'device', 'browser', 'source', 'trafficType', 'classificationReason']) attribution[field] = binding[field];
+      for (const field of ['visitorId', 'sessionId', 'country', 'city', 'geoSource', 'geoVersion', 'device', 'browser', 'source', 'trafficType', 'classificationReason']) attribution[field] = binding[field];
     } else if (traffic.trafficType === 'visitor') {
       attribution.trafficType = 'unknown'; attribution.classificationReason = 'missing_booking_attribution';
     }

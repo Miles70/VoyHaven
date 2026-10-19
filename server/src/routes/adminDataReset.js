@@ -18,6 +18,31 @@ export function resetInput(body, now = new Date()) {
   if (body.confirmation !== 'SIFIRLA' || !Array.isArray(body.references) || body.references.length > 100 || body.references.some(r => typeof r !== 'string' || !/^TRV-[A-Z0-9-]{8,120}$/.test(r)) || new Set(body.references).size !== body.references.length || !Number.isFinite(+cutoff) || cutoff > now || now - cutoff > 3600000) throw fail('Önizlemeyi yenile ve SIFIRLA yazarak doğrula.');
   return { cutoff, references: body.references };
 }
+export function visitorArchiveFilter(visitorId, cutoff = new Date()) {
+  if (typeof visitorId !== 'string' || !/^[a-zA-Z0-9_-]{8,100}$/.test(visitorId)) throw fail('Geçersiz ziyaretçi.');
+  return { visitorId, createdAt: { $lte: cutoff } };
+}
+adminDataResetRouter.get('/visitors', async (request, response) => {
+  const items = await AdminDataReset.find({ kind: 'visitor', restoredAt: { $exists: false } }).sort({ createdAt: -1 }).limit(25).select('batchId visitorId counts.analytics createdAt').lean();
+  response.json({ items });
+});
+adminDataResetRouter.post('/visitors/:visitorId', async (request, response) => {
+  const cutoff = new Date();
+  const filter = visitorArchiveFilter(request.params.visitorId, cutoff);
+  const batchId = crypto.randomUUID();
+  const session = await mongoose.startSession();
+  let count = 0;
+  try {
+    await session.withTransaction(async () => {
+      const result = await TravelAnalytics.updateMany(filter, { $set: { archivedAt: cutoff, archiveBatch: batchId } }, { session, timestamps: false });
+      count = result.modifiedCount;
+      if (!count) throw Object.assign(new Error('Ziyaretçi kaydı bulunamadı veya zaten silindi.'), { statusCode: 404 });
+      await AdminDataReset.create([{ batchId, kind: 'visitor', visitorId: filter.visitorId, actor: actor(request), cutoff, counts: { analytics: count, bookings: 0 } }], { session });
+      await TravelAdminAudit.create([{ actor: actor(request), action: 'analytics.visitor.archive', target: batchId }], { session });
+    });
+  } finally { await session.endSession(); }
+  response.json({ batchId, visitorId: filter.visitorId, count });
+});
 adminDataResetRouter.get('/', async (request, response) => {
   const cutoff = new Date();
   const [analytics, bookings, batches] = await Promise.all([
@@ -76,7 +101,7 @@ adminDataResetRouter.post('/:batchId/restore', async (request, response) => {
         if (documents.length) await model.collection.insertMany(documents, { session });
       }
       // Raw collection updates intentionally bypass the active-record middleware.
-      for (const model of [TravelAnalytics, TravelBooking]) await model.collection.updateMany({ archiveBatch: batch.batchId }, { $unset: { archivedAt: '', archiveBatch: '' } }, { session });
+      for (const model of (batch.kind === 'visitor' ? [TravelAnalytics] : [TravelAnalytics, TravelBooking])) await model.collection.updateMany({ archiveBatch: batch.batchId }, { $unset: { archivedAt: '', archiveBatch: '' } }, { session });
       batch.restoredAt = new Date(); await batch.save({ session });
       await TravelAdminAudit.create([{ actor: actor(request), action: 'data.restore', target: batch.batchId }], { session });
     });

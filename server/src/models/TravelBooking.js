@@ -1,3 +1,4 @@
+import { softArchive } from '../services/softArchive.js';
 import mongoose from "mongoose";
 
 const personSchema = new mongoose.Schema(
@@ -55,4 +56,5 @@ travelBookingSchema.index(
   },
 );
 
+travelBookingSchema.plugin(softArchive);
 export const TravelBooking = mongoose.model("TravelBooking", travelBookingSchema);

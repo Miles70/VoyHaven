@@ -1,3 +1,4 @@
+import { softArchive } from '../services/softArchive.js';
 import mongoose from 'mongoose';
 const schema = new mongoose.Schema({
   eventId: { type: String, required: true, unique: true },
@@ -13,4 +14,5 @@ schema.index({ visitorId: 1, createdAt: -1 });
 schema.index({ trafficType: 1, createdAt: -1 });
 schema.index({ sessionId: 1, createdAt: 1 });
 schema.index({ type: 1, createdAt: -1 });
+schema.plugin(softArchive);
 export const TravelAnalytics = mongoose.model('TravelAnalytics', schema);

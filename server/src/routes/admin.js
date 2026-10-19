@@ -1,3 +1,4 @@
+import { adminDataResetRouter } from './adminDataReset.js';
 import { createAnalyticsProof } from '../services/analyticsTraffic.js';
 import { analyticsV2 } from '../services/analyticsReport.js';
 import { reservationSummary } from '../services/bookingState.js';
@@ -15,6 +16,7 @@ import { getNuiteeStatus } from '../services/nuiteeApi.js';
 export const adminRouter = Router();
 adminRouter.use((request, response, next) => { response.set('Cache-Control', 'private, no-store'); next(); });
 adminRouter.use(...requireAdmin);
+adminRouter.use('/data-reset', adminDataResetRouter);
 const statuses = ['awaiting_payment', 'processing', 'confirmed', 'failed', 'expired'];
 function text(value, max = 200) { return String(value || '').trim().slice(0, max); }
 function bad(message) { const error = new Error(message); error.statusCode = 400; return error; }

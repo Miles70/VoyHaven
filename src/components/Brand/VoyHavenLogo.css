@@ -8,11 +8,13 @@
 }
 
 .headerVoyHavenLogo {
+  --voyhaven-wordmark: #163e58;
   width: 150px;
   max-width: min(32vw, 150px);
 }
 
 .heroVoyHavenLogo {
+  --voyhaven-wordmark: #f4fbff;
   width: 290px;
   max-width: 100%;
 }
@@ -36,4 +38,8 @@
   .footerVoyHavenLogo {
     width: 205px;
   }
+}
+
+.heroVoyHavenLogo .voyhavenWordmark {
+  filter: drop-shadow(0 2px 3px rgb(4 20 36 / 55%));
 }

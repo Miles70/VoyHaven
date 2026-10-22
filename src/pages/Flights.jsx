@@ -1,3 +1,4 @@
+import flightRecoveryTranslations from '../i18n/flightRecoveryTranslations';
 import { trackTravel } from '../services/analytics';
 import FlightCard from '../components/Flights/FlightCard';
 import FlightSelection from '../components/Flights/FlightSelection';
@@ -75,6 +76,7 @@ export default function Flights({ embedded = false }) {
   const [scanBusy, setScanBusy] = useState(false);
   const [dateProgress, setDateProgress] = useState([]);
   const dateLabels = flexibleDateLabels[language] || flexibleDateLabels.en;
+  const recovery = flightRecoveryTranslations[language] || flightRecoveryTranslations.en;
 
   const [sort, setSort] = useState('low');
   const [refund, setRefund] = useState('all');
@@ -190,9 +192,9 @@ export default function Flights({ embedded = false }) {
       setChosenOfferId(null);
     } finally { clearTimeout(timer); if (cabinController.current === controller) setDateProgress([]); }
   }
-  async function continueDates() {
-    if (!scanContinuation || scanBusy) return;
-    const checkpoint = scanContinuation;
+  async function continueDates(providedCheckpoint) {
+    const checkpoint = providedCheckpoint || scanContinuation;
+    if (!checkpoint || scanBusy || loading) return;
     const controller = new AbortController();
     cabinController.current?.abort(); cabinController.current = controller;
     const version = ++searchVersion.current;
@@ -203,11 +205,11 @@ export default function Flights({ embedded = false }) {
       if (version !== searchVersion.current || controller.signal.aborted) return;
       if (nearby?.paused) { setScanContinuation({ ...checkpoint, cursor: nearby.cursor }); return; }
       setScanContinuation(null);
-      if (!nearby) { setError('noNearby'); return; }
+      if (!nearby) { setError(checkpoint.generic ? 'noNearbyDates' : 'noNearby'); return; }
       setResults(nearby.offers.map(result => ({ ...result, requestedCabin: checkpoint.search.cabinClass })));
       setCompletedSearch(nearby.search); setDeparture(nearby.search.departure);
       if (nearby.search.returnDate) setReturnDate(nearby.search.returnDate);
-      setCabinClass(checkpoint.search.cabinClass); setSort('low'); setRefund('all'); setStops('all'); setVisible(20); setChosenOfferId(null); setFocusedFlight(null); setCabinNotice('nearby'); setState('done');
+      setCabinClass(checkpoint.search.cabinClass); setSort('low'); setRefund('all'); setStops('all'); setVisible(20); setChosenOfferId(null); setFocusedFlight(null); setCabinNotice(checkpoint.generic ? 'nearbyDates' : 'nearby'); setState('done');
     } catch (err) {
       if (version === searchVersion.current) setError(err.name === 'AbortError' ? 'timeout' : err.code === 'RATE_LIMIT' ? 'rateLimit' : 'error');
     } finally {
@@ -242,14 +244,14 @@ export default function Flights({ embedded = false }) {
           </div>
           <button className="flightSearchButton" type="submit" disabled={loading}>{loading ? <LoaderCircle className="flightSpin" size={20} /> : <Search size={20} />}{loading ? copy.searching : copy.search}</button>
         </fieldset>
-        {error && <p className="flightError" role="alert">{error === 'noNearby' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[2] : copy[error]}</p>}
+        {error && <p className="flightError" role="alert">{error === 'noNearbyDates' ? recovery[3] : error === 'noNearby' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[2] : copy[error]}</p>}
 
       </form>
     </section>
     {!embedded && (state === 'loading' || state === 'done' || scanContinuation || dateProgress.length > 0) && <section ref={resultsRef} className="flightResults" aria-live="polite" aria-busy={loading}>
       {dateProgress.length > 0 && <p className="flightCabinNotice" role="status">{dateLabels[5]}: {dateProgress.map(date => flightDisplayDate(date, language)).join(" · ")} <button type="button" className="flightBackButton" onClick={() => { searchVersion.current += 1; searchController.current?.abort(); searchController.current = null; cabinController.current?.abort(); setDateProgress([]); setScanBusy(false); setState(results.length ? 'done' : 'idle'); }}>{copy.back}</button></p>}
       {loading && <p className="flightStatus">{copy.searching}</p>}
-      {state === 'done' && <><h2>{copy.results} · {filteredResults.length} / {results.length}</h2><p>{copy.localTimes}</p>{results.length === 0 && !scanContinuation && <p className="flightStatus">{copy.empty}</p>}</>}
+      {state === 'done' && <><h2>{copy.results} · {filteredResults.length} / {results.length}</h2><p>{copy.localTimes}</p>{results.length === 0 && !scanContinuation && <div className="flightStatus"><p>{recovery[0]}</p>{dateRangePicker}<button type="button" className="flightSearchButton" disabled={scanBusy || loading || !completedSearch} onClick={() => continueDates({ search: completedSearch, today: localDate(), range: dateRange, cursor: 0, generic: true })}>{scanBusy ? copy.searching : recovery[1]}</button></div>}</>}
       {state === 'done' && results.length > 0 && <div className="flightFilterBar">
         {dateRangePicker}<label>{filtersCopy.sort}<select value={sort} onChange={event => { setSort(event.target.value); setVisible(20); }}><option value="low">{filtersCopy.low}</option><option value="high">{filtersCopy.high}</option></select></label>
         <label>{filtersCopy.refund}<select value={refund} onChange={event => { setRefund(event.target.value); setVisible(20); }}>{['all','refundable','partial','nonRefundable','unknown'].map(value => <option key={value} value={value}>{filtersCopy[value]}</option>)}</select></label>
@@ -259,8 +261,8 @@ export default function Flights({ embedded = false }) {
         <button type="button" className="flightBackButton" onClick={() => { setSort('low'); setRefund('all'); setStops('all'); setVisible(20); }}>{filtersCopy.reset}</button>
         <p>{filtersCopy.cabinHelp}</p>
       </div>}
-      {scanContinuation && <div className="flightCabinNotice" role="status"><p>{(flightAuditMessages[language] || flightAuditMessages.en)[0]}</p><button type="button" className="flightBackButton" disabled={scanBusy || loading} onClick={continueDates}>{scanBusy ? copy.searching : (flightAuditMessages[language] || flightAuditMessages.en)[1]}</button></div>}
-      {cabinNotice && <p className="flightCabinNotice" role="status">{cabinNotice === 'nearby' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[1] : (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[1]}{cabinNotice === 'nearby' && <strong className="flightNewDates">{copy.departure}: {flightDisplayDate(completedSearch?.departure, language)}{completedSearch?.returnDate && <> · {copy.returnDate}: {flightDisplayDate(completedSearch.returnDate, language)}</>}</strong>}</p>}
+      {scanContinuation && <div className="flightCabinNotice" role="status"><p>{(flightAuditMessages[language] || flightAuditMessages.en)[0]}</p><button type="button" className="flightBackButton" disabled={scanBusy || loading} onClick={() => continueDates()}>{scanBusy ? copy.searching : (flightAuditMessages[language] || flightAuditMessages.en)[1]}</button></div>}
+      {cabinNotice && <p className="flightCabinNotice" role="status">{cabinNotice === 'nearbyDates' ? recovery[2] : cabinNotice === 'nearby' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[1] : (cabinAlternativeMessages[language] || cabinAlternativeMessages.en)[1]}{['nearby', 'nearbyDates'].includes(cabinNotice) && <strong className="flightNewDates">{copy.departure}: {flightDisplayDate(completedSearch?.departure, language)}{completedSearch?.returnDate && <> · {copy.returnDate}: {flightDisplayDate(completedSearch.returnDate, language)}</>}</strong>}</p>}
       {state === 'done' && results.length > 0 && filteredResults.length === 0 && <p className="flightStatus">{filtersCopy.noMatches}</p>}
       {filteredResults.slice(0, visible).map((result) => <FlightCard key={result.offer.offerId} result={result} copy={copy} language={language} searchedCabin={completedSearch?.cabinClass} onCabinChange={changeOfferCabin} onSelect={result => { trackTravel('flight_view', { offerId: result.offer.offerId, origin: origin?.iata, destination: destination?.iata }); setFocusedFlight({ ...result, passengers: { adults: completedSearch?.adults ?? adults, children: completedSearch?.children ?? children, infants: completedSearch?.infants ?? infants } }); }} selected={chosenOfferId === result.offer.offerId} />)}
       {visible < filteredResults.length && <button className="flightSearchButton" onClick={() => setVisible((count) => count + 20)}>{copy.more}</button>}

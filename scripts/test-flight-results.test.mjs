@@ -46,3 +46,33 @@ test('invalid prices and malformed segments cannot enter results',()=>{
  assert.deepEqual(flightResults({data:[{journeys:[{segments:[null],offers:[offer]}]}]},'USD'),[]);
  assert.deepEqual(flightResults({data:[{journeys:[{segments:[{}],offers:[{...offer,pricing:{display:{total:-1,currency:'USD'}}}]}]}]},'USD'),[]);
 });
+test('partial provider batches cannot hide valid offers or crash the result list', () => {
+ const segment = { originCode: 'AYT', destinationCode: 'UFA' };
+ const valid = { offerId: 'bookable', pricing: { display: { total: 100, currency: 'USD' } } };
+ const rows = flightResults({ data: [null, { error: 'provider unavailable' }, { journeys: [null, { segments: [segment], offers: [null, valid] }] }] }, 'USD');
+ assert.equal(rows.length, 1); assert.equal(rows[0].offer.offerId, 'bookable');
+ assert.throws(() => flightResults({ data: [null, { error: 'provider unavailable' }] }, 'USD'), /FLIGHT_UNAVAILABLE/);
+});
+test('a priced cheapest-offer reference rescues missing offer arrays without inventing fares', () => {
+ const journey = { segments: [{ originCode: 'AYT', destinationCode: 'UFA' }], cheapestOffer: { offerId: 'cheapest-only', pricing: { display: { total: 150, currency: 'USD' } }, baggage: { included: [] } } };
+ for (const offers of [undefined, [], {}, [null]]) {
+  const rows = flightResults({ data: [{ journeys: [{ ...journey, offers }] }] }, 'USD');
+  assert.equal(rows.length, 1); assert.equal(rows[0].offer, journey.cheapestOffer);
+ }
+ assert.equal(flightResults({ data: [{ journeys: [{ ...journey, cheapestOffer: { offerId: 'price-missing' } }] }] }, 'USD').length, 0);
+ assert.equal(flightResults({ data: [{ journeys: [journey] }] }, 'EUR').length, 0);
+});
+test('economy nearby search preserves route, cabin, passengers and round-trip duration', async () => {
+ const original = { origin: 'AYT', destination: 'UFA', departure: '2027-06-15', returnDate: '2027-06-22', adults: 2, children: 1, cabinClass: 'ECONOMY', currency: 'USD', country: 'TR' };
+ const calls = [];
+ const found = await findNearbyFlightOffers(original, '2026-10-22', async candidate => { calls.push(candidate); return candidate.departure === '2027-06-16' ? [result('available', 100)] : []; }, x => x, () => true, 7);
+ assert.equal(found.search.departure, '2027-06-16'); assert.equal(found.search.returnDate, '2027-06-23');
+ assert.equal(original.departure, '2027-06-15');
+ assert.ok(calls.every(candidate => candidate.origin === 'AYT' && candidate.destination === 'UFA' && candidate.adults === 2 && candidate.children === 1 && candidate.cabinClass === 'ECONOMY'));
+});
+test('recovery messages cover every supported language', async () => {
+ const { default: messages } = await import('../src/i18n/flightRecoveryTranslations.js');
+ const { supportedLanguages } = await import('../shared/languages.js');
+ assert.deepEqual(Object.keys(messages).sort(), [...supportedLanguages].sort());
+ for (const row of Object.values(messages)) assert.ok(row.length === 4 && row.every(text => typeof text === 'string' && text.trim()));
+});

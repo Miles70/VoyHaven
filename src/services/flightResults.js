@@ -3,14 +3,20 @@ export function airportResults(payload) {
     .filter((airport) => /^[A-Z]{3}$/.test(airport.iata));
 }
 export function flightResults(payload, currency) {
-  if (!Array.isArray(payload?.data) || payload.data.some((batch) => !Array.isArray(batch.journeys))) throw new Error('FLIGHT_UNAVAILABLE');
+  if (!Array.isArray(payload?.data)) throw new Error('FLIGHT_UNAVAILABLE');
+  const batches = payload.data.filter(batch => Array.isArray(batch?.journeys));
+  if (payload.data.length && !batches.length) throw new Error('FLIGHT_UNAVAILABLE');
   const results = new Map();
-  for (const batch of payload.data) {
+  const validOffer = offer => typeof offer?.offerId === 'string' && offer.offerId.trim() && offer.pricing?.display?.total != null && Number.isFinite(Number(offer.pricing.display.total)) && Number(offer.pricing.display.total) > 0 && offer.pricing.display.currency === currency;
+  for (const batch of batches) {
     for (const journey of batch.journeys) {
-      if (!Array.isArray(journey.segments) || !journey.segments.length || journey.segments.some(segment => !segment || typeof segment !== 'object')) continue;
-      for (const offer of journey.offers || []) {
-        const price = offer.pricing?.display;
-        if (typeof offer.offerId !== 'string' || !offer.offerId || price?.total == null || !Number.isFinite(Number(price.total)) || Number(price.total) <= 0 || price.currency !== currency) continue;
+      if (!Array.isArray(journey?.segments) || !journey.segments.length || journey.segments.some(segment => !segment || typeof segment !== 'object')) continue;
+      const offers = (Array.isArray(journey.offers) ? journey.offers : []).filter(validOffer);
+      // Some batches contain only the complete cheapest-offer object. Never
+      // fabricate IDs, prices or fare conditions when this reference is partial.
+      if (!offers.length && validOffer(journey.cheapestOffer)) offers.push(journey.cheapestOffer);
+      for (const offer of offers) {
+        const price = offer.pricing.display;
         results.set(offer.offerId, { ...journey, offer, total: Number(price.total), currency: price.currency });
       }
     }

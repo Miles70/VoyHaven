@@ -107,7 +107,12 @@ assert.equal(hotelFactsChanged(existing, provider, 'changed-description'), true)
 for (const [path, search] of [['/flights', 'departure=2099-01-01'], ['/travel/checkout',''], ['/flights/checkout',''], ['/account',''], ['/admin',''], ['/hotels','cityName=Antalya'], ['/travel/hotels/lp55de7','checkin=2099-01-01'], ['/not-a-page',''], ['/en/hotels/not-a-city','']]) assert.ok(appPolicy(path, search, published).noIndex);
 assert.equal(appPolicy('/not-a-page', '', published).status, 404);
 assert.equal(appPolicy('/travel/hotels/lp55de7', 'lang=tr', published).canonical, SITE_URL + '/tr/travel/hotels/lp55de7');
-assert.equal(appPolicy('/flights', '', published).redirect, '/en/flights');
+for (const path of ['/flights', '/hotels']) {
+ for (const search of ['', 'lang=tr', 'utm_source=menu']) {
+  assert.equal(appPolicy(path, search, published).redirect, undefined);
+  assert.equal(appPolicy(path, search, published).status, 200);
+ }
+}
 assert.equal(appPolicy('/travel/hotels/lp55de7', '', published).redirect, '/en/travel/hotels/lp55de7');
 assert.equal(appPolicy('/travel', 'cityName=Antalya', published).redirect, '/?cityName=Antalya');
 assert.ok(!safeJson({ title: '</script><script>alert(1)</script>' }).includes('<'));
@@ -128,7 +133,7 @@ for (const path of ['/account','/travel/checkout','/flights/checkout','/flights?
  assert.ok(r.body.includes('property="og:site_name" content="VoyHaven"'));
  assert.ok(!/rotavoy/i.test(r.body));
 }
-assert.equal((await request('/flights')).status, 308);
+assert.equal((await request('/flights')).status, 200);
 assert.equal((await request('/flights?lang=tr')).headers['Cache-Control'], 'private, no-store');
 console.log(`SEO passed: ${pages.length} JavaScript-free HTML pages, ${languages.length} languages, reciprocal hreflang, canonical, schema, links, sitemap, publication gates, redirects, HTTP 404 and private noindex.`);
 for (const lang of languages) {

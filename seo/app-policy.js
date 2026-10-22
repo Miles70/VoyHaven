@@ -24,7 +24,6 @@ export function appPolicy(pathname, search = '', catalog = []) {
  const lang = requestedLanguage(params.get('lang')) || requestedLanguage(pathname.split('/')[1]) || 'en';
  const empty = [...params.keys()].every(key => key.startsWith('utm_') || key === 'gclid');
  if (pathname === '/travel') return { redirect: `/${search ? `?${params}` : ''}` };
- if (empty && ['/hotels', '/flights'].includes(pathname)) return { redirect: `/${lang}${pathname}${search ? `?${params}` : ''}` };
  const hotelMatch = pathname.match(/^\/travel\/hotels\/(lp[a-z0-9]+)$/);
  if (empty && hotelMatch && catalog.includes(hotelMatch[1])) return { redirect: `/${lang}/travel/hotels/${hotelMatch[1]}${search ? `?${params}` : ''}` };
  const general = ['/', '/about', '/contact', '/support', '/privacy', '/terms', '/refund', '/cars', '/activities'];

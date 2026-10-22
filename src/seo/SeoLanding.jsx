@@ -14,7 +14,7 @@ export default function SeoLanding({ page }) {
  const cards = page.cards || [];
  const guide = ["hotels", "flights"].includes(page.kind) ? travelGuide(page.kind, page.lang) : null;
  return <div className={`seoSite${dark ? ' seoDark' : ''}`}>
-  <header className="seoHeader"><a className="seoBrand" href={languagePath(page.lang)}><VoyHavenLogo className="seoVoyHavenLogo" /></a><nav aria-label={c.home}><a href={languagePath(page.lang, 'hotels')}>{c.hotels}</a><a href={languagePath(page.lang, 'flights')}>{c.flights}</a><button type="button" onClick={toggleTheme} aria-label={c.theme}>◐</button></nav></header>
+  <header className="seoHeader"><a className="seoBrand" href={languagePath(page.lang)}><VoyHavenLogo className="seoVoyHavenLogo" /></a><nav aria-label={c.home}><a href={`/hotels?lang=${page.lang}`}>{c.hotels}</a><a href={`/flights?lang=${page.lang}`}>{c.flights}</a><button type="button" onClick={toggleTheme} aria-label={c.theme}>◐</button></nav></header>
   <main className="seoMain">
    <nav className="seoBreadcrumb" aria-label={c.home}><a href={languagePath(page.lang)}>{c.home}</a>{page.kind !== 'home' && <><span aria-hidden="true"> / </span><span>{page.title}</span></>}</nav>
    <section className="seoHero"><div><p className="seoEyebrow">VOYHAVEN TRAVEL</p><h1>{page.title}</h1><p>{page.intro}</p>{page.cta && <a className="seoCta" href={page.cta.href}>{page.cta.title} →</a>}</div>{page.hotel && <img className="seoHeroImage" src={page.hotel.image} alt={page.hotel.name} width="800" height="600" fetchPriority="high" />}</section>

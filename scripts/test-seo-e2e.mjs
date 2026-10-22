@@ -61,9 +61,14 @@ try {
   assert.equal(new URL(page.url()).searchParams.get('destination'), 'FRA');
   assert.equal(await page.locator('html').getAttribute('dir'), 'rtl');
   await page.locator('.travelCategoryControl > button').click();
-  assert.equal(await page.locator('.travelCategoryDropdown a[href="/ar/hotels"]').count(), 1);
-  assert.equal(await page.locator('.travelCategoryDropdown a[href="/ar/flights"]').count(), 1);
-  await page.locator('.travelCategoryControl > button').click();
+  assert.equal(await page.locator('.travelCategoryDropdown a[href="/hotels?lang=ar"]').count(), 1);
+  assert.equal(await page.locator('.travelCategoryDropdown a[href="/flights?lang=ar"]').count(), 1);
+  await page.locator('.travelCategoryDropdown a[href="/flights?lang=ar"]').click();
+  await page.waitForURL('**/flights?lang=ar');
+  await page.locator('.flightSearchForm').waitFor();
+  await page.reload();
+  await page.locator('.flightSearchForm').waitFor();
+  assert.equal(await page.locator('.seoSite').count(), 0);
   await page.locator('.customerHeaderAuthButton').focus();
   // The existing mobile UI intentionally hides this desktop hover preview.
   await page.locator('.customerLoginPreview').waitFor({ state: width > 620 ? 'visible' : 'hidden' });

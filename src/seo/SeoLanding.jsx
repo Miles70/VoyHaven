@@ -18,6 +18,11 @@ export default function SeoLanding({ page }) {
   <main className="seoMain">
    <nav className="seoBreadcrumb" aria-label={c.home}><a href={languagePath(page.lang)}>{c.home}</a>{page.kind !== 'home' && <><span aria-hidden="true"> / </span><span>{page.title}</span></>}</nav>
    <section className="seoHero"><div><p className="seoEyebrow">VOYHAVEN TRAVEL</p><h1>{page.title}</h1><p>{page.intro}</p>{page.cta && <a className="seoCta" href={page.cta.href}>{page.cta.title} →</a>}</div>{page.hotel && <img className="seoHeroImage" src={page.hotel.image} alt={page.hotel.name} width="800" height="600" fetchPriority="high" />}</section>
+   {page.flightTopics?.length > 0 && <section className="seoPanel seoFlightTopics" aria-labelledby="flight-guide-title">
+    <h2 id="flight-guide-title">{page.flightTopicsTitle}</h2>
+    <nav className="seoTopicLinks" aria-label={page.flightTopicsTitle}>{page.flightTopics.map(topic => <a key={topic.id} href={`#${topic.id}`}>{topic.title}</a>)}</nav>
+    <div className="seoGuideGrid">{page.flightTopics.map(topic => <article id={topic.id} key={topic.id}><h3>{topic.title}</h3><p>{topic.body}</p></article>)}</div>
+   </section>}
    {page.hotel && <section className="seoPanel"><h2>{c.hotelInfo}</h2><dl><dt>{c.address}</dt><dd>{page.hotel.address}, {page.hotel.city}, {page.hotel.country}</dd>{Number.isFinite(page.hotel.stars) && page.hotel.stars > 0 && <><dt>{c.stars}</dt><dd>{page.hotel.stars} ★</dd></>}</dl><p>{c.sourceNote}</p><p>{c.hotelHelp}</p></section>}
    {page.route && <section className="seoPanel"><h2>{c.airports}</h2><dl><dt>{c.outbound}</dt><dd>{page.route.originName} — {page.route.originAirport} ({page.route.from}) → {page.route.destinationName} — {page.route.destinationAirport} ({page.route.to})</dd></dl><p>{c.stepsText}</p></section>}
    {cards.length > 0 && <section><h2>{page.kind === 'route' ? c.related : page.kind === 'flights' ? c.routes : c.hotels}</h2><div className="seoCards">{cards.map(card => <article className="seoCard" key={card.href}>{card.image && <a href={card.href} tabIndex={-1} aria-hidden="true"><img src={card.image} width="480" height="320" loading="lazy" alt="" /></a>}<div><h3><a href={card.href}>{card.title}</a></h3>{card.stars > 0 && <span>{card.stars} ★</span>}{card.text && <p>{card.text}</p>}</div></article>)}</div></section>}

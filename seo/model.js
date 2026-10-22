@@ -1,3 +1,4 @@
+import flightInfoTranslations from '../src/i18n/flightInfoTranslations.js';
 import { copy, languages, interpolate } from './copy.js';
 import { destinations, airports, routes } from './destinations.js';
 export const SITE_URL = 'https://voyhaven.com';
@@ -20,7 +21,12 @@ export function buildPages(hotels) {
   };
   add('', { kind: 'home', title: c.homeTitle, description: `${c.destinationIntro.replace('{city}', activeDestinations.map(d => d.names[lang]).join(', '))} ${c.flightHelp}`, cards: hotelCards.slice(0, 12), intro: c.hotelHelp });
   add('hotels', { kind: 'hotels', title: c.hotels, description: c.hotelHelp, intro: c.hotelHelp, cards: hotelCards.slice(0, 12), cta: { href: `/hotels?lang=${lang}`, title: c.hotelCta } });
-  add('flights', { kind: 'flights', title: c.flights, description: c.flightHelp, intro: c.flightHelp, cards: routeLinks, cta: { href: `/flights?lang=${lang}`, title: c.flightCta } });
+  const flightInfo = flightInfoTranslations[lang];
+  const flightTopics = flightInfo.slice(3).map((text, index) => {
+   const [title, body] = text.split('|');
+   return { id: ['start-your-journey', 'destinations', 'compare-flights', 'your-language', 'payment', 'support'][index], title, body };
+  });
+  add('flights', { flightTopics, flightTopicsTitle: flightInfo[0], kind: 'flights', title: c.flights, description: c.flightHelp, intro: c.flightHelp, cards: routeLinks, cta: { href: `/flights?lang=${lang}`, title: c.flightCta } });
   for (const d of activeDestinations) {
    const city = d.names[lang];
    const destinationCards = hotelCards.filter((_, i) => catalog[i].destination === d.slug);
@@ -45,6 +51,9 @@ export function structuredData(page) {
  const url = SITE_URL + page.path;
  const c = copy[page.lang];
  const graph = [{ '@type': 'WebPage', '@id': url, url, name: page.title, description: page.description, inLanguage: page.lang }, { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: c.home, item: SITE_URL + languagePath(page.lang) }, ...(page.kind === 'home' ? [] : [{ '@type': 'ListItem', position: 2, name: page.title, item: url }])] }];
+ if (page.flightTopics?.length) graph[0].hasPart = page.flightTopics.map(topic => ({
+  '@type': 'WebPageElement', '@id': `${url}#${topic.id}`, url: `${url}#${topic.id}`, name: topic.title, description: topic.body, inLanguage: page.lang,
+ }));
  if (page.hotel) {
   const h = page.hotel;
   graph.push({ '@type': 'Hotel', '@id': `${url}#hotel`, name: h.name, url, description: page.intro, image: h.image, address: { '@type': 'PostalAddress', streetAddress: h.address, addressLocality: h.city, addressCountry: h.country }, ...(Number.isFinite(h.stars) && h.stars > 0 && h.stars <= 5 ? { starRating: { '@type': 'Rating', ratingValue: h.stars } } : {}), ...(Number.isFinite(h.latitude) && Number.isFinite(h.longitude) ? { geo: { '@type': 'GeoCoordinates', latitude: h.latitude, longitude: h.longitude } } : {}) });

@@ -59,6 +59,17 @@ for (const page of pages) {
  if (['hotels', 'flights'].includes(page.kind)) {
   for (const section of travelGuide(page.kind, page.lang).sections) assert.ok(withoutScripts.includes(section.text.replaceAll('&', '&amp;').replaceAll("'", '&#x27;').replaceAll('"', '&quot;')));
  }
+ if (page.kind === 'flights') {
+  assert.equal(page.flightTopics.length, 6);
+  assert.equal(new Set(page.flightTopics.map(topic => topic.id)).size, 6);
+  assert.equal(schema['@graph'][0].hasPart.length, 6);
+  for (const topic of page.flightTopics) {
+   assert.ok(withoutScripts.includes(`id="${topic.id}"`));
+   assert.ok(withoutScripts.includes(`href="#${topic.id}"`));
+   assert.ok(withoutScripts.includes(topic.title.replaceAll('&', '&amp;').replaceAll("'", '&#x27;')));
+   assert.ok(withoutScripts.includes(topic.body.replaceAll('&', '&amp;').replaceAll("'", '&#x27;')));
+  }
+ }
  if (page.kind === 'hotel') assert.ok(withoutScripts.includes(page.hotel.address));
  if (page.kind === 'route') assert.ok(withoutScripts.includes(page.route.from) && withoutScripts.includes(page.route.to));
 }

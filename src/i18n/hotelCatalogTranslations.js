@@ -1,9 +1,9 @@
 export default {
   "tr": [
-    "Otel adına göre ara",
+    "İstediğin oteli bul",
     "Otelin adını yaz",
     "Otel ara",
-    "Tarih seçmeden otelleri keşfet. Müsaitlik ve fiyatlar otel sayfasında tarih seçilince kontrol edilir.",
+    "VoyHaven ile hayalindeki konaklamaya bir adım daha yaklaş. Tarih seçmeden, otelin adını yazarak keşfet.",
     "Aranıyor…",
     "Bu isimle otel bulunamadı.",
     "Oteller yüklenemedi. Tekrar dene.",
@@ -12,10 +12,10 @@ export default {
     "En az 3 karakter yaz."
   ],
   "en": [
-    "Search by hotel name",
+    "Find the hotel you want",
     "Enter a hotel name",
     "Find hotels",
-    "Explore hotels without choosing dates. Availability and prices are checked when you select dates on the hotel page.",
+    "Get one step closer to your dream stay with VoyHaven. Enter a hotel name and explore without choosing dates.",
     "Searching…",
     "No hotels found for this name.",
     "Could not load hotels. Try again.",
@@ -24,10 +24,10 @@ export default {
     "Enter at least 3 characters."
   ],
   "de": [
-    "Nach Hotelnamen suchen",
+    "Finde dein Wunschhotel",
     "Hotelnamen eingeben",
     "Hotels suchen",
-    "Entdecke Hotels ohne Reisedaten. Verfügbarkeit und Preise werden nach der Datumsauswahl auf der Hotelseite geprüft.",
+    "Komm deinem Traumaufenthalt mit VoyHaven einen Schritt näher. Gib einen Hotelnamen ein und entdecke Hotels ohne Reisedaten.",
     "Suche läuft…",
     "Keine Hotels mit diesem Namen gefunden.",
     "Hotels konnten nicht geladen werden. Versuche es erneut.",
@@ -36,10 +36,10 @@ export default {
     "Mindestens 3 Zeichen eingeben."
   ],
   "fr": [
-    "Rechercher par nom d’hôtel",
+    "Trouvez l’hôtel de vos envies",
     "Saisissez le nom de l’hôtel",
     "Rechercher",
-    "Explorez les hôtels sans dates. Disponibilités et prix sont vérifiés après le choix des dates sur la page de l’hôtel.",
+    "Rapprochez-vous du séjour de vos rêves avec VoyHaven. Saisissez le nom d’un hôtel et explorez sans choisir de dates.",
     "Recherche…",
     "Aucun hôtel trouvé pour ce nom.",
     "Impossible de charger les hôtels. Réessayez.",
@@ -48,10 +48,10 @@ export default {
     "Saisissez au moins 3 caractères."
   ],
   "ru": [
-    "Поиск по названию отеля",
+    "Найдите отель по душе",
     "Введите название отеля",
     "Найти отели",
-    "Ищите отели без дат. Наличие мест и цены проверяются после выбора дат на странице отеля.",
+    "Станьте на шаг ближе к отдыху мечты с VoyHaven. Введите название отеля и знакомьтесь с ним без выбора дат.",
     "Поиск…",
     "Отели с таким названием не найдены.",
     "Не удалось загрузить отели. Попробуйте снова.",
@@ -60,10 +60,10 @@ export default {
     "Введите не менее 3 символов."
   ],
   "es": [
-    "Buscar por nombre de hotel",
+    "Encuentra el hotel que deseas",
     "Escribe el nombre del hotel",
     "Buscar hoteles",
-    "Explora hoteles sin fechas. Disponibilidad y precios se consultan al elegir fechas en la página del hotel.",
+    "Acércate a la estancia de tus sueños con VoyHaven. Escribe el nombre de un hotel y explora sin elegir fechas.",
     "Buscando…",
     "No se encontraron hoteles con ese nombre.",
     "No se pudieron cargar los hoteles. Inténtalo de nuevo.",
@@ -72,10 +72,10 @@ export default {
     "Escribe al menos 3 caracteres."
   ],
   "ar": [
-    "البحث باسم الفندق",
+    "اعثر على الفندق الذي تريده",
     "أدخل اسم الفندق",
     "ابحث عن فنادق",
-    "استكشف الفنادق دون تواريخ. يتم التحقق من التوفر والأسعار عند اختيار التواريخ في صفحة الفندق.",
+    "اقترب خطوة من إقامة أحلامك مع VoyHaven. اكتب اسم الفندق واستكشفه دون اختيار تواريخ.",
     "جارٍ البحث…",
     "لم يتم العثور على فنادق بهذا الاسم.",
     "تعذر تحميل الفنادق. حاول مجددًا.",
@@ -84,10 +84,10 @@ export default {
     "أدخل 3 أحرف على الأقل."
   ],
   "pt": [
-    "Buscar pelo nome do hotel",
+    "Encontre o hotel que você deseja",
     "Digite o nome do hotel",
     "Buscar hotéis",
-    "Explore hotéis sem datas. Disponibilidade e preços são consultados ao selecionar datas na página do hotel.",
+    "Fique mais perto da estadia dos seus sonhos com a VoyHaven. Digite o nome de um hotel e explore sem escolher datas.",
     "Buscando…",
     "Nenhum hotel encontrado com esse nome.",
     "Não foi possível carregar os hotéis. Tente novamente.",
@@ -96,10 +96,10 @@ export default {
     "Digite pelo menos 3 caracteres."
   ],
   "it": [
-    "Cerca per nome dell’hotel",
+    "Trova l’hotel che desideri",
     "Inserisci il nome dell’hotel",
     "Cerca hotel",
-    "Esplora hotel senza date. Disponibilità e prezzi vengono verificati scegliendo le date sulla pagina dell’hotel.",
+    "Avvicinati al soggiorno dei tuoi sogni con VoyHaven. Inserisci il nome di un hotel ed esplora senza scegliere le date.",
     "Ricerca…",
     "Nessun hotel trovato con questo nome.",
     "Impossibile caricare gli hotel. Riprova.",
@@ -108,10 +108,10 @@ export default {
     "Inserisci almeno 3 caratteri."
   ],
   "zh": [
-    "按酒店名称搜索",
+    "找到心仪的酒店",
     "输入酒店名称",
     "搜索酒店",
-    "无需选择日期即可浏览酒店。在酒店页面选择日期后查询空房和价格。",
+    "与 VoyHaven 一起，离理想住宿更近一步。输入酒店名称，无需选择日期即可探索。",
     "搜索中…",
     "未找到此名称的酒店。",
     "无法加载酒店，请重试。",
@@ -120,10 +120,10 @@ export default {
     "请输入至少3个字符。"
   ],
   "nl": [
-    "Zoek op hotelnaam",
+    "Vind het hotel dat je zoekt",
     "Voer een hotelnaam in",
     "Zoek hotels",
-    "Ontdek hotels zonder data. Beschikbaarheid en prijzen worden gecontroleerd na het kiezen van data op de hotelpagina.",
+    "Kom met VoyHaven een stap dichter bij je droomverblijf. Voer een hotelnaam in en ontdek zonder data te kiezen.",
     "Zoeken…",
     "Geen hotels gevonden met deze naam.",
     "Hotels laden mislukt. Probeer opnieuw.",
@@ -132,10 +132,10 @@ export default {
     "Voer minstens 3 tekens in."
   ],
   "nb": [
-    "Søk etter hotellnavn",
+    "Finn hotellet du ønsker",
     "Skriv hotellnavnet",
     "Finn hoteller",
-    "Utforsk hoteller uten datoer. Tilgjengelighet og priser sjekkes når du velger datoer på hotellsiden.",
+    "Kom et skritt nærmere drømmeoppholdet med VoyHaven. Skriv et hotellnavn og utforsk uten å velge datoer.",
     "Søker…",
     "Ingen hoteller funnet med dette navnet.",
     "Kunne ikke laste hoteller. Prøv igjen.",
@@ -144,10 +144,10 @@ export default {
     "Skriv minst 3 tegn."
   ],
   "sv": [
-    "Sök efter hotellnamn",
+    "Hitta hotellet du önskar",
     "Ange hotellets namn",
     "Sök hotell",
-    "Utforska hotell utan datum. Tillgänglighet och priser kontrolleras när du väljer datum på hotellsidan.",
+    "Kom ett steg närmare drömvistelsen med VoyHaven. Ange ett hotellnamn och utforska utan att välja datum.",
     "Söker…",
     "Inga hotell hittades med detta namn.",
     "Kunde inte ladda hotell. Försök igen.",
@@ -156,10 +156,10 @@ export default {
     "Ange minst 3 tecken."
   ],
   "da": [
-    "Søg efter hotelnavn",
+    "Find det hotel, du ønsker",
     "Indtast hotelnavnet",
     "Find hoteller",
-    "Udforsk hoteller uden datoer. Ledighed og priser kontrolleres, når du vælger datoer på hotelsiden.",
+    "Kom et skridt nærmere drømmeopholdet med VoyHaven. Indtast et hotelnavn og udforsk uden at vælge datoer.",
     "Søger…",
     "Ingen hoteller fundet med dette navn.",
     "Kunne ikke indlæse hoteller. Prøv igen.",
@@ -168,10 +168,10 @@ export default {
     "Indtast mindst 3 tegn."
   ],
   "fi": [
-    "Hae hotellin nimellä",
+    "Löydä haluamasi hotelli",
     "Kirjoita hotellin nimi",
     "Hae hotelleja",
-    "Tutustu hotelleihin ilman päiviä. Saatavuus ja hinnat tarkistetaan, kun valitset päivät hotellin sivulla.",
+    "Ota askel kohti unelmiesi majoitusta VoyHavenin kanssa. Kirjoita hotellin nimi ja tutustu ilman päivien valintaa.",
     "Haetaan…",
     "Tällä nimellä ei löytynyt hotelleja.",
     "Hotelleja ei voitu ladata. Yritä uudelleen.",
@@ -180,10 +180,10 @@ export default {
     "Kirjoita vähintään 3 merkkiä."
   ],
   "ja": [
-    "ホテル名で検索",
+    "泊まりたいホテルを見つけよう",
     "ホテル名を入力",
     "ホテルを検索",
-    "日付を選ばずにホテルを探せます。空室と料金はホテルページで日付を選ぶと確認されます。",
+    "VoyHavenで理想の滞在へ一歩近づこう。ホテル名を入力するだけで、日付を選ばずに探せます。",
     "検索中…",
     "この名前のホテルは見つかりませんでした。",
     "ホテルを読み込めませんでした。再試行してください。",
@@ -192,10 +192,10 @@ export default {
     "3文字以上入力してください。"
   ],
   "ko": [
-    "호텔 이름으로 검색",
+    "원하는 호텔을 찾아보세요",
     "호텔 이름 입력",
     "호텔 검색",
-    "날짜 없이 호텔을 둘러보세요. 호텔 페이지에서 날짜를 선택하면 객실 현황과 요금을 확인합니다.",
+    "VoyHaven과 함께 꿈꾸던 숙박에 한 걸음 더 가까이. 날짜를 선택하지 않고 호텔 이름만 입력해 둘러보세요.",
     "검색 중…",
     "해당 이름의 호텔을 찾지 못했습니다.",
     "호텔을 불러오지 못했습니다. 다시 시도하세요.",
@@ -204,10 +204,10 @@ export default {
     "3자 이상 입력하세요."
   ],
   "pl": [
-    "Szukaj według nazwy hotelu",
+    "Znajdź hotel, którego szukasz",
     "Wpisz nazwę hotelu",
     "Szukaj hoteli",
-    "Przeglądaj hotele bez dat. Dostępność i ceny są sprawdzane po wybraniu dat na stronie hotelu.",
+    "Zbliż się do wymarzonego pobytu z VoyHaven. Wpisz nazwę hotelu i odkrywaj bez wybierania dat.",
     "Wyszukiwanie…",
     "Nie znaleziono hoteli o tej nazwie.",
     "Nie udało się wczytać hoteli. Spróbuj ponownie.",

@@ -913,7 +913,7 @@ function Travel({ hotelsOnly = false }) {
           </div>
 
           <div className="travelSearchShell">
-            {!hotelsOnly && <div
+            <div
               className="travelServiceTabs"
               role="tablist"
               aria-label={t("travelPage.servicesLabel")}
@@ -945,9 +945,9 @@ function Travel({ hotelsOnly = false }) {
                   <span>{t(`travelPage.services.${key}.label`)}</span>
                 </button>
               ))}
-            </div>}
+            </div>
 
-            <div role={hotelsOnly ? undefined : "tabpanel"} id="service-panel-hotels" aria-labelledby={hotelsOnly ? undefined : "service-tab-hotels"} hidden={activeService !== "hotels"}>
+            <div role="tabpanel" id="service-panel-hotels" aria-labelledby="service-tab-hotels" hidden={activeService !== "hotels"}>
             <form className="travelSearchCard" onSubmit={handleSearch}>
               <div className="travelSearchHeading">
                 <span>{t(`${activeServiceKey}.eyebrow`)}</span>
@@ -1065,10 +1065,10 @@ function Travel({ hotelsOnly = false }) {
               </p>
             </form>
             </div>
-            {!hotelsOnly && <>
+            <>
               <div role="tabpanel" id="service-panel-flights" aria-labelledby="service-tab-flights" hidden={activeService !== "flights"}><Flights embedded /></div>
               { ["cars", "activities"].map((category) => <div key={category} role="tabpanel" id={`service-panel-${category}`} aria-labelledby={`service-tab-${category}`} hidden={activeService !== category}><CategoryPage category={category} embedded /></div>) }
-            </>}
+            </>
           </div>
         </div>
       </section>

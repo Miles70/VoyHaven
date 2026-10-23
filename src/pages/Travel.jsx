@@ -1075,7 +1075,7 @@ function Travel({ hotelsOnly = false }) {
 
       {!hotelsOnly && <DestinationDiscovery hotels={showcaseHotels} checkin={checkin} checkout={checkout} adults={adults} />}
 
-      {results.length > 0 && (
+      {activeService === "hotels" && results.length > 0 && (
         <section ref={resultsRef} className="travelHotelResults" aria-live="polite">
           <div className="travelContainer">
             <div className="travelResultsHeading">

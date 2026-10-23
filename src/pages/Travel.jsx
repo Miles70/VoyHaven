@@ -909,6 +909,7 @@ function Travel({ hotelsOnly = false }) {
                 <WalletCards size={17} /> {t("travelPage.trustPayment")}
               </span>
             </div>
+            <HotelCatalogSearch />
           </div>
 
           <div className="travelSearchShell">
@@ -947,7 +948,6 @@ function Travel({ hotelsOnly = false }) {
             </div>}
 
             <div role={hotelsOnly ? undefined : "tabpanel"} id="service-panel-hotels" aria-labelledby={hotelsOnly ? undefined : "service-tab-hotels"} hidden={activeService !== "hotels"}>
-            <HotelCatalogSearch />
             <form className="travelSearchCard" onSubmit={handleSearch}>
               <div className="travelSearchHeading">
                 <span>{t(`${activeServiceKey}.eyebrow`)}</span>

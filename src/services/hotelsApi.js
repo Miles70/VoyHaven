@@ -182,3 +182,7 @@ export async function getTravelReservation(reference, signal) {
   if (!response.ok) throw new Error(payload.message || 'Rezervasyon yüklenemedi.');
   return payload.booking;
 }
+
+export function searchHotelCatalog(q, offset = 0, signal) {
+  return hotelRequest(`/catalog-search?${new URLSearchParams({ q, offset: String(offset) })}`, { signal });
+}

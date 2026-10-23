@@ -301,6 +301,24 @@ hotelsRouter.get("/showcase-index", async (request, response, next) => {
   }
 });
 
+// Catalog lookup deliberately excludes dates, rates and geographic defaults.
+hotelsRouter.get("/catalog-search", searchLimiter, async (request, response, next) => {
+  try {
+    const hotelName = requiredText(request.query.q, "q", 100);
+    if (hotelName.length < 3) throw requestError("Enter at least 3 characters.");
+    const offset = request.query.offset === undefined ? 0 : Number(request.query.offset);
+    if (!Number.isInteger(offset) || offset < 0 || offset > 10000000) throw requestError("Invalid offset.");
+    const result = await listNuiteeHotels({ hotelName, offset, limit: 21 });
+    if (!Array.isArray(result?.data)) throw requestError("Hotel catalog is temporarily unavailable.", 502);
+    const data = result.data.slice(0, 20).map(hotel => ({
+      id: hotel.id, name: hotel.name, city: hotel.city, country: hotel.country,
+      address: hotel.address, main_photo: hotel.main_photo,
+    })).filter(hotel => typeof hotel.id === "string" && /^[A-Za-z0-9_-]+$/.test(hotel.id) && typeof hotel.name === "string");
+    response.set("Cache-Control", "public, max-age=300");
+    response.json({ data, hasMore: result.data.length > 20, nextOffset: offset + 20 });
+  } catch (error) { next(error); }
+});
+
 hotelsRouter.get("/", searchLimiter, async (request, response, next) => {
   try {
     const nearby = request.query.latitude !== undefined || request.query.longitude !== undefined;

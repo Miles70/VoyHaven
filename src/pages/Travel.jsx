@@ -1,3 +1,4 @@
+import HotelCatalogSearch from '../components/HotelCatalogSearch';
 import { trackTravel } from '../services/analytics';
 import { DestinationDiscovery, HotelResultControls, TravelQuestions } from "../components/TravelDiscovery";
 import { defaultHotelFilters, filterHotelResults, hotelCurrencies } from "../services/hotelDiscovery.js";
@@ -946,6 +947,7 @@ function Travel({ hotelsOnly = false }) {
             </div>}
 
             <div role={hotelsOnly ? undefined : "tabpanel"} id="service-panel-hotels" aria-labelledby={hotelsOnly ? undefined : "service-tab-hotels"} hidden={activeService !== "hotels"}>
+            <HotelCatalogSearch />
             <form className="travelSearchCard" onSubmit={handleSearch}>
               <div className="travelSearchHeading">
                 <span>{t(`${activeServiceKey}.eyebrow`)}</span>

@@ -25,7 +25,7 @@ test('hotel name catalog searches globally without dates/rates, validates and pa
     assert.equal(body.data.length, 20); assert.equal(body.hasMore, true); assert.equal(body.nextOffset, 40);
     assert.equal(body.data[0].privateField, undefined);
     assert.equal(calls[0].pathname, '/v3.0/data/hotels');
-    assert.deepEqual(Object.fromEntries(calls[0].searchParams), { hotelName: 'Hotel', offset: '20', limit: '21' });
+    assert.deepEqual(Object.fromEntries(calls[0].searchParams), { hotelName: 'Hotel', lastUpdatedAt: '1970-01-01T00:00:00Z', offset: '20', limit: '21' });
     fail = true; assert.ok((await realFetch(base + '?q=Hotel')).status >= 500);
   } finally {
     await new Promise(resolve => server.close(resolve)); globalThis.fetch = realFetch;

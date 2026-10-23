@@ -14,6 +14,33 @@ test('visitor deletion requires an exact bounded ID and captures a cutoff', () =
   assert.deepEqual(visitorArchiveFilter('visitor-12345', cutoff), { visitorId: 'visitor-12345', createdAt: { $lte: cutoff } });
   for (const id of ['', 'short', '.*', { $ne: '' }, 'a'.repeat(101), '../visitor-12345']) assert.throws(() => visitorArchiveFilter(id), { statusCode: 400 });
 });
+test('all archived visitors and resets remain reachable on later history pages', async () => {
+  const previous = process.env.VOYHAVEN_ADMIN_PASSWORD; process.env.VOYHAVEN_ADMIN_PASSWORD = 'fixture-password';
+  const originals = { auth: AdminSession.findOne, find: AdminDataReset.find };
+  const rows = Array.from({ length: 30 }, (_, i) => ({ _id: new mongoose.Types.ObjectId((100 - i).toString(16).padStart(24, '0')), batchId: `batch-${i}`, counts: { analytics: 1 } }));
+  AdminSession.findOne = async () => ({ _id: 'admin-test' });
+  const filters = [];
+  AdminDataReset.find = filter => {
+    filters.push(filter); let limit;
+    const query = { sort: () => query, limit: value => { limit = value; return query; }, select: () => query, lean: async () => rows.filter(row => !filter._id || String(row._id) < String(filter._id.$lt)).slice(0, limit) }; return query;
+  };
+  const server = createApp().listen(0); await once(server, 'listening');
+  const headers = { Authorization: `Bearer admin_${'a'.repeat(43)}` };
+  try {
+    for (const history of ['visitors', 'history']) {
+      const base = `http://127.0.0.1:${server.address().port}/api/admin/data-reset/${history}`;
+      const first = await (await fetch(base, { headers })).json();
+      const second = await (await fetch(`${base}?cursor=${first.nextCursor}`, { headers })).json();
+      assert.equal(first.items.length, 25); assert.equal(second.items.length, 5); assert.equal(second.nextCursor, null);
+      assert.equal(new Set([...first.items, ...second.items].map(row => row.batchId)).size, 30);
+    }
+    assert.equal(filters[0].kind, 'visitor'); assert.deepEqual(filters[2].kind, { $ne: 'visitor' });
+  } finally {
+    AdminSession.findOne = originals.auth; AdminDataReset.find = originals.find;
+    if (previous === undefined) delete process.env.VOYHAVEN_ADMIN_PASSWORD; else process.env.VOYHAVEN_ADMIN_PASSWORD = previous;
+    await new Promise(resolve => server.close(resolve));
+  }
+});
 test('visitor archive and listing require admin access', async () => {
   const server = createApp().listen(0); await once(server, 'listening');
   try {

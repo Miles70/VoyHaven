@@ -13,6 +13,17 @@ const operationalModels = { customers: Customer, accounts: TravelAccount, ticket
 export const adminDataResetRouter = Router(); // Mounted behind existing requireAdmin.
 const actor = request => request.customer.email || request.customer.providerId;
 const fail = message => Object.assign(new Error(message), { statusCode: 400 });
+export function archiveHistoryFilter(kind, cursor) {
+  if (cursor && !/^[a-f0-9]{24}$/.test(cursor)) throw fail('Geçersiz arşiv sayfası.');
+  return { restoredAt: { $exists: false }, kind: kind === 'visitor' ? 'visitor' : { $ne: 'visitor' }, ...(cursor ? { _id: { $lt: new mongoose.Types.ObjectId(cursor) } } : {}) };
+}
+async function archiveHistory(kind, cursor) {
+  const rows = await AdminDataReset.find(archiveHistoryFilter(kind, cursor)).sort({ _id: -1 }).limit(26).select('batchId visitorId counts createdAt').lean();
+  return { items: rows.slice(0, 25), nextCursor: rows.length > 25 ? String(rows[24]._id) : null };
+}
+adminDataResetRouter.get('/history', async (request, response) => {
+  response.json(await archiveHistory('reset', request.query.cursor));
+});
 export function resetInput(body, now = new Date()) {
   const cutoff = new Date(body.cutoff);
   if (body.confirmation !== 'SIFIRLA' || !Array.isArray(body.references) || body.references.length > 100 || body.references.some(r => typeof r !== 'string' || !/^TRV-[A-Z0-9-]{8,120}$/.test(r)) || new Set(body.references).size !== body.references.length || !Number.isFinite(+cutoff) || cutoff > now || now - cutoff > 3600000) throw fail('Önizlemeyi yenile ve SIFIRLA yazarak doğrula.');
@@ -23,8 +34,7 @@ export function visitorArchiveFilter(visitorId, cutoff = new Date()) {
   return { visitorId, createdAt: { $lte: cutoff } };
 }
 adminDataResetRouter.get('/visitors', async (request, response) => {
-  const items = await AdminDataReset.find({ kind: 'visitor', restoredAt: { $exists: false } }).sort({ createdAt: -1 }).limit(25).select('batchId visitorId counts.analytics createdAt').lean();
-  response.json({ items });
+  response.json(await archiveHistory('visitor', request.query.cursor));
 });
 adminDataResetRouter.post('/visitors/:visitorId', async (request, response) => {
   const cutoff = new Date();
@@ -48,10 +58,10 @@ adminDataResetRouter.get('/', async (request, response) => {
   const [analytics, bookings, batches] = await Promise.all([
     TravelAnalytics.countDocuments({ createdAt: { $lte: cutoff } }),
     TravelBooking.find({ createdAt: { $lte: cutoff } }).sort({ createdAt: -1 }).limit(101).select('clientReference status paymentStatus createdAt updatedAt holder.firstName holder.lastName').lean(),
-    AdminDataReset.find({ restoredAt: { $exists: false } }).sort({ createdAt: -1 }).limit(10).select('batchId counts createdAt').lean(),
+    archiveHistory('reset'),
   ]);
   const operational = Object.fromEntries(await Promise.all(Object.entries(operationalModels).map(async ([key, model]) => [key, await model.countDocuments({ createdAt: { $lte: cutoff } })])));
-  response.json({ cutoff, analytics, bookings, batches, operational });
+  response.json({ cutoff, analytics, bookings, batches: batches.items, batchesCursor: batches.nextCursor, operational });
 });
 adminDataResetRouter.post('/', async (request, response) => {
   const { cutoff, references } = resetInput(request.body);
@@ -62,7 +72,7 @@ adminDataResetRouter.post('/', async (request, response) => {
     await session.withTransaction(async () => {
       const filter = { clientReference: { $in: references }, createdAt: { $lte: cutoff }, updatedAt: { $lte: cutoff } };
       const bookings = await TravelBooking.find(filter).session(session).lean();
-      if (bookings.length !== references.length || bookings.some(b => b.status === 'processing')) throw fail('Rezervasyonlar değişti veya işlem sürüyor. Önizlemeyi yenile.');
+      if (bookings.length !== references.length || bookings.some(b => b.status === 'processing' || b.cryptoVerification?.expiresAt > new Date())) throw fail('Rezervasyonlar değişti veya işlem sürüyor. Önizlemeyi yenile.');
       if (bookings.some(b => b.paymentStatus === 'paid') && request.body.includePaidTests !== true) throw fail('Ödendi görünen kayıtların da test olduğunu doğrula.');
       const archivedAt = new Date();
       const analyticsResult = await TravelAnalytics.updateMany({ createdAt: { $lte: cutoff } }, { $set: { archivedAt, archiveBatch: batchId } }, { session, timestamps: false });
@@ -71,7 +81,7 @@ adminDataResetRouter.post('/', async (request, response) => {
       counts = { analytics: analyticsResult.modifiedCount, bookings: bookingResult.modifiedCount };
       if (request.body.resetOperationalData === true) {
         for (const [modelKey, model] of Object.entries(operationalModels)) {
-          const documents = await model.find({ createdAt: { $lte: cutoff } }).session(session).limit(10001).lean();
+          const documents = await model.find({ createdAt: { $lte: cutoff }, $or: [{ updatedAt: { $lte: cutoff } }, { updatedAt: { $exists: false } }] }).session(session).limit(10001).lean();
           if (documents.length > 10000) throw fail('Tek sıfırlama sınırı aşıldı.');
           counts[modelKey] = documents.length;
           if (!documents.length) continue;

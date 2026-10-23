@@ -19,6 +19,7 @@ const travelBookingSchema = new mongoose.Schema(
     flight: { type: mongoose.Schema.Types.Mixed, default: {} },
     accessTokenHash: { type: String, default: "" },
     bookingAttemptAt: { type: Date, default: null },
+    cryptoVerification: { type: new mongoose.Schema({ token: String, expiresAt: Date }, { _id: false }), default: undefined },
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: "Customer", default: null, index: true },
     clientReference: { type: String, required: true, unique: true, index: true },
     offerId: { type: String, required: true, trim: true },

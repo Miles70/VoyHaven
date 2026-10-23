@@ -88,3 +88,9 @@ test('HTTP rates/prebook retain public conditions; ALL hotel checkout routes req
     if (oldKey === undefined) delete process.env.NUITEE_API_KEY; else process.env.NUITEE_API_KEY = oldKey;
   }
 });
+
+ test('newly supplied booking conditions require review even when previously absent', () => {
+  const before = { total: 100, currency: 'USD', conditions: { rooms: [] } };
+  assert.ok(termChanges(before, { ...before, bookingConditions: 'Additional mandatory tax' }).includes('conditions'));
+  assert.ok(!termChanges({ ...before, bookingConditions: 'Known terms' }, { ...before, bookingConditions: '' }).includes('conditions'));
+ });

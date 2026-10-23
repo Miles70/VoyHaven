@@ -57,9 +57,9 @@ const bookingLimiter = rateLimit({
   message: { message: "Too many hotel booking attempts. Please try again later." },
 });
 
-function requestError(message) {
+function requestError(message, statusCode = 400) {
   const error = new Error(message);
-  error.statusCode = 400;
+  error.statusCode = statusCode;
   return error;
 }
 

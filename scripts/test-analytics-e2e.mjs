@@ -29,8 +29,9 @@ try {
   const report = async (query = '') => { const r = await fetch(`${apiBase}/api/admin/analytics/v2?${query}`, { headers }); assert.equal(r.status, 200, await r.clone().text()); return r.json(); };
   const now = Date.now();
   const fixtures = Array.from({ length: 28 }, (_, i) => ({ eventId: `fixture-event-${i}`, visitorId: `visitor-${String(i).padStart(8, '0')}`, sessionId: `session-fixture-${i}`, type: 'page_view', path: '/travel', country: i % 2 ? 'Türkiye' : 'Germany', device: i % 2 ? 'Mobil' : 'Masaüstü', browser: 'Chrome', source: i % 2 ? 'direct' : 'reddit', trafficType: 'visitor', classificationReason: 'no_exclusion_signal', createdAt: new Date(now - 3600000 - i * 1000) }));
+  fixtures.forEach(row => { row.geoVersion = 2; row.geoSource = 'fixture'; });
   for (const kind of ['admin', 'test', 'suspected_bot', 'unknown']) fixtures.push({ ...fixtures[0], eventId: `fixture-${kind}`, visitorId: `visitor-${kind}`, sessionId: `session-${kind}`, trafficType: kind });
-  const legacy = { ...fixtures[0], eventId: 'legacy-event', visitorId: 'legacy-visitor', sessionId: 'legacy-session', ip: '1.2.3.4', identity: 'legacy@example.test', bot: false }; delete legacy.trafficType; fixtures.push(legacy);
+  const legacy = { ...fixtures[0], eventId: 'legacy-event', visitorId: 'legacy-visitor', sessionId: 'legacy-session', ip: '1.2.3.4', identity: 'legacy@example.test', bot: false }; delete legacy.trafficType; delete legacy.geoVersion; delete legacy.geoSource; fixtures.push(legacy);
   const stages = ['room_select', 'hotel_view', 'room_select', 'checkout_view', 'payment_start', 'payment_ready'];
   stages.forEach((type, i) => fixtures.push({ ...fixtures[0], eventId: `funnel-${i}`, type, details: { hotelId: 'fixture-hotel', hotelName: 'Analytics Test Hotel', roomName: 'Sea view suite' }, createdAt: new Date(now - 20000 + i * 1000) }));
   // Separate out-of-order session must not inflate the ordered funnel.

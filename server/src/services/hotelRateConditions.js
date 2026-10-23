@@ -69,7 +69,7 @@ export function termChanges(previous, next, flags = {}) {
   if (flags.boardChanged === true || previous && different(r => [r.mealPlan, r.mealPlanName])) changes.push('meal');
   if (previous && different(r => r.taxesAndFees)) changes.push('charges');
   if (previous && different(r => [r.roomName, r.adults, r.children])) changes.push('room');
-  if (previous && previous.bookingConditions !== undefined && previous.bookingConditions !== next.bookingConditions) changes.push('conditions');
+  if (previous && next.bookingConditions && previous.bookingConditions !== next.bookingConditions) changes.push('conditions');
   return changes;
 }
 

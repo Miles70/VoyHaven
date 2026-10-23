@@ -43,7 +43,9 @@ test('dates preserve trip length, avoid past dates, and stay within horizon',()=
 });
 test('invalid prices and malformed segments cannot enter results',()=>{
  const offer={offerId:'x',pricing:{display:{total:100,currency:'USD'}}};
- assert.deepEqual(flightResults({data:[{journeys:[{segments:[null],offers:[offer]}]}]},'USD'),[]);
+ assert.throws(()=>flightResults({data:[{journeys:[{segments:[null],offers:[offer]}]}]},'USD'),/FLIGHT_UNAVAILABLE/);
+ for (const journey of [null, {}]) assert.throws(()=>flightResults({data:[{journeys:[journey]}]},'USD'),/FLIGHT_UNAVAILABLE/);
+ assert.deepEqual(flightResults({data:[{journeys:[]}]},'USD'),[]);
  assert.deepEqual(flightResults({data:[{journeys:[{segments:[{}],offers:[{...offer,pricing:{display:{total:-1,currency:'USD'}}}]}]}]},'USD'),[]);
 });
 test('partial provider batches cannot hide valid offers or crash the result list', () => {

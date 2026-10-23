@@ -29,6 +29,12 @@ try {
    await page.locator('.travelSearchCard button[type=submit]').click();
    await page.locator('.travelHotelResults').waitFor({state:'visible'});
    assert.equal(await page.locator('.travelHotelResults .travelHotelCard').count(),1);
+   const originalHotelLink = await page.locator('.travelHotelResults .travelHotelDetailsLink').getAttribute('href');
+   const originalPriceLabel = await page.locator('.travelHotelResults .travelHotelPrice span').innerText();
+   await page.locator('.travelSearchCard input[type=date]').first().fill('2027-05-01');
+   await page.locator('.travelSearchCard select').last().selectOption('4');
+   assert.equal(await page.locator('.travelHotelResults .travelHotelPrice span').innerText(), originalPriceLabel, 'Editing search fields must not relabel an earlier offer');
+   assert.equal(await page.locator('.travelHotelResults .travelHotelDetailsLink').getAttribute('href'), originalHotelLink);
    const requestsAfterSearch = catalogRequests;
    for(const key of ['flights','cars','activities','hotels']) {
     await page.locator('#service-tab-'+key).click();

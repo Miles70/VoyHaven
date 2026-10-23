@@ -367,6 +367,7 @@ function Travel({ hotelsOnly = false }) {
     Math.min(Math.max(Number(homeSearchParams.get("adults")) || 2, 1), 5),
   );
   const [results, setResults] = useState([]);
+  const [resultSelection, setResultSelection] = useState(null);
   const [resultFilters, setResultFilters] = useState({ ...defaultHotelFilters });
   const [showcaseHotels, setShowcaseHotels] = useState([]);
   const [showcaseState, setShowcaseState] = useState("idle");
@@ -703,7 +704,8 @@ function Travel({ hotelsOnly = false }) {
         throw new Error(t("travelPage.runtime.noAvailability"));
       }
 
-      completedSearch.current = { ...catalog.location, checkin, checkout, adults };
+      completedSearch.current = { ...location, ...catalog.location, checkin, checkout, adults };
+      setResultSelection(completedSearch.current);
       setResults(availableHotels);
       setCatalogOffset(hotelIds.length);
       setHasMoreHotels(hotelIds.length < Number(catalog?.total || 0));
@@ -753,12 +755,11 @@ function Travel({ hotelsOnly = false }) {
     runSearch();
   }
 
+  function hotelStay(hotel) {
+    return { checkin: hotel.showcaseCheckin || resultSelection?.checkin || checkin, checkout: hotel.showcaseCheckout || resultSelection?.checkout || checkout, adults: hotel.showcaseAdults || resultSelection?.adults || adults };
+  }
   function hotelDetailsUrl(hotel) {
-    const query = new URLSearchParams({
-      checkin: hotel.showcaseCheckin || checkin,
-      checkout: hotel.showcaseCheckout || checkout,
-      adults: String(hotel.showcaseAdults || adults),
-    });
+    const query = new URLSearchParams(hotelStay(hotel));
     return `/travel/hotels/${encodeURIComponent(hotel.hotelId)}?${query.toString()}`;
   }
 
@@ -813,7 +814,8 @@ function Travel({ hotelsOnly = false }) {
   }
 
   async function handlePrebook(hotel) {
-    trackTravel('hotel_select', { hotelId: hotel.hotelId, hotelName: hotel.name, checkin, checkout, adults });
+    const stay = hotelStay(hotel);
+    trackTravel('hotel_select', { hotelId: hotel.hotelId, hotelName: hotel.name, ...stay });
     setSelectedHotel(hotel);
     setPrebook(null);
     setPrebookError("");
@@ -830,9 +832,7 @@ function Travel({ hotelsOnly = false }) {
             hotel: { ...hotel, offer },
             offer,
             prebook: response.data,
-            checkin,
-            checkout,
-            adults,
+            ...stay,
           },
         });
         return;
@@ -1081,7 +1081,7 @@ function Travel({ hotelsOnly = false }) {
             <div className="travelResultsHeading">
               <div>
                 <span>{t("travelPage.runtime.liveAvailability")}</span>
-                <h2>{completedSearch.current?.latitude !== undefined ? `${t("travelPage.nearby.title")} · ${completedSearch.current.radius / 1000} km` : `${cityName} ${t("travelPage.runtime.hotels")}`}</h2>
+                <h2>{resultSelection?.latitude !== undefined ? `${t("travelPage.nearby.title")} · ${resultSelection.radius / 1000} km` : `${resultSelection?.destination || cityName} ${t("travelPage.runtime.hotels")}`}</h2>
               </div>
               <p>{results.length} {t("travelPage.runtime.resultsSuffix")}</p>
             </div>
@@ -1135,15 +1135,15 @@ function Travel({ hotelsOnly = false }) {
                     <div className="travelStayMeta">
                       <span>
                         <UsersRound size={15} />
-                        {stayMetaText({ adults, checkin, checkout, t }).guests}
+                        {stayMetaText({ ...resultSelection, t }).guests}
                       </span>
                       <span>
                         <CalendarDays size={15} />
-                        {stayMetaText({ adults, checkin, checkout, t }).nights}
+                        {stayMetaText({ ...resultSelection, t }).nights}
                       </span>
                     </div>
                     <div className="travelHotelPrice">
-                      <span>{stayPriceLabel({ adults, checkin, checkout, t })}</span>
+                      <span>{stayPriceLabel({ ...resultSelection, t })}</span>
                       <strong>
                         {money(
                           hotel.offer.suggestedSellingPrice.amount,
@@ -1206,7 +1206,7 @@ function Travel({ hotelsOnly = false }) {
                                   prebook.data.currency,
                                 )}
                                 {" · "}
-                                {stayPriceLabel({ adults, checkin, checkout, t })}
+                                {stayPriceLabel({ ...resultSelection, t })}
                               </span>
                             </div>
                             <Link
@@ -1215,9 +1215,7 @@ function Travel({ hotelsOnly = false }) {
                                 hotel: selectedHotel,
                                 offer: selectedHotel.offer,
                                 prebook: prebook.data,
-                                checkin,
-                                checkout,
-                                adults,
+                                ...hotelStay(selectedHotel),
                               }}
                               title={t("travelPage.runtime.continueTitle")}
                             >

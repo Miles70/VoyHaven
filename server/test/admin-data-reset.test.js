@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import mongoose from 'mongoose';
-import { resetInput } from '../src/routes/adminDataReset.js';
+import { resetInput, archiveHistoryFilter } from '../src/routes/adminDataReset.js';
 import { TravelBooking } from '../src/models/TravelBooking.js';
 import { TravelAnalytics } from '../src/models/TravelAnalytics.js';
 import { AdminSession } from '../src/models/AdminSession.js';
@@ -49,6 +49,31 @@ test('paid tests need explicit inclusion and no write occurs when refused', asyn
     assert.equal(response.status, 400); assert.match((await response.json()).message, /test/); assert.equal(ended, true);
   } finally {
     AdminSession.findOne = original.findOne; TravelBooking.find = original.find; mongoose.startSession = original.startSession;
+    if (previous === undefined) delete process.env.VOYHAVEN_ADMIN_PASSWORD; else process.env.VOYHAVEN_ADMIN_PASSWORD = previous;
+    await new Promise(resolve => server.close(resolve));
+  }
+});
+
+test('archive histories separate visitor removals and validate seek pagination', () => {
+  assert.deepEqual(archiveHistoryFilter('reset'), { restoredAt: { $exists: false }, kind: { $ne: 'visitor' } });
+  assert.equal(archiveHistoryFilter('visitor').kind, 'visitor');
+  assert.equal(String(archiveHistoryFilter('reset', 'a'.repeat(24))._id.$lt), 'a'.repeat(24));
+  for (const cursor of ['invalid', { $gt: '' }, 'g'.repeat(24)]) assert.throws(() => archiveHistoryFilter('reset', cursor), { statusCode: 400 });
+});
+test('reset refuses a booking being verified before archiving any data', async () => {
+  const previous = process.env.VOYHAVEN_ADMIN_PASSWORD; process.env.VOYHAVEN_ADMIN_PASSWORD = 'fixture-password';
+  const original = { admin: AdminSession.findOne, find: TravelBooking.find, start: mongoose.startSession, update: TravelBooking.updateMany };
+  let writes = 0;
+  AdminSession.findOne = async () => ({ _id: 'admin-fixture' });
+  TravelBooking.find = () => ({ session: () => ({ lean: async () => [{ status: 'awaiting_payment', paymentStatus: 'pending', cryptoVerification: { expiresAt: new Date(Date.now() + 60000) } }] }) });
+  mongoose.startSession = async () => ({ withTransaction: async callback => callback(), endSession: async () => {} });
+  TravelBooking.updateMany = async () => { writes++; };
+  const server = createApp().listen(0); await once(server, 'listening');
+  try {
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/api/admin/data-reset`, { method: 'POST', headers: { Authorization: `Bearer admin_${'a'.repeat(43)}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ cutoff: new Date().toISOString(), references: ['TRV-CARD-20261002-65B29E6C'], confirmation: 'SIFIRLA' }) });
+    assert.equal(response.status, 400); assert.equal(writes, 0); assert.match((await response.json()).message, /işlem sürüyor/);
+  } finally {
+    AdminSession.findOne = original.admin; TravelBooking.find = original.find; TravelBooking.updateMany = original.update; mongoose.startSession = original.start;
     if (previous === undefined) delete process.env.VOYHAVEN_ADMIN_PASSWORD; else process.env.VOYHAVEN_ADMIN_PASSWORD = previous;
     await new Promise(resolve => server.close(resolve));
   }

@@ -4,6 +4,7 @@ import {
   normalizeTransactionHash,
 } from "../config/cryptoPayment.js";
 import { TravelBooking } from "../models/TravelBooking.js";
+import { randomUUID } from 'node:crypto';
 
 const TRANSFER_SELECTOR = "0xa9059cbb";
 
@@ -163,6 +164,14 @@ export async function verifyTravelCryptoPayment({
     );
   }
 
+  const verificationToken = randomUUID();
+  const claimed = await TravelBooking.findOneAndUpdate({
+    _id: booking._id, status: { $in: ['awaiting_payment', 'expired'] }, paymentStatus: { $ne: 'paid' },
+    $or: [{ 'cryptoVerification.expiresAt': { $exists: false } }, { 'cryptoVerification.expiresAt': { $lte: new Date() } }],
+  }, { $set: { cryptoVerification: { token: verificationToken, expiresAt: new Date(Date.now() + 120000) } } }, { new: true });
+  if (!claimed) throw httpError('Payment verification is already running or this reservation changed. Please refresh.', 409);
+
+  try {
   const [transaction, receipt, chainId] = await Promise.all([
     rpc(config.rpcUrl, "eth_getTransactionByHash", [hash]),
     rpc(config.rpcUrl, "eth_getTransactionReceipt", [hash]),
@@ -302,7 +311,12 @@ export async function verifyTravelCryptoPayment({
   booking.paymentExpiresAt = null;
 
   try {
-    await booking.save();
+    const paid = await TravelBooking.findOneAndUpdate({
+      _id: booking._id, 'cryptoVerification.token': verificationToken,
+      status: { $in: ['awaiting_payment', 'expired'] }, paymentStatus: { $ne: 'paid' },
+    }, { $set: { status: booking.status, paymentStatus: booking.paymentStatus, payment: booking.payment, paymentExpiresAt: null }, $unset: { cryptoVerification: '' } }, { new: true });
+    if (!paid) throw httpError('The reservation changed during verification. Please refresh.', 409);
+    return paid;
   } catch (error) {
     if (error?.code === 11000) {
       throw httpError(
@@ -313,5 +327,7 @@ export async function verifyTravelCryptoPayment({
     throw error;
   }
 
-  return booking;
+  } finally {
+    await TravelBooking.updateOne({ _id: booking._id, 'cryptoVerification.token': verificationToken }, { $unset: { cryptoVerification: '' } });
+  }
 }

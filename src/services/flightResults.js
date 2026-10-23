@@ -7,10 +7,13 @@ export function flightResults(payload, currency) {
   const batches = payload.data.filter(batch => Array.isArray(batch?.journeys));
   if (payload.data.length && !batches.length) throw new Error('FLIGHT_UNAVAILABLE');
   const results = new Map();
+  let nonEmptyJourneys = 0, validJourneys = 0;
   const validOffer = offer => typeof offer?.offerId === 'string' && offer.offerId.trim() && offer.pricing?.display?.total != null && Number.isFinite(Number(offer.pricing.display.total)) && Number(offer.pricing.display.total) > 0 && offer.pricing.display.currency === currency;
   for (const batch of batches) {
     for (const journey of batch.journeys) {
+      nonEmptyJourneys++;
       if (!Array.isArray(journey?.segments) || !journey.segments.length || journey.segments.some(segment => !segment || typeof segment !== 'object')) continue;
+      validJourneys++;
       const offers = (Array.isArray(journey.offers) ? journey.offers : []).filter(validOffer);
       // Some batches contain only the complete cheapest-offer object. Never
       // fabricate IDs, prices or fare conditions when this reference is partial.
@@ -21,6 +24,7 @@ export function flightResults(payload, currency) {
       }
     }
   }
+  if (nonEmptyJourneys && !validJourneys) throw new Error('FLIGHT_UNAVAILABLE');
   return [...results.values()].sort((a, b) => a.total - b.total);
 }
 // Provider timestamps are airport-local. Do not convert them to the viewer's timezone.

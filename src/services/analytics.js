@@ -51,8 +51,13 @@ export async function flushTravelAnalytics() {
       const body = pending[0];
       // Context is captured when queued; a later login must not relabel earlier visits.
       if (body.contextKind === 'admin' && !body.analyticsProof) {
-        if (!getAdminSession()) throw new Error('Admin analitik bağlamı için tekrar giriş gerekli.');
-        body.analyticsProof = await contextProof(); persist();
+        try {
+          if (!getAdminSession()) throw new Error('Admin analitik bağlamı için tekrar giriş gerekli.');
+          body.analyticsProof = await contextProof(); persist();
+        } catch {
+          // Never relabel unverifiable admin traffic or let it block later visitors.
+          pending.shift(); persist(); sent++; continue;
+        }
       }
       let token = ''; try { token = getCustomerAccessToken(); } catch { /* Track anonymously. */ }
       const confirmation = body.type === 'booking_confirmed';

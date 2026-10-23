@@ -6,11 +6,12 @@ import { createApp } from '../src/app.js';
 test('hotel name catalog searches globally without dates/rates, validates and paginates', async () => {
   const realFetch = globalThis.fetch, oldKey = process.env.NUITEE_API_KEY;
   process.env.NUITEE_API_KEY = 'sand_catalog_fixture';
-  const calls = []; let fail = false;
+  const calls = []; let fail = false; let malformed = false;
   globalThis.fetch = async (input, options) => {
     const url = new URL(input);
     if (url.hostname !== 'api.liteapi.travel') return realFetch(input, options);
     calls.push(url);
+    if (malformed) return Response.json({ data: {} });
     if (fail) return new Response(JSON.stringify({ error: { message: 'Unavailable' } }), { status: 503 });
     return new Response(JSON.stringify({ data: Array.from({ length: 21 }, (_, i) => ({ id: `lp${i}`, name: `Hotel ${i}`, city: 'Tokyo', country: 'JP', privateField: 'hidden' })) }));
   };
@@ -26,6 +27,7 @@ test('hotel name catalog searches globally without dates/rates, validates and pa
     assert.equal(body.data[0].privateField, undefined);
     assert.equal(calls[0].pathname, '/v3.0/data/hotels');
     assert.deepEqual(Object.fromEntries(calls[0].searchParams), { hotelName: 'Hotel', lastUpdatedAt: '1970-01-01T00:00:00Z', offset: '20', limit: '21' });
+    malformed = true; assert.equal((await realFetch(base + '?q=Malformed')).status, 502); malformed = false;
     fail = true; assert.ok((await realFetch(base + '?q=Hotel')).status >= 500);
   } finally {
     await new Promise(resolve => server.close(resolve)); globalThis.fetch = realFetch;

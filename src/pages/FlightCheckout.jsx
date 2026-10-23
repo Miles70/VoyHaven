@@ -1,4 +1,5 @@
 import { useLanguage } from "../i18n/LanguageContext";
+import { trackTravel } from '../services/analytics';
 import { useFlowText } from '../i18n/flowTranslations';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -44,6 +45,7 @@ export default function FlightCheckout() {
     try {
       const payload = await flightRequest('/checkout', { body: { offerId: result.offer.offerId, contact, passengers, acceptedTotal: price.total, acceptedCurrency: price.currency } });
       setSession(payload.paymentSession); setBooking(payload.booking);
+      trackTravel('payment_ready', { paymentMethod: 'card' }, payload.booking?.clientReference);
     } catch (e) { if (e.code === 'PRICE_CHANGED') setPrice({ total: e.payload.total, currency: e.payload.currency }); setError(e.message); }
     finally { setBusy(false); }
   }

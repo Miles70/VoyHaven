@@ -308,8 +308,8 @@ hotelsRouter.get("/catalog-search", searchLimiter, async (request, response, nex
     if (hotelName.length < 3) throw requestError("Enter at least 3 characters.");
     const offset = request.query.offset === undefined ? 0 : Number(request.query.offset);
     if (!Number.isInteger(offset) || offset < 0 || offset > 10000000) throw requestError("Invalid offset.");
-    const result = await listNuiteeHotels({ hotelName, offset, limit: 21 });
-    if (!Array.isArray(result?.data)) throw requestError("Hotel catalog is temporarily unavailable.", 502);
+    const result = await listNuiteeHotels({ hotelName, lastUpdatedAt: "1970-01-01T00:00:00Z", offset, limit: 21 });
+    if (!Array.isArray(result?.data)) throw Object.assign(new Error("Hotel catalog is temporarily unavailable."), { statusCode: 502 });
     const data = result.data.slice(0, 20).map(hotel => ({
       id: hotel.id, name: hotel.name, city: hotel.city, country: hotel.country,
       address: hotel.address, main_photo: hotel.main_photo,

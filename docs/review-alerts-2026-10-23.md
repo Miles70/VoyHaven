@@ -13,6 +13,7 @@ Historical review comments are checked against current code, not applied blindly
 - #33: create the flight checkout payment-ready attribution binding, and discard unverifiable queued admin events without blocking later visitor events.
 - #27: require review of newly supplied booking conditions.
 - #17: keep displayed hotel stay criteria, detail links and checkout state tied to the completed search, including when the form changes while results remain visible.
+- CI dependency audit: update only the transitive follow-redirects lock entry from 1.16.0 to patched 1.16.1 (GHSA-q3jh-wrc6-jgq8, GHSA-8r9p-f939-6h3c).
 
 ## Already addressed in current code
 
@@ -29,4 +30,4 @@ Historical review comments are checked against current code, not applied blindly
 
 ESLint, production build, server tests, flight-result tests, 18-language coverage, localized checkout flows and SEO validation pass. Intercepted local browser tests verify mobile/desktop tab switching and unchanged offer criteria, older reset/visitor history loading, and analytics queue recovery. All browser fixtures carry the analytics test marker and make no production provider or payment requests.
 
-The Mongo-backed analytics E2E fixture was corrected; its complete database/browser run is delegated to the existing CI Mongo service because no local Mongo daemon is installed. No production data was reset, restored or deleted during this follow-up.
+The corrected Mongo-backed analytics E2E fixture and the full hotel, nearby search, SEO, legal and About browser suites also passed against the existing CI Mongo service. The first CI run stopped only at the dependency audit, exposing the follow-redirects patch above. No production data was reset, restored or deleted during this follow-up.

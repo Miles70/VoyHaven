@@ -882,6 +882,7 @@ function Travel({ hotelsOnly = false }) {
         <div className="travelHeroGlow travelHeroGlow--two" />
 
         <div className="travelContainer travelHeroContent">
+          <h1 className="travelMobileSlogan">{t("brand.mobileSlogan")}</h1>
           <div className="travelIntro">
             <div className="travelBrandBlock">
               <div>

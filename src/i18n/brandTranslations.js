@@ -55,3 +55,28 @@ const brandTranslations = {
 export default brandTranslations;
 
 Object.assign(brandTranslations, additionalTranslations("brandTranslations.js", "default"));
+
+// A compact welcome keeps the booking form in view on small screens.
+const mobileSlogans = {
+  en: "New places, unforgettable memories.",
+  tr: "Yeni yerler, unutulmaz anılar.",
+  de: "Neue Orte, unvergessliche Erinnerungen.",
+  fr: "De nouveaux horizons, des souvenirs inoubliables.",
+  ru: "Новые места, незабываемые впечатления.",
+  es: "Nuevos lugares, recuerdos inolvidables.",
+  ar: "أماكن جديدة، ذكريات لا تُنسى.",
+  pt: "Novos lugares, memórias inesquecíveis.",
+  it: "Nuovi luoghi, ricordi indimenticabili.",
+  zh: "探索新天地，留下难忘回忆。",
+  nl: "Nieuwe plekken, onvergetelijke herinneringen.",
+  nb: "Nye steder, uforglemmelige minner.",
+  sv: "Nya platser, oförglömliga minnen.",
+  da: "Nye steder, uforglemmelige minder.",
+  fi: "Uusia paikkoja, unohtumattomia muistoja.",
+  ja: "新しい場所で、忘れられない思い出を。",
+  ko: "새로운 곳에서, 잊지 못할 추억을.",
+  pl: "Nowe miejsca, niezapomniane wspomnienia.",
+};
+for (const [language, mobileSlogan] of Object.entries(mobileSlogans)) {
+  brandTranslations[language].mobileSlogan = mobileSlogan;
+}

@@ -1378,6 +1378,11 @@
   .travelHeroContent { width: calc(100% - 24px); gap: 24px; }
 }
 
+/* Put the booking search before the hotel discovery panel on mobile. */
+@media (max-width: 640px) {
+  .travelHeroContent > .travelSearchShell { order: -1; }
+}
+
 /* Every homepage category shares the existing sea-video glass shell. */
 .travelSearchShell .categoryPage--embedded,
 .travelSearchShell .categoryPage--embedded .categoryForm,

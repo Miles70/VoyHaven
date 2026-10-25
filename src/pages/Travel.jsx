@@ -1,3 +1,5 @@
+import { accommodationTypeIds, normalizeAccommodationType, attachAccommodationTypes } from "../../shared/accommodationTypes.js";
+import accommodationTranslations from "../i18n/accommodationTranslations.js";
 import HotelCatalogSearch from '../components/HotelCatalogSearch';
 import { trackTravel } from '../services/analytics';
 import { DestinationDiscovery, HotelResultControls, TravelQuestions } from "../components/TravelDiscovery";
@@ -363,6 +365,7 @@ function Travel({ hotelsOnly = false }) {
   const [checkout, setCheckout] = useState(
     () => homeSearchParams.get("checkout") || addDays(32),
   );
+  const [accommodationType, setAccommodationType] = useState(() => normalizeAccommodationType(homeSearchParams.get("hotelTypeIds")));
   const [adults, setAdults] = useState(() =>
     Math.min(Math.max(Number(homeSearchParams.get("adults")) || 2, 1), 5),
   );
@@ -400,6 +403,7 @@ function Travel({ hotelsOnly = false }) {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [prebook, setPrebook] = useState(null);
   const { t, language } = useLanguage();
+  const accommodationCopy = accommodationTranslations[language];
   const activeServiceKey = "travelPage.services.hotels";
   const visibleResults = useMemo(() => filterHotelResults(results, resultFilters), [results, resultFilters]);
   const resultCurrencies = hotelCurrencies(results);
@@ -652,9 +656,9 @@ function Travel({ hotelsOnly = false }) {
   }
 
   async function runSearch(locationOverride) {
-    const location = locationOverride || (nearbyCoordinates
+    const location = { ...(locationOverride || (nearbyCoordinates
       ? { ...nearbyCoordinates, radius: nearbyRadius }
-      : { destination: cityName.trim() });
+      : { destination: cityName.trim() })), hotelTypeIds: accommodationType || undefined };
 
     if (activeService !== "hotels") {
       setSearchError(t("travelPage.runtime.comingSoon"));
@@ -698,7 +702,7 @@ function Travel({ hotelsOnly = false }) {
         checkout,
         adults,
       });
-      const availableHotels = withHotelDistances(buildResults(rateResponse), catalog, location);
+      const availableHotels = withHotelDistances(attachAccommodationTypes(buildResults(rateResponse), catalog), catalog, location);
 
       if (!availableHotels.length) {
         throw new Error(t("travelPage.runtime.noAvailability"));
@@ -749,7 +753,7 @@ function Travel({ hotelsOnly = false }) {
     event.preventDefault();
     if (!hotelsOnly && !nearbyCoordinates) {
       if (!cityName.trim() || !checkin || !checkout || checkout <= checkin) { runSearch(); return; }
-      navigate(`/hotels?${new URLSearchParams({ cityName: cityName.trim(), checkin, checkout, adults: String(adults), auto: "1" })}`);
+      navigate(`/hotels?${new URLSearchParams({ cityName: cityName.trim(), checkin, checkout, adults: String(adults), ...(accommodationType ? { hotelTypeIds: accommodationType } : {}), auto: "1" })}`);
       return;
     }
     runSearch();
@@ -794,7 +798,7 @@ function Travel({ hotelsOnly = false }) {
         adults: selection.adults,
       });
       if (completedSearch.current !== selection) return;
-      const nextHotels = withHotelDistances(buildResults(rateResponse), catalog, selection);
+      const nextHotels = withHotelDistances(attachAccommodationTypes(buildResults(rateResponse), catalog), catalog, selection);
 
       setResults((current) => {
         const knownIds = new Set(current.map((hotel) => hotel.hotelId));
@@ -988,6 +992,17 @@ function Travel({ hotelsOnly = false }) {
                   </div>
                 </label>
 
+                <label className="travelField travelField--wide">
+                  <span id="travel-accommodation-label">{accommodationCopy.label}</span>
+                  <div>
+                    <Hotel size={18} aria-hidden="true" />
+                    <select aria-labelledby="travel-accommodation-label" value={accommodationType} onChange={event => setAccommodationType(event.target.value)} disabled={searchState === "loading" || locating}>
+                      <option value="">{accommodationCopy.all}</option>
+                      {accommodationTypeIds.map(id => <option key={id} value={id}>{accommodationCopy.types[id]}</option>)}
+                    </select>
+                  </div>
+                </label>
+
                 <label className="travelField">
                   <span>{t("travelPage.search.start")}</span>
                   <div>
@@ -1112,6 +1127,7 @@ function Travel({ hotelsOnly = false }) {
                       <strong>{hotel.rating || t("travelPage.runtime.newRating")}</strong>
                       {hotel.review_count ? <span>{hotel.review_count} {t("travelPage.runtime.reviews")}</span> : null}
                     </div>
+                    {accommodationCopy.types[hotel.hotelTypeId] && <span className="travelAccommodationBadge">{accommodationCopy.types[hotel.hotelTypeId]}</span>}
                     <h3>
                       <Link to={hotelDetailsUrl(hotel)} state={{ hotel }}>
                         {hotel.name || t("travelPage.runtime.hotelFallback")}

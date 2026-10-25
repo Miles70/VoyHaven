@@ -1524,3 +1524,21 @@
   .travelHeroContent .travelField input,
   .travelHeroContent .travelField select { font-size: 16px; }
 }
+
+/* Property classifications are secondary to the property's own name. */
+.travelAccommodationBadge {
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 6px 10px;
+  border: 1px solid #cbdff2;
+  border-radius: 8px;
+  background: #edf4ff;
+  color: #164d88;
+  font-size: .75rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+@media (max-width: 640px) {
+  .travelFilterFields input,
+  .travelFilterFields select { font-size: 16px; }
+}

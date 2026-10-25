@@ -1,3 +1,4 @@
+import { normalizeAccommodationType } from "../../../shared/accommodationTypes.js";
 import { supportedLanguages } from "../../../shared/languages.js";
 import { normalizeOfferConditions, publicPrebook, requireAcceptedTerms } from "../services/hotelRateConditions.js";
 import { createBookingAccess, requireBookingAccess } from "../services/bookingAccess.js";
@@ -321,6 +322,10 @@ hotelsRouter.get("/catalog-search", searchLimiter, async (request, response, nex
 
 hotelsRouter.get("/", searchLimiter, async (request, response, next) => {
   try {
+    const hotelTypeIds = normalizeAccommodationType(request.query.hotelTypeIds);
+    if (request.query.hotelTypeIds !== undefined && request.query.hotelTypeIds !== '' && !hotelTypeIds) {
+      throw requestError("Invalid accommodation type.");
+    }
     const nearby = request.query.latitude !== undefined || request.query.longitude !== undefined;
     const location = nearby
       ? {
@@ -339,13 +344,14 @@ hotelsRouter.get("/", searchLimiter, async (request, response, next) => {
 
     const result = await listNuiteeHotels({
       ...location,
+      hotelTypeIds: hotelTypeIds || undefined,
       hotelName: optionalText(request.query.hotelName, 100),
       limit: boundedInteger(request.query.limit, 100, 1, 200),
       offset: boundedInteger(request.query.offset, 0, 0, 5000),
     });
 
     response.set("Cache-Control", nearby ? "private, no-store" : "public, max-age=900");
-    response.json({ ...result, location });
+    response.json({ ...result, location: { ...location, ...(hotelTypeIds ? { hotelTypeIds } : {}) } });
   } catch (error) {
     next(error);
   }

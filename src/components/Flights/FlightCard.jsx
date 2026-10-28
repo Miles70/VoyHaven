@@ -1,3 +1,5 @@
+import FlightOfferDetails from './FlightOfferDetails';
+import detailLabels from '../../i18n/flightDetailLabels';
 import { useState } from 'react';
 import flightCopy from '../../i18n/flightTranslations';
 import { cabinOfferMessages, cabinAlternativeMessages, nearbyCabinMessages, flexibleDateLabels, flightAuditMessages } from '../../i18n/flightFilterTranslations';
@@ -33,7 +35,7 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
   const auditCopy = flightAuditMessages[language] || flightAuditMessages.en;
   const labels = translations[language] || translations.en;
   const money = new Intl.NumberFormat(language, { style: 'currency', currency: result.currency }).format(result.total);
-  const bags = result.offer.baggage?.included || [];
+  const extraLabels = detailLabels[language] || detailLabels.en;
   const legs = ['OUTBOUND', 'INBOUND'].map(direction => ({ direction, segments: result.segments.filter(segment => (segment.direction || 'OUTBOUND') === direction) })).filter(leg => leg.segments.length);
   return <article className={`flightCard${selected ? ' flightCardSelected' : ''}`}>
     {(cabinError || cabinBusy) && <div className="flightCardNotice" role={cabinError ? 'alert' : 'status'}>{cabinBusy ? <LoaderCircle size={21} className="flightSpin" aria-hidden="true" /> : <Info size={21} aria-hidden="true" />}<div><p>{cabinError || (nearbyBusy ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[0] : cabinMessages[1])}</p>{cabinBusy && nearbyBusy && checkedDates.length > 0 && <strong>{(flexibleDateLabels[language] || flexibleDateLabels.en)[5]}: {checkedDates.map(date => flightDisplayDate(date, language)).join(' · ')}</strong>}</div></div>}
@@ -54,14 +56,17 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
           </div>
         </section>;
       })}
+      <FlightOfferDetails result={result} copy={copy} language={language} summary />
       <details className="flightCardDetails"><summary><span><ChevronDown size={17} aria-hidden="true" />{labels.details}</span><span><Luggage size={16} aria-hidden="true" />{labels.baggageDetails}</span></summary>
         <div className="flightExpandedContent">
           {legs.map(({ direction, segments }) => <section key={direction} className="flightDetailLeg"><h3>{direction === 'OUTBOUND' ? copy.outbound : copy.inbound}</h3>{segments.map((segment, index) => <div className="flightSegment" key={segment.segmentKey || index}>
             <p className="flightCarrier"><Plane size={16} aria-hidden="true" />{carrier(segment, copy)} · {[segment.carrier?.marketingCode, segment.flight?.marketingNumber].filter(Boolean).join(' ')}</p>
             <div className="flightRoute" dir="ltr"><div><strong>{segment.originCode}</strong><time>{flightLocalTime(segment.departureTime)}</time><small>{segment.originName}</small></div><Plane size={18} aria-hidden="true" /><div><strong>{segment.destinationCode}</strong><time>{flightLocalTime(segment.arrivalTime)}</time><small>{segment.destinationName}</small></div></div>
+            {Number.isFinite(segment.duration?.minutes) && segment.duration.minutes > 0 && <p>{extraLabels.duration}: {Math.floor(segment.duration.minutes / 60)}:{String(segment.duration.minutes % 60).padStart(2, '0')}</p>}
+            {segment.carrier?.operatingName && segment.carrier.operatingName !== segment.carrier.marketingName && <p>{extraLabels.operated}: {segment.carrier.operatingName}</p>}
             {Number(segment.stopCount) > 0 && <small>{copy.stops}: {segment.stopCount} {(segment.stops || []).map(stop => stop.airportCode).join(', ')}</small>}
           </div>)}</section>)}
-          <div className="flightBaggage"><Luggage size={18} aria-hidden="true" /><div><strong>{copy.baggage}</strong>{bags.length ? bags.map((bag, index) => <small key={index}>{bag.description || `${bag.pieces ?? '—'} × ${bag.weightKg ?? '—'} kg`}</small>) : <small>{copy.unknown}</small>}</div></div>
+          <FlightOfferDetails result={result} copy={copy} language={language} />
         </div>
       </details>
     </div>

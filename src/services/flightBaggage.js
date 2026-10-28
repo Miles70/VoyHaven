@@ -7,8 +7,10 @@ export function baggageText(bag, labels, language = 'en') {
  const quantity = [];
  if (positive(bag.pieces)) quantity.push(`${new Intl.NumberFormat(language).format(Number(bag.pieces))} ${labels.pieces}`);
  if (positive(bag.weightKg)) quantity.push(`${new Intl.NumberFormat(language).format(Number(bag.weightKg))} kg`);
+ const zero = value => value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value)) && Number(value) === 0;
+ const excluded = !quantity.length && ((zero(bag.pieces) && zero(bag.weightKg)) || /^(?:no (?:checked |cabin |carry-on |personal )?(?:baggage|bag|item)(?: allowance)?(?: included)?|(?:checked |cabin )?baggage (?:is )?not included)[.!]?$/i.test(bag.description || ''));
  const description = typeof bag.description === 'string' && /\d/.test(bag.description) ? ` · ${bag.description}` : '';
- return `${kind}: ${quantity.join(' · ') || labels.unspecified}${description}`;
+ return `${kind}: ${quantity.join(' · ') || (excluded ? labels.notIncluded : labels.unspecified)}${description}`;
 }
 export function baggageRows(value) {
  return Array.isArray(value) ? value.filter(bag => bag && typeof bag === 'object') : [];

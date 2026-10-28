@@ -93,3 +93,20 @@ test('baggage shows weight and pieces without inventing missing allowances', asy
  assert.equal(Object.keys(labels).length, 18);
  for (const row of Object.values(labels)) assert.ok(Object.values(row).every(value => typeof value === 'string' && value));
 });
+
+
+test('supplier conditions are localized without changing penalties or currency', async () => {
+ const { flightSupplierText, flightAirportName } = await import('../src/services/flightSupplierText.js');
+ const { default: labels } = await import('../src/i18n/flightConditionLabels.js');
+ assert.equal(flightSupplierText('Refundable with penalty', 'tr'), 'Ceza ücreti uygulanarak iade edilebilir');
+ assert.equal(flightSupplierText('Refund fee: from 1100 USD', 'tr'), 'İade cezası: Başlangıç tutarı 1100 USD');
+ assert.equal(flightSupplierText('Changes allowed with penalty', 'tr'), 'Ceza ücreti uygulanarak değişiklik yapılabilir');
+ assert.equal(flightSupplierText('Change fee: from 950 TRY', 'tr'), 'Değişiklik ücreti: Başlangıç tutarı 950 TRY');
+ assert.equal(flightSupplierText('Refund fee: 1,100.50 USD', 'tr'), 'İade cezası: 1,100.50 USD');
+ assert.equal(flightSupplierText('Special restriction 123 USD', 'tr'), 'Special restriction 123 USD');
+ assert.equal(flightAirportName('SAW', 'Istanbul Sabiha Gokcen International Airport', 'tr'), 'İstanbul Sabiha Gökçen Havalimanı');
+ for (const language of Object.keys(labels)) {
+  assert.ok(flightSupplierText('Refundable with penalty', language));
+  assert.ok(flightSupplierText('Refund fee: from 1100 USD', language).endsWith('1100 USD'));
+ }
+});

@@ -1,3 +1,4 @@
+import { flightAirportName } from '../../services/flightSupplierText';
 import FlightOfferDetails from './FlightOfferDetails';
 import detailLabels from '../../i18n/flightDetailLabels';
 import { useState } from 'react';
@@ -50,9 +51,9 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
           <div className="flightLegHeading"><strong><Plane size={15} aria-hidden="true" />{direction === 'OUTBOUND' ? copy.outbound : copy.inbound}</strong><span className={`flightStopBadge${stops === 0 ? ' flightStopBadge--direct' : ''}`}>{stops === 0 ? copy.nonstop : `${copy.stops}: ${stops}`}</span></div>
           <p className="flightCarrier">{carriers.join(' · ')}</p>
           <div className="flightSummaryRoute" dir="ltr">
-            <div className="flightEndpoint"><time>{clock(first.departureTime)}</time><strong>{first.originCode}</strong><small>{calendar(first.departureTime, language)}</small><span title={first.originName}>{first.originName}</span></div>
+            <div className="flightEndpoint"><time>{clock(first.departureTime)}</time><strong>{first.originCode}</strong><small>{calendar(first.departureTime, language)}</small><span title={flightAirportName(first.originCode, first.originName, language)}>{flightAirportName(first.originCode, first.originName, language)}</span></div>
             <div className="flightRouteLine"><span><i /><Plane size={18} aria-hidden="true" /><i /></span>{connections.length > 0 && <small>{labels.connections}: {connections.join(' · ')}</small>}</div>
-            <div className="flightEndpoint flightEndpoint--arrival"><time>{clock(last.arrivalTime)}</time><strong>{last.destinationCode}</strong><small>{calendar(last.arrivalTime, language)}</small><span title={last.destinationName}>{last.destinationName}</span></div>
+            <div className="flightEndpoint flightEndpoint--arrival"><time>{clock(last.arrivalTime)}</time><strong>{last.destinationCode}</strong><small>{calendar(last.arrivalTime, language)}</small><span title={flightAirportName(last.destinationCode, last.destinationName, language)}>{flightAirportName(last.destinationCode, last.destinationName, language)}</span></div>
           </div>
         </section>;
       })}
@@ -61,7 +62,7 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
         <div className="flightExpandedContent">
           {legs.map(({ direction, segments }) => <section key={direction} className="flightDetailLeg"><h3>{direction === 'OUTBOUND' ? copy.outbound : copy.inbound}</h3>{segments.map((segment, index) => <div className="flightSegment" key={segment.segmentKey || index}>
             <p className="flightCarrier"><Plane size={16} aria-hidden="true" />{carrier(segment, copy)} · {[segment.carrier?.marketingCode, segment.flight?.marketingNumber].filter(Boolean).join(' ')}</p>
-            <div className="flightRoute" dir="ltr"><div><strong>{segment.originCode}</strong><time>{flightLocalTime(segment.departureTime)}</time><small>{segment.originName}</small></div><Plane size={18} aria-hidden="true" /><div><strong>{segment.destinationCode}</strong><time>{flightLocalTime(segment.arrivalTime)}</time><small>{segment.destinationName}</small></div></div>
+            <div className="flightRoute" dir="ltr"><div><strong>{segment.originCode}</strong><time>{flightLocalTime(segment.departureTime)}</time><small>{flightAirportName(segment.originCode, segment.originName, language)}</small></div><Plane size={18} aria-hidden="true" /><div><strong>{segment.destinationCode}</strong><time>{flightLocalTime(segment.arrivalTime)}</time><small>{flightAirportName(segment.destinationCode, segment.destinationName, language)}</small></div></div>
             {Number.isFinite(segment.duration?.minutes) && segment.duration.minutes > 0 && <p>{extraLabels.duration}: {Math.floor(segment.duration.minutes / 60)}:{String(segment.duration.minutes % 60).padStart(2, '0')}</p>}
             {segment.carrier?.operatingName && segment.carrier.operatingName !== segment.carrier.marketingName && <p>{extraLabels.operated}: {segment.carrier.operatingName}</p>}
             {Number(segment.stopCount) > 0 && <small>{copy.stops}: {segment.stopCount} {(segment.stops || []).map(stop => stop.airportCode).join(', ')}</small>}

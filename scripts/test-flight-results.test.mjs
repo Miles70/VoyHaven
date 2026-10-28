@@ -78,3 +78,18 @@ test('recovery messages cover every supported language', async () => {
  assert.deepEqual(Object.keys(messages).sort(), [...supportedLanguages].sort());
  for (const row of Object.values(messages)) assert.ok(row.length === 4 && row.every(text => typeof text === 'string' && text.trim()));
 });
+
+
+// Bag descriptions must never suppress quantitative baggage allowances.
+test('baggage shows weight and pieces without inventing missing allowances', async () => {
+ const { baggageText, baggageRows } = await import('../src/services/flightBaggage.js');
+ const { default: labels } = await import('../src/i18n/flightDetailLabels.js');
+ assert.equal(baggageText({ bagType: 'cabin', description: 'Carry-on bag', pieces: 1, weightKg: 8 }, labels.tr, 'tr'), 'Kabin bagajı: 1 adet · 8 kg');
+ assert.equal(baggageText({ bagType: 'checked', pieces: 0, weightKg: 15 }, labels.tr, 'tr'), 'Uçak altı bagajı: 15 kg');
+ assert.equal(baggageText({ bagType: 'checked' }, labels.tr, 'tr'), 'Uçak altı bagajı: Bilgi belirtilmedi');
+ assert.equal(baggageText({ bagType: 'cabin', weightKg: null, pieces: '' }, labels.tr, 'tr'), 'Kabin bagajı: Bilgi belirtilmedi');
+ assert.deepEqual(baggageRows([null, { weightKg: 15 }, 'bad']), [{ weightKg: 15 }]);
+ assert.deepEqual(baggageRows({}), []);
+ assert.equal(Object.keys(labels).length, 18);
+ for (const row of Object.values(labels)) assert.ok(Object.values(row).every(value => typeof value === 'string' && value));
+});

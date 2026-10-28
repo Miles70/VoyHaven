@@ -288,3 +288,12 @@
 .flightInfoDialog button:focus-visible { outline:3px solid #85edf0; outline-offset:3px; }
 @media(max-width:600px) { .flightInfoDialog { padding:22px; border-radius:20px; } .flightInfoCardText { padding:14px 12px; } }
 @media(prefers-reduced-motion:reduce) { .flightInfoImage img { transition:none; } }
+
+.flightBaggageSummary { padding:12px 24px; border-top:1px solid #e4ecf5; font-size:.82rem; }
+.flightBaggageSummary ul { display:flex; flex-wrap:wrap; gap:8px 20px; list-style:none; padding:0; margin:8px 0 0; }
+.flightBaggageSummary li small, .flightPaidBaggage li small { display:block; color:#526581; margin-top:3px; }
+.flightOfferDetails { border-top:1px solid #e4ecf5; margin-top:16px; padding-top:12px; font-size:.85rem; overflow-wrap:anywhere; }
+.flightOfferDetails h4 { margin:12px 0 8px; }
+.flightPaidBaggage summary { cursor:pointer; padding:12px 0; }
+.flightPaidBaggage li { margin:8px 0; }
+@media(max-width:640px) { .flightBaggageSummary { padding:12px 18px; } .flightBaggageSummary ul { flex-direction:column; } }

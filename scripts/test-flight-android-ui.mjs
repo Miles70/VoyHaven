@@ -8,8 +8,8 @@ const day = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
 try {
   await server.listen();
   browser = await chromium.launch({ headless: true, ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {}) });
-  for (const legacy of [false, true]) {
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  for (const [width, legacy] of [[390, false], [390, true], [1280, false]]) {
+    const context = await browser.newContext({ viewport: { width, height: 844 }, isMobile: width === 390, hasTouch: width === 390 });
     await markAnalyticsTest(context, { fixture: true });
     if (legacy) await context.addInitScript(() => { Intl.DisplayNames = undefined; Array.prototype.at = undefined; });
     await context.route('**/*', route => new URL(route.request().url()).origin === 'http://127.0.0.1:5186' ? route.continue() : route.abort());
@@ -19,7 +19,7 @@ try {
       searches++;
       const body = route.request().postDataJSON();
       assert.equal(body.origin, 'AYT'); assert.equal(body.destination, 'IST');
-      await route.fulfill({ json: { data: [{ journeys: [{ segments: [{ originCode: 'AYT', destinationCode: 'IST', departureTime: `${day}T10:00:00`, arrivalTime: `${day}T11:30:00`, carrier: { marketingName: 'Fixture Air' } }], cheapestOffer: { offerId: 'fixture-android', pricing: { display: { currency: 'USD', total: 100 } } } }] }] } });
+      await route.fulfill({ json: { data: [{ journeys: [{ segments: [{ originCode: 'AYT', destinationCode: 'IST', departureTime: `${day}T10:00:00`, arrivalTime: `${day}T11:30:00`, carrier: { marketingName: 'Fixture Air', operatingName: 'Operating Air' }, duration: { minutes: 90 } }], cheapestOffer: { offerId: 'fixture-android', baggage: { included: [{ bagType: 'cabin', pieces: 1, weightKg: 8, description: 'Carry-on bag' }, { bagType: 'checked', pieces: 0, weightKg: 15, description: 'Checked bag' }, null], paid: [{ bagType: 'checked', weightKg: 5, pricing: { display: { amount: 20, currency: 'USD' } } }] }, fare: { seatsRemaining: 4 }, terms: { refundable: false, changeable: true }, pricing: { display: { currency: 'USD', total: 100 } } } }] }] } });
     });
     const page = await context.newPage(), errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -36,8 +36,18 @@ try {
     await button.click();
     await page.locator('.flightCard').waitFor();
     assert.match(await page.locator('.flightCard').innerText(), /IST/);
+    await page.getByText('Kabin bagajı: 1 adet · 8 kg', { exact: true }).waitFor();
+    await page.getByText('Uçak altı bagajı: 15 kg', { exact: true }).waitFor();
+    assert.doesNotMatch(await page.locator('.flightBaggageSummary').innerText(), /Carry-on bag|0 adet/);
+    await page.locator('.flightCardDetails > summary').click();
+    await page.getByText('Uçuş süresi: 1:30', { exact: true }).waitFor();
+    await page.getByText('Uçuşu gerçekleştiren: Operating Air', { exact: true }).waitFor();
+    assert.match(await page.locator('.flightOfferDetails').innerText(), /İzin verilmiyor/);
+    await page.locator('.flightPaidBaggage > summary').click();
+    assert.match(await page.locator('.flightPaidBaggage').innerText(), /5 kg/);
     assert.equal(searches, 1);
     assert.deepEqual(errors, []);
+    await page.locator('.flightCard').screenshot({ path: `/tmp/voyhaven-baggage-${width}.png` });
     await context.close();
   }
   console.log('Mobile AYT–IST search survives translated button text and missing Android APIs; cards render without page errors. Fixture requests only.');

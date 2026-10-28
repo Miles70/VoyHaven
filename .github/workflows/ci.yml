@@ -65,6 +65,9 @@ jobs:
       - name: Install browser for hotel regression tests
         run: npx playwright install --with-deps chromium
 
+      - name: Test Android flight search and translated button updates
+        run: npm run test:flight-android-ui
+
       - name: Test multilingual SEO in browser
         run: npm run test:seo-e2e
 

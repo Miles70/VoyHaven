@@ -80,7 +80,7 @@ assert.ok(!/rotavoy/i.test(shell));
 assert.ok(shell.includes('property="og:site_name" content="VoyHaven"'));
 assert.ok(shell.includes('property="og:url" content="https://voyhaven.com/en"'));
 assert.equal((await request('/admin')).body.match(/property="og:site_name"/g).length, 1);
-assert.ok(!shell.match(/<div id="root">([\s\S]*?)<\/div>/)[1].replace(/<noscript>[\s\S]*?<\/noscript>/, '').trim());
+assert.ok(!shell.match(/<div id="root"[^>]*>([\s\S]*?)<\/div>/)[1].replace(/<noscript>[\s\S]*?<\/noscript>/, '').trim());
 assert.ok((await readFile('dist/robots.txt', 'utf8')).includes('Sitemap: https://voyhaven.com/sitemap.xml'));
 const index = await readFile('dist/sitemap.xml', 'utf8');
 assert.ok(index.includes('<sitemapindex'));
@@ -150,7 +150,7 @@ console.log(`SEO passed: ${pages.length} JavaScript-free HTML pages, ${languages
 for (const lang of languages) {
  const root = await request(`/?lang=${lang}`);
  assert.equal(root.status, 200);
- assert.ok(root.body.includes('<div id="root"><noscript><main>'), "Initial home fallback must stay hidden when JavaScript is enabled");
+ assert.ok(root.body.includes('<div id="root" translate="no" class="notranslate"><noscript><main>'), "Initial home fallback must stay hidden when JavaScript is enabled");
  assert.ok(root.body.includes(`<h1>${copy[lang].homeTitle.replaceAll('&', '&amp;').replaceAll("'", '&#39;')}</h1>`));
  assert.ok(root.body.includes(`<html lang="${lang}" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">`));
  assert.ok(root.body.includes(`rel="canonical" href="${SITE_URL}/${lang}"`));

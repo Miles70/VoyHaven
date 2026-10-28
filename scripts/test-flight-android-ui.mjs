@@ -19,7 +19,7 @@ try {
       searches++;
       const body = route.request().postDataJSON();
       assert.equal(body.origin, 'AYT'); assert.equal(body.destination, 'IST');
-      await route.fulfill({ json: { data: [{ journeys: [{ segments: [{ originCode: 'AYT', originName: 'Antalya International Airport', destinationCode: 'IST', destinationName: 'Istanbul International Airport', departureTime: `${day}T10:00:00`, arrivalTime: `${day}T11:30:00`, carrier: { marketingName: 'Fixture Air', operatingName: 'Operating Air' }, duration: { minutes: 90 } }], cheapestOffer: { offerId: 'fixture-android', baggage: { included: [{ bagType: 'cabin', pieces: 1, weightKg: 8, description: 'Carry-on bag' }, { bagType: 'checked', pieces: 0, weightKg: 15, description: 'Checked bag' }, null], paid: [{ bagType: 'checked', weightKg: 5, pricing: { display: { amount: 20, currency: 'USD' } } }] }, fare: { seatsRemaining: 4 }, terms: { refundable: false, changeable: true, summary: [{ message: 'Refundable with penalty' }, { message: 'Refund fee: from 1100 USD' }, { message: 'Changes allowed with penalty' }, { message: 'Change fee: from 950 TRY' }] }, pricing: { display: { currency: 'USD', total: 100 } } } }] }] } });
+      await route.fulfill({ json: { data: [{ journeys: [{ segments: [{ originCode: 'AYT', originName: 'Antalya International Airport', destinationCode: 'IST', destinationName: 'Istanbul International Airport', departureTime: `${day}T10:00:00`, arrivalTime: `${day}T11:30:00`, carrier: { marketingName: 'Fixture Air', operatingName: 'Operating Air' }, duration: { minutes: 90 } }], cheapestOffer: { offerId: 'fixture-android', baggage: { included: [{ bagType: 'cabin', pieces: 1, weightKg: 8, description: 'Carry-on bag' }, { bagType: 'checked', pieces: 0, weightKg: 15, description: 'Checked bag' }, { bagType: 'personal', pieces: 0, weightKg: 0, description: 'No personal item included' }, null], paid: [{ bagType: 'checked', weightKg: 5, pricing: { display: { amount: 20, currency: 'USD' } } }] }, fare: { seatsRemaining: 4 }, terms: { refundable: false, changeable: true, summary: [{ message: 'Refundable with penalty' }, { message: 'Refund fee: from 1100 USD' }, { message: 'Changes allowed with penalty' }, { message: 'Change fee: from 950 TRY' }] }, pricing: { display: { currency: 'USD', total: 100 } } } }] }] } });
     });
     const page = await context.newPage(), errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -38,6 +38,7 @@ try {
     assert.match(await page.locator('.flightCard').innerText(), /IST/);
     await page.getByText('Kabin bagajı: 1 adet · 8 kg', { exact: true }).waitFor();
     await page.getByText('Uçak altı bagajı: 15 kg', { exact: true }).waitFor();
+    await page.getByText('Kişisel eşya: Dahil değil', { exact: true }).waitFor();
     assert.doesNotMatch(await page.locator('.flightBaggageSummary').innerText(), /Carry-on bag|0 adet/);
     await page.locator('.flightCardDetails > summary').click();
     await page.getByText('Uçuş süresi: 1:30', { exact: true }).waitFor();

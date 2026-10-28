@@ -110,3 +110,15 @@ test('supplier conditions are localized without changing penalties or currency',
   assert.ok(flightSupplierText('Refund fee: from 1100 USD', language).endsWith('1100 USD'));
  }
 });
+
+
+test('explicit no-baggage allowances stay distinct from unknown and weight-based allowances', async () => {
+ const { baggageText } = await import('../src/services/flightBaggage.js');
+ const { default: labels } = await import('../src/i18n/flightDetailLabels.js');
+ assert.equal(baggageText({ bagType: 'checked', pieces: 0, weightKg: 0, description: 'No checked baggage included' }, labels.tr, 'tr'), 'Uçak altı bagajı: Dahil değil');
+ assert.equal(baggageText({ bagType: 'checked', pieces: 0, weightKg: 0 }, labels.tr, 'tr'), 'Uçak altı bagajı: Dahil değil');
+ assert.equal(baggageText({ bagType: 'checked', description: 'No checked baggage included' }, labels.tr, 'tr'), 'Uçak altı bagajı: Dahil değil');
+ assert.equal(baggageText({ bagType: 'checked', pieces: 0, weightKg: 15 }, labels.tr, 'tr'), 'Uçak altı bagajı: 15 kg');
+ assert.equal(baggageText({ bagType: 'checked', pieces: null, weightKg: null }, labels.tr, 'tr'), 'Uçak altı bagajı: Bilgi belirtilmedi');
+ for(const row of Object.values(labels)) assert.ok(row.notIncluded);
+});

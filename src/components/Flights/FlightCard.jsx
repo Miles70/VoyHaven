@@ -40,7 +40,7 @@ export default function FlightCard({ result, copy, language, onSelect, selected 
     <div className="flightItinerary">
       {legs.map(({ direction, segments }) => {
         const first = segments[0];
-        const last = segments.at(-1);
+        const last = segments[segments.length - 1];
         const stops = flightStops(segments);
         const carriers = [...new Set(segments.map(segment => carrier(segment, copy)))];
         const connections = [...new Set(segments.slice(0, -1).map(segment => segment.destinationCode).filter(Boolean))];

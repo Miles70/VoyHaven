@@ -98,8 +98,9 @@ export default function Flights({ embedded = false }) {
   const loading = state === 'loading';
   const dateRangePicker = <label className="flightDateRange">{dateLabels[0]}<select value={dateRange} disabled={loading} onChange={event => setDateRange(Number(event.target.value))}>{[7,15,30].map((value,index) => <option value={value} key={value}>{dateLabels[index + 1]}</option>)}</select></label>;
   const countries = useMemo(() => {
-    const names = new Intl.DisplayNames([language], { type: 'region' });
-    return regionCodes.map((code) => ({ code, name: names.of(code) })).sort((a, b) => a.name.localeCompare(b.name, language));
+    // Older Android WebViews may not implement DisplayNames.
+    const names = typeof Intl.DisplayNames === 'function' ? new Intl.DisplayNames([language], { type: 'region' }) : null;
+    return regionCodes.map((code) => ({ code, name: names?.of(code) || code })).sort((a, b) => a.name.localeCompare(b.name, language));
   }, [language]);
   useEffect(() => {
     if (embedded) return undefined;
@@ -243,7 +244,7 @@ export default function Flights({ embedded = false }) {
             <label>{copy.currency}<select value={currency} onChange={(event) => setCurrency(event.target.value)}>{['USD','EUR','TRY','GBP'].map((code) => <option key={code}>{code}</option>)}</select></label>
             <label>{copy.country}<select value={country} onChange={(event) => setCountry(event.target.value)}>{countries.map((region) => <option key={region.code} value={region.code}>{region.name}</option>)}</select></label>
           </div>
-          <button className="flightSearchButton" type="submit" disabled={loading}>{loading ? <LoaderCircle className="flightSpin" size={20} /> : <Search size={20} />}{loading ? copy.searching : copy.search}</button>
+          <button className="flightSearchButton" type="submit" disabled={loading}>{loading ? <LoaderCircle className="flightSpin" size={20} /> : <Search size={20} />}<span>{loading ? copy.searching : copy.search}</span></button>
         </fieldset>
         {error && <p className="flightError" role="alert">{error === 'noNearbyDates' ? recovery[3] : error === 'noNearby' ? (nearbyCabinMessages[language] || nearbyCabinMessages.en)[2] : copy[error]}</p>}
 

@@ -15,6 +15,7 @@
     "check": "npm run lint && npm run build && npm run test:flight-results && npm run server:test && npm run test:languages && npm run test:localized-flows",
     "security:check": "node scripts/audit-high.mjs",
     "check:readiness": "npm --prefix server run check:readiness",
+    "test:flight-android-ui": "node scripts/test-flight-android-ui.mjs",
     "test:flight-results": "node --test scripts/test-flight-results.test.mjs",
     "test:about-ui": "node scripts/test-about-ui.mjs",
     "test:nearby-scroll": "node scripts/test-nearby-scroll.mjs",

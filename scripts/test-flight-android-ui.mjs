@@ -19,7 +19,7 @@ try {
       searches++;
       const body = route.request().postDataJSON();
       assert.equal(body.origin, 'AYT'); assert.equal(body.destination, 'IST');
-      await route.fulfill({ json: { data: [{ journeys: [{ segments: [{ originCode: 'AYT', destinationCode: 'IST', departureTime: `${day}T10:00:00`, arrivalTime: `${day}T11:30:00`, carrier: { marketingName: 'Fixture Air', operatingName: 'Operating Air' }, duration: { minutes: 90 } }], cheapestOffer: { offerId: 'fixture-android', baggage: { included: [{ bagType: 'cabin', pieces: 1, weightKg: 8, description: 'Carry-on bag' }, { bagType: 'checked', pieces: 0, weightKg: 15, description: 'Checked bag' }, null], paid: [{ bagType: 'checked', weightKg: 5, pricing: { display: { amount: 20, currency: 'USD' } } }] }, fare: { seatsRemaining: 4 }, terms: { refundable: false, changeable: true }, pricing: { display: { currency: 'USD', total: 100 } } } }] }] } });
+      await route.fulfill({ json: { data: [{ journeys: [{ segments: [{ originCode: 'AYT', originName: 'Antalya International Airport', destinationCode: 'IST', destinationName: 'Istanbul International Airport', departureTime: `${day}T10:00:00`, arrivalTime: `${day}T11:30:00`, carrier: { marketingName: 'Fixture Air', operatingName: 'Operating Air' }, duration: { minutes: 90 } }], cheapestOffer: { offerId: 'fixture-android', baggage: { included: [{ bagType: 'cabin', pieces: 1, weightKg: 8, description: 'Carry-on bag' }, { bagType: 'checked', pieces: 0, weightKg: 15, description: 'Checked bag' }, null], paid: [{ bagType: 'checked', weightKg: 5, pricing: { display: { amount: 20, currency: 'USD' } } }] }, fare: { seatsRemaining: 4 }, terms: { refundable: false, changeable: true, summary: [{ message: 'Refundable with penalty' }, { message: 'Refund fee: from 1100 USD' }, { message: 'Changes allowed with penalty' }, { message: 'Change fee: from 950 TRY' }] }, pricing: { display: { currency: 'USD', total: 100 } } } }] }] } });
     });
     const page = await context.newPage(), errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -42,7 +42,12 @@ try {
     await page.locator('.flightCardDetails > summary').click();
     await page.getByText('Uçuş süresi: 1:30', { exact: true }).waitFor();
     await page.getByText('Uçuşu gerçekleştiren: Operating Air', { exact: true }).waitFor();
-    assert.match(await page.locator('.flightOfferDetails').innerText(), /İzin verilmiyor/);
+    const conditions = await page.locator('.flightOfferDetails').innerText();
+    assert.match(conditions, /Ceza ücreti uygulanarak iade edilebilir/);
+    assert.match(conditions, /İade cezası: Başlangıç tutarı 1100 USD/);
+    assert.match(conditions, /Değişiklik ücreti: Başlangıç tutarı 950 TRY/);
+    assert.doesNotMatch(conditions, /Refundable|Refund fee|Changes allowed|Change fee/);
+    assert.doesNotMatch(await page.locator('.flightCard').innerText(), /International Airport/);
     await page.locator('.flightPaidBaggage > summary').click();
     assert.match(await page.locator('.flightPaidBaggage').innerText(), /5 kg/);
     assert.equal(searches, 1);

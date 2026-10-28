@@ -1,3 +1,4 @@
+import { flightSupplierText } from '../../services/flightSupplierText';
 import { useFlowText } from '../../i18n/flowTranslations';
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from 'react';
@@ -46,12 +47,12 @@ export default function FlightSelection({ result, copy, language, passengers, on
       {verified && <>
         <p className="flightVerified">{copy.verified}</p>
         {verified.priceChanged && <p className="flightSandbox">{copy.priceChanged}: <del>{money(result.total, result.currency)}</del> → <strong>{money(verified.total, verified.currency)}</strong></p>}
-        {verified.changes?.messages?.length > 0 && <ul className="flightChanges">{verified.changes.messages.filter((message) => typeof message === 'string').map((message, index) => <li key={index}>{message}</li>)}</ul>}
+        {verified.changes?.messages?.length > 0 && <ul className="flightChanges">{verified.changes.messages.filter((message) => typeof message === 'string').map((message, index) => <li key={index}>{flightSupplierText(message, language)}</li>)}</ul>}
         <FlightCard result={verified} copy={copy} language={language} />
         <section className="flightTerms"><h3>{copy.conditions}</h3>
           <p>{copy.refund}: <strong>{terms?.refundable === true ? copy.allowed : terms?.refundable === false ? copy.notAllowed : copy.unknown}</strong></p>
           <p>{copy.change}: <strong>{terms?.changeable === true ? copy.allowed : terms?.changeable === false ? copy.notAllowed : copy.unknown}</strong></p>
-          {(terms?.summary || []).filter((item) => typeof item.message === 'string').map((item, index) => <p key={index}>{item.message}</p>)}
+          {(terms?.summary || []).filter((item) => typeof item?.message === 'string').map((item, index) => <p key={index}>{flightSupplierText(item.message, language)}</p>)}
         </section>
         <button type="button" className="flightSearchButton" onClick={() => navigate("/flights/checkout", { state: { result: verified, passengers } })}>{language === "tr" ? ui("Yolcu bilgilerine ve ödemeye geç") : ui("Continue to passengers and payment")}</button>
       </>}

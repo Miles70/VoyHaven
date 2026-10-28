@@ -1,3 +1,4 @@
+import { flightSupplierText } from '../../services/flightSupplierText';
 import detailLabels from '../../i18n/flightDetailLabels';
 import { baggageRows, baggageText } from '../../services/flightBaggage';
 
@@ -24,7 +25,7 @@ export default function FlightOfferDetails({ result, copy, language, summary = f
  if (summary) return <div className="flightBaggageSummary"><strong>{copy.baggage}</strong><ul>{bags.length ? bags.map(bagLine) : <li>{labels.unspecified}</li>}</ul></div>;
  return <div className="flightOfferDetails">
   {Number.isInteger(result.offer.fare?.seatsRemaining) && result.offer.fare.seatsRemaining >= 0 && <p>{labels.seats}: <strong>{result.offer.fare.seatsRemaining}</strong></p>}
-  <section><h4>{copy.conditions}</h4><p>{copy.refund}: <strong>{status(terms?.refundable)}</strong>{fee(terms?.refundFee) && <> · {labels.fee}: {fee(terms.refundFee)}</>}</p><p>{copy.change}: <strong>{status(terms?.changeable)}</strong>{fee(terms?.changeFee) && <> · {labels.fee}: {fee(terms.changeFee)}</>}</p>{Array.isArray(terms?.summary) && terms.summary.filter(item => typeof item?.message === 'string').map((item, index) => <p key={index}>{item.message}</p>)}</section>
+  <section><h4>{copy.conditions}</h4><p>{copy.refund}: <strong>{status(terms?.refundable)}</strong>{fee(terms?.refundFee) && <> · {labels.fee}: {fee(terms.refundFee)}</>}</p><p>{copy.change}: <strong>{status(terms?.changeable)}</strong>{fee(terms?.changeFee) && <> · {labels.fee}: {fee(terms.changeFee)}</>}</p>{Array.isArray(terms?.summary) && terms.summary.filter(item => typeof item?.message === 'string').map((item, index) => <p key={index}>{flightSupplierText(item.message, language)}</p>)}</section>
   {paid.length > 0 && <details className="flightPaidBaggage"><summary>{labels.paid} ({paid.length})</summary><ul>{paid.map((bag, index) => { const price = bag.pricing?.display; return <li key={index}>{baggageText(bag, labels, language)} · {money(price?.amount, price?.currency) || labels.unspecified}{scope(bag) && <small>{scope(bag)}</small>}</li>; })}</ul></details>}
  </div>;
 }

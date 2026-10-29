@@ -53,7 +53,7 @@ jobs:
         run: npm run test:hotel-ui
 
       - name: Test flight results and dependency audit handling
-        run: node --test scripts/test-flight-results.test.mjs scripts/test-audit-high.test.mjs
+        run: node --test scripts/test-flight-results.test.mjs scripts/test-audit-high.test.mjs scripts/test-wallet-security.test.mjs
 
       - name: Install backend dependencies
         run: npm ci --prefix server --ignore-scripts --no-audit --no-fund
@@ -67,6 +67,9 @@ jobs:
 
       - name: Install browser for hotel regression tests
         run: npx playwright install --with-deps chromium
+
+      - name: Test wallet connection and native/token payments with isolated fixtures
+        run: npm run test:wallet-e2e
 
       - name: Test Android flight search and translated button updates
         run: npm run test:flight-android-ui

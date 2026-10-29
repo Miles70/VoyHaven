@@ -42,7 +42,12 @@ try {
   await page.locator('.seoLanguages a[lang=ar]').click();
   assert.equal(await page.locator('html').getAttribute('dir'), 'rtl');
   assert.ok((await page.locator('h1').textContent()).includes('Megasaray'));
-  assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth > globalThis.innerWidth), false);
+  const rtlOverflow = await page.evaluate(() => ({ width: globalThis.document.documentElement.scrollWidth, viewport: globalThis.innerWidth, elements: [...globalThis.document.querySelectorAll('body *')].filter(node => {
+   const bounds = node.getBoundingClientRect();
+   return bounds.left < -1 || bounds.right > globalThis.innerWidth + 1;
+  }).map(node => ({ tag: node.tagName, className: node.getAttribute('class'), left: node.getBoundingClientRect().left, right: node.getBoundingClientRect().right })).slice(0, 12) }));
+  await page.screenshot({ path: `test-results/seo/hotel-ar-${width}.png`, fullPage: true });
+  assert.ok(rtlOverflow.width <= rtlOverflow.viewport, JSON.stringify(rtlOverflow));
   await page.goto(`${server.base}/tr/flights/ayt-fra`);
   await page.locator('.seoCta').click();
   await page.locator('.flightSearchForm').waitFor();

@@ -52,6 +52,9 @@ jobs:
       - name: Test hotel UI
         run: npm run test:hotel-ui
 
+      - name: Test flight results and dependency audit handling
+        run: node --test scripts/test-flight-results.test.mjs scripts/test-audit-high.test.mjs
+
       - name: Install backend dependencies
         run: npm ci --prefix server --ignore-scripts --no-audit --no-fund
 

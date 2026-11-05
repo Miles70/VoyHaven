@@ -53,10 +53,34 @@ try {
     const sort=page.locator('.travelResultControls select').last();
     assert.equal(await sort.inputValue(),'priceAsc');
     assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
+    const formSort=page.locator('.travelSearchCard select').filter({has:page.locator('option[value="priceAsc"]')});
+    const callsBeforeSorting=calls.length;
+    await formSort.selectOption('priceDesc');
+    assert.equal(await sort.inputValue(),'priceDesc');
+    assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/100/);
+    await formSort.selectOption('priceAsc');
+    assert.equal(await sort.inputValue(),'priceAsc');
+    assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
+    assert.equal(calls.length,callsBeforeSorting,'Sorting loaded results must not issue a new search');
     await sort.selectOption('priceDesc');
+    assert.equal(await formSort.inputValue(),'priceDesc');
     assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/100/);
     await sort.selectOption('priceAsc');
     assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
+    const cityField=page.locator('.travelResultDestination input');
+    await cityField.fill('Barcelona');
+    await cityField.press('Enter');
+    await page.locator('.travelHotelCard').first().waitFor();
+    assert.equal(calls.at(-1).searchParams.get('destination'),'Barcelona');
+    assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),'219');
+    assert.equal(await formSort.inputValue(),'priceAsc');
+    assert.equal(await sort.inputValue(),'priceAsc');
+    assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
+    await cityField.fill('Paris');
+    await page.locator('.travelResultDestination button').click();
+    await page.locator('.travelHotelCard').first().waitFor();
+    assert.equal(calls.at(-1).searchParams.get('destination'),'Paris');
+    assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),'219');
     await page.locator('.travelLoadMoreButton').click();
     await page.waitForFunction(()=>globalThis.document.querySelectorAll('.travelHotelCard').length===6);
     assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),'219');
@@ -68,8 +92,9 @@ try {
     assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),'201');
     assert.equal(calls.at(-1).searchParams.get('latitude'),'36.9');
     assert.deepEqual(await page.locator('.travelAccommodationBadge').allTextContents(),Array(3).fill(copy.tr.types[201]));
-    await page.locator('.travelResultControls button').click();
+    await page.locator('.travelFilterSummary button').click();
     assert.equal(await sort.inputValue(),'recommended');
+    assert.equal(await formSort.inputValue(),'recommended');
     assert.equal(await field.inputValue(),'201');
     // Every visible category uses the same isolated search and price controls.
     for (const type of ['', '204', '219', '201', '203', '216', '213', '206']) {

@@ -1027,7 +1027,7 @@ function Travel({ hotelsOnly = false }) {
                   <span>{t("discovery.sort")}</span>
                   <div>
                     <ArrowRight size={18} aria-hidden="true" />
-                    <select value={searchSort} onChange={event => setSearchSort(event.target.value)} disabled={searchState === "loading" || locating}>
+                    <select value={searchSort} onChange={event => { const sort = event.target.value; setSearchSort(sort); setResultFilters(current => ({ ...current, sort })); }} disabled={searchState === "loading" || locating}>
                       {hotelSorts.map(sort => <option key={sort} value={sort}>{t(`discovery.${sort === "recommended" ? "defaultOrder" : sort}`)}</option>)}
                     </select>
                   </div>
@@ -1178,7 +1178,10 @@ function Travel({ hotelsOnly = false }) {
               <p>{results.length} {t("travelPage.runtime.resultsSuffix")}</p>
             </div>
 
-            <HotelResultControls filters={resultFilters} onChange={setResultFilters} currency={filterCurrency} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
+            <HotelResultControls filters={resultFilters} onChange={filters => { setResultFilters(filters); setSearchSort(filters.sort); }} destination={cityName} onDestinationChange={setCityName} onDestinationSearch={() => {
+              setNearbyCoordinates(null);
+              runSearch({ destination: cityName.trim() }, { fromCategory: true });
+            }} currency={filterCurrency} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
             {!visibleResults.length && <p className="travelFilterEmpty" role="status">{t("discovery.empty")}</p>}
             <div className="travelHotelGrid">
               {visibleResults.map((hotel) => (

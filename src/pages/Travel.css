@@ -1579,3 +1579,11 @@
   .travelStayCategories button { flex-direction:column; align-items:flex-start; gap:10px; padding:16px 14px; position:relative; }
   .travelStayArrow { position:absolute; inset-inline-end:12px; top:30px; }
 }
+
+.travelResultDestination { display:flex; align-items:flex-end; gap:12px; padding-bottom:18px; margin-bottom:18px; border-bottom:1px solid #e2eaf1; }
+.travelResultDestination label { flex:1; min-width:0; display:grid; gap:8px; }
+.travelResultDestination label > span { color:var(--color-navy); font-size:.8rem; font-weight:700; }
+.travelResultDestination input { box-sizing:border-box; width:100%; min-width:0; min-height:44px; padding:10px 12px; border:1px solid #cad8eb; border-radius:10px; background:#f9fbff; color:var(--color-navy); font:inherit; }
+.travelResultDestination button { display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 18px; border:0; border-radius:10px; background:var(--color-navy); color:#fff; font:inherit; font-size:.85rem; font-weight:650; cursor:pointer; }
+.travelResultDestination input:focus-visible,.travelResultDestination button:focus-visible { outline:3px solid var(--color-blue); outline-offset:3px; }
+@media(max-width:440px) { .travelResultDestination { flex-direction:column; align-items:stretch; } .travelResultDestination input { font-size:16px; } }

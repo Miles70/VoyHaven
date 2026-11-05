@@ -1,3 +1,4 @@
+import stayDiscoveryTranslations from "./stayDiscoveryTranslations.js";
 import networkTranslations from "./networkTranslations.js";
 import accountTranslations from "./accountTranslations.js";
 import { additionalTranslations } from "./extended/index.js";
@@ -28,6 +29,7 @@ function withTravelTranslations(baseTranslations, language) {
 
   return {
     ...baseTranslations,
+    stayDiscovery: stayDiscoveryTranslations[language] || stayDiscoveryTranslations.en,
     network: networkTranslations[language] || networkTranslations.en,
     brand: brandTranslations[language] || brandTranslations.en,
     discovery: discoveryTranslations[language] || discoveryTranslations.en,

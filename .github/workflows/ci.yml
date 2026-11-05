@@ -86,6 +86,9 @@ jobs:
       - name: Test nearby search result scrolling
         run: npm run test:nearby-scroll
 
+      - name: Test accommodation categories and price ordering
+        run: node scripts/test-accommodation-ui.mjs
+
       - name: Test desktop and mobile hotel flow
         run: npm run test:hotel-e2e
 

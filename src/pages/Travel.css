@@ -1558,3 +1558,24 @@
   .travelNetworkCopy { padding-inline-start:0; padding-top:20px; border-inline-start:0; border-top:1px solid #b0e2e32b; }
   .travelNetworkStat strong { font-size:clamp(1.6rem,7vw,2.4rem); overflow-wrap:anywhere; }
 }
+
+.travelStayDiscovery { margin-block:42px; }
+.travelStayHeading h2 { margin:0 0 10px; color:var(--color-navy); font-size:clamp(1.4rem,2.6vw,2rem); }
+.travelStayHeading p { max-width:760px; margin:0; color:#526581; line-height:1.7; }
+.travelStayCategories { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-top:24px; }
+.travelStayCategories button { display:flex; align-items:center; gap:12px; min-width:0; padding:20px 16px; border:1px solid #d5e3e6; border-radius:18px; background:#ffffffdb; color:#153950; font:inherit; text-align:start; cursor:pointer; transition:background .16s,border-color .16s; }
+.travelStayCategories button > span { display:grid; place-items:center; flex-shrink:0; width:48px; height:48px; border-radius:14px; color:#167b82; background:#e5f5f2; }
+.travelStayCategories strong { flex:1; min-width:0; overflow-wrap:anywhere; font-size:.9rem; line-height:1.5; }
+.travelStayArrow { flex-shrink:0; color:#608b98; }
+[dir="rtl"] .travelStayArrow { transform:rotate(180deg); }
+.travelStayCategories button:hover { border-color:#37958f; background:#effaf7; }
+.travelStayCategories button[aria-pressed="true"] { border-color:#177e7b; background:#e5f5f2; box-shadow:inset 0 0 0 1px #177e7b; }
+.travelStayCategories button:focus-visible { outline:3px solid #167eae; outline-offset:4px; }
+.travelStayCategories button:disabled { cursor:wait; opacity:.6; }
+@media(max-width:900px) { .travelStayCategories { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:480px) {
+  .travelStayDiscovery { margin-block:30px; }
+  .travelStayCategories { gap:10px; }
+  .travelStayCategories button { flex-direction:column; align-items:flex-start; gap:10px; padding:16px 14px; position:relative; }
+  .travelStayArrow { position:absolute; inset-inline-end:12px; top:30px; }
+}

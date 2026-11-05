@@ -1137,7 +1137,7 @@ function Travel({ hotelsOnly = false }) {
           <h2 id="travel-stay-title">{t("stayDiscovery.title")}</h2>
           <p>{t("stayDiscovery.description")}</p>
         </div>
-        <div className="travelStayCategories" role="group" aria-label={accommodationCopy.label}>
+        <div className="travelStayCategories" role="group" aria-labelledby="travel-stay-title">
           {stayCategories.map(({ id, icon: Icon }) => (
             <button key={id || "all"} type="button" aria-pressed={accommodationType === id}
               disabled={searchState === "loading" || locating}

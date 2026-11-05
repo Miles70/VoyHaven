@@ -55,10 +55,11 @@ try {
       empty = true;
       await page.locator('.travelNearbyButton').click();
       await page.locator('.travelSearchMessage--error').waitFor();
-      assert.equal(await page.evaluate(() => globalThis.nearbyScrollCalls.length), 1);
+      await page.waitForFunction(() => globalThis.nearbyScrollCalls.length === 2);
+      assert.equal(await page.locator('.travelFilterEmpty').isVisible(), true);
       assert.deepEqual(errors, []);
       await context.close();
-      console.log(`Nearby scroll passed: ${width}px, ${reducedMotion}, waits for rates, aligns below header, no scroll on empty results.`);
+      console.log(`Nearby scroll passed: ${width}px, ${reducedMotion}, waits for rates, aligns below header, empty results remain visible with destination controls.`);
     }
   }
 } finally {

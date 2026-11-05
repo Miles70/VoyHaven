@@ -15,7 +15,9 @@ try {
   await context.route('**/api/**',async r=>{
     const url=new URL(r.request().url());let payload={data:[],hotels:[]};
     if(url.pathname==='/api/hotels'&&(url.searchParams.has('destination')||url.searchParams.has('latitude'))){
-      calls.push(url);const type=Number(url.searchParams.get('hotelTypeIds'))||204;
+      calls.push(url);
+      if (url.searchParams.get('destination') === 'Emptyville') { await r.fulfill({json:{hotelIds:'',total:0,data:[]}}); return; }
+      const type=Number(url.searchParams.get('hotelTypeIds'))||204;
       const ids=[0,1,2].map(i=>`${type}-${url.searchParams.get('offset')||0}-${i}`);
       ids.forEach(id=>types.set(id,type));
       payload={hotelIds:ids,total:6,data:ids.map(id=>({id,hotelTypeId:type})),location:{...(url.searchParams.has('latitude')?{latitude:36.9,longitude:30.7,radius:10000}:{}),hotelTypeIds:url.searchParams.get('hotelTypeIds')||undefined}};
@@ -40,6 +42,9 @@ try {
     await page.setViewportSize({width,height:900});
     await page.goto(`${server.base}/?lang=tr`);
     const field=page.getByLabel(copy.tr.label,{exact:true});
+    const destination=page.locator('.travelSearchCard input[type=text]');
+    assert.equal(await destination.inputValue(),'');
+    await destination.fill('Antalya');
     await page.locator('.travelSearchCard select').filter({has:page.locator('option[value="priceAsc"]')}).selectOption('priceAsc');
     await page.locator('.travelStayCategories').getByRole('button',{name:copy.tr.types[219],exact:true}).click();
     await page.waitForURL('**/hotels?**');
@@ -107,6 +112,15 @@ try {
       await sort.selectOption('priceAsc');
       assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
     }
+    await cityField.fill('Emptyville');
+    await cityField.press('Enter');
+    await page.locator('.travelFilterEmpty').waitFor();
+    assert.match(await page.locator('.travelFilterEmpty').innerText(),/müsait yer bulunamadı/);
+    assert.equal(await page.locator('.travelHotelCard').count(),0);
+    assert.equal(await cityField.isVisible(),true);
+    await cityField.fill('Paris');
+    await cityField.press('Enter');
+    await page.locator('.travelHotelCard').first().waitFor();
     await page.screenshot({path:`/tmp/voyhaven-accommodation-${width}.png`,fullPage:true});
     console.log(`Passed ${width}px: type request, URL, metadata, pagination, nearby, both price orders and reset.`);
   }

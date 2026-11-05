@@ -1,5 +1,5 @@
 import { supportedLanguages } from "../../../shared/languages.js";
-import { listNuiteeCountries, searchNuiteePlaces } from './nuiteeApi.js';
+import { listNuiteeCountries, searchNuiteePlaces, getNuiteePlace } from './nuiteeApi.js';
 
 const languages = supportedLanguages;
 const normalize = (value) => String(value || '').toLowerCase().normalize('NFD')
@@ -43,6 +43,22 @@ export async function resolveHotelDestination(destination) {
       throw error;
     }
     location = { placeId: place.placeId };
+    // A place-ID hotel query is a small central radius, not the entire city.
+    // Use verified city/country components when available; retain place search
+    // for areas or incomplete metadata rather than guessing a country.
+    try {
+      const response = await getNuiteePlace(place.placeId);
+      const detail = response.data || response;
+      const components = detail.addressComponents || detail.address_components || [];
+      const city = components.find(component => component.types?.includes("locality"));
+      const country = components.find(component => component.types?.includes("country"));
+      const addressCountry = countryIndex.get(normalize(String(detail.formattedAddress || place.formattedAddress || "").split(",").at(-1)));
+      const countryCode = String(country?.shortText || country?.short_name || detail.countryCode || addressCountry?.countryCode || "").toUpperCase();
+      const isCity = (detail.types || place.types || []).includes("locality");
+      const name = detail.displayName || place.displayName;
+      const cityName = city?.longText || city?.long_name || (isCity ? (typeof name === "object" ? name.text : name) : undefined);
+      if (cityName && /^[A-Z]{2}$/.test(countryCode)) location = { countryCode, cityName };
+    } catch { /* Place-ID search remains available if details cannot be resolved. */ }
   }
   if (locations.size >= 200) locations.delete(locations.keys().next().value);
   locations.set(key, { location, expiresAt: Date.now() + 60 * 60 * 1000 });

@@ -191,6 +191,12 @@ export function listNuiteeCountries() {
   return requestNuitee(getSettings().dataBaseUrl, "/data/countries", { retries: 1 });
 }
 
+export function getNuiteePlace(placeId) {
+  return requestNuitee(getSettings().dataBaseUrl, `/data/places/${encodeURIComponent(placeId)}`, {
+    query: { language: "en" }, retries: 1,
+  });
+}
+
 export function searchNuiteePlaces(textQuery) {
   return requestNuitee(getSettings().dataBaseUrl, "/data/places", {
     query: { textQuery, type: "locality,administrative_area_level_1,country", language: "en" },

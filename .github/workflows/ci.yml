@@ -69,7 +69,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Test accommodation categories and price ordering
-        run: node scripts/test-accommodation-ui.mjs
+        run: node --test scripts/test-available-hotel-page.test.mjs && node scripts/test-accommodation-ui.mjs
 
       - name: Test wallet connection and native/token payments with isolated fixtures
         run: npm run test:wallet-e2e

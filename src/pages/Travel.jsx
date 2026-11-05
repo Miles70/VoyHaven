@@ -15,6 +15,7 @@ import {
   AlertCircle,
   ArrowRight,
   BedDouble,
+  Globe2,
   CalendarDays,
   CarFront,
   CheckCircle2,
@@ -1086,6 +1087,19 @@ function Travel({ hotelsOnly = false }) {
               { ["cars", "activities"].map((category) => <div key={category} role="tabpanel" id={`service-panel-${category}`} aria-labelledby={`service-tab-${category}`} hidden={activeService !== category}><CategoryPage category={category} embedded /></div>) }
             </>
           </div>
+        </div>
+      </section>
+
+      <section className="travelContainer travelNetwork" aria-labelledby="travel-network-title">
+        <div className="travelNetworkStat">
+          <span className="travelNetworkIcon"><Globe2 size={28} aria-hidden="true" /></span>
+          <strong dir="ltr">{new Intl.NumberFormat(language).format(2_000_000)}+</strong>
+          <span>{t("network.title")}</span>
+        </div>
+        <div className="travelNetworkCopy">
+          <span className="travelNetworkEyebrow">VoyHaven · {t("network.eyebrow")}</span>
+          <h2 id="travel-network-title">{t("network.description")}</h2>
+          <p>{t("network.availability")}</p>
         </div>
       </section>
 

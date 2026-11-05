@@ -1,3 +1,4 @@
+import networkTranslations from "./networkTranslations.js";
 import accountTranslations from "./accountTranslations.js";
 import { additionalTranslations } from "./extended/index.js";
 import hotelRateTranslations from "./hotelRateTranslations";
@@ -27,6 +28,7 @@ function withTravelTranslations(baseTranslations, language) {
 
   return {
     ...baseTranslations,
+    network: networkTranslations[language] || networkTranslations.en,
     brand: brandTranslations[language] || brandTranslations.en,
     discovery: discoveryTranslations[language] || discoveryTranslations.en,
     hotelFacts: hotelFactsTranslations[language] || hotelFactsTranslations.en,

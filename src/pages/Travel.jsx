@@ -674,12 +674,12 @@ function Travel({ hotelsOnly = false }) {
     }
   }
 
-  async function runSearch(locationOverride) {
+  async function runSearch(locationOverride, { hotelType = accommodationType, fromCategory = false } = {}) {
     const location = { ...(locationOverride || (nearbyCoordinates
       ? { ...nearbyCoordinates, radius: nearbyRadius }
-      : { destination: cityName.trim() })), hotelTypeIds: accommodationType || undefined };
+      : { destination: cityName.trim() })), hotelTypeIds: hotelType || undefined };
 
-    if (activeService !== "hotels") {
+    if (activeService !== "hotels" && !fromCategory) {
       setSearchError(t("travelPage.runtime.comingSoon"));
       return;
     }
@@ -691,7 +691,7 @@ function Travel({ hotelsOnly = false }) {
 
     trackTravel('hotel_search', { destination: location.destination || 'Konum yakını', checkin, checkout, adults });
     completedSearch.current = null;
-    scrollToNearbyResults.current = location.latitude !== undefined;
+    scrollToNearbyResults.current = location.latitude !== undefined || fromCategory || homeSearchParams.get("auto") === "1";
     setLoadMoreState("idle");
     setSearchState("loading");
     setSearchError("");
@@ -1145,10 +1145,17 @@ function Travel({ hotelsOnly = false }) {
                 setAccommodationType(id);
                 setActiveService("hotels");
                 setSearchError("");
-                requestAnimationFrame(() => {
-                  searchFormRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "center" });
+                if (!cityName.trim() || !checkin || !checkout || checkout <= checkin) {
+                  runSearch(undefined, { hotelType: id, fromCategory: true });
+                  searchFormRef.current?.scrollIntoView({ behavior: "instant", block: "center" });
                   destinationInputRef.current?.focus({ preventScroll: true });
-                });
+                  return;
+                }
+                if (!hotelsOnly && !nearbyCoordinates) {
+                  navigate(`/hotels?${new URLSearchParams({ cityName: cityName.trim(), checkin, checkout, adults: String(adults), ...(id ? { hotelTypeIds: id } : {}), sort: searchSort, auto: "1" })}`);
+                  return;
+                }
+                runSearch(undefined, { hotelType: id, fromCategory: true });
               }}>
               <span><Icon size={26} aria-hidden="true" /></span>
               <strong>{id ? accommodationCopy.types[id] : accommodationCopy.all}</strong>

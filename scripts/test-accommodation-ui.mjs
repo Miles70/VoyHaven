@@ -40,17 +40,16 @@ try {
     await page.setViewportSize({width,height:900});
     await page.goto(`${server.base}/?lang=tr`);
     const field=page.getByLabel(copy.tr.label,{exact:true});
-    await page.locator('.travelStayCategories').getByRole('button',{name:copy.tr.types[219],exact:true}).click();
-    assert.equal(await field.inputValue(),'219');
-    assert.equal(await page.locator('.travelStayCategories button[aria-pressed="true"]').innerText(),copy.tr.types[219]);
     await page.locator('.travelSearchCard select').filter({has:page.locator('option[value="priceAsc"]')}).selectOption('priceAsc');
-    await page.locator('.travelSearchCard button[type=submit]').click();
+    await page.locator('.travelStayCategories').getByRole('button',{name:copy.tr.types[219],exact:true}).click();
     await page.waitForURL('**/hotels?**');
     await page.locator('.travelHotelCard').first().waitFor();
+    assert.equal(await field.inputValue(),'219');
     assert.equal(new URL(page.url()).searchParams.get('hotelTypeIds'),'219');
     assert.equal(new URL(page.url()).searchParams.get('sort'),'priceAsc');
     assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),'219');
     assert.deepEqual(await page.locator('.travelAccommodationBadge').allTextContents(),Array(3).fill(copy.tr.types[219]));
+    await page.waitForFunction(() => { const top=globalThis.document.querySelector('.travelHotelResults').getBoundingClientRect().top; return top >= 0 && top < 250; });
     const sort=page.locator('.travelResultControls select').last();
     assert.equal(await sort.inputValue(),'priceAsc');
     assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
@@ -76,7 +75,6 @@ try {
     for (const type of ['', '204', '219', '201', '203', '216', '213', '206']) {
       await page.locator('.travelStayCategories').getByRole('button',{name:type ? copy.tr.types[type] : copy.tr.all,exact:true}).click();
       assert.equal(await field.inputValue(),type);
-      await page.locator('.travelSearchCard button[type=submit]').click();
       await page.waitForFunction(expected => globalThis.document.querySelector('.travelAccommodationBadge')?.textContent === expected, copy.tr.types[type || '204']);
       assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),type || null);
       await sort.selectOption('priceDesc');

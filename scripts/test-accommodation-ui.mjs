@@ -31,6 +31,8 @@ try {
     const field=page.getByLabel(copy[lang].label,{exact:true});await page.locator('.travelSearchCard').waitFor({timeout:5000}).catch(async error=>{console.log({errors,body:(await page.locator('body').innerText()).slice(0,1000),url:page.url()});throw error;});
     await field.waitFor();
     assert.equal(await field.locator('option').count(),16);
+    assert.equal(await page.locator('.travelStayCategories button').count(),8);
+    assert.equal(await page.locator('.travelStayCategories button[aria-pressed="true"]').count(),1);
     assert.equal(await field.locator('option[value="219"]').textContent(),copy[lang].types[219]);
     assert.equal(await page.evaluate(()=>globalThis.document.documentElement.scrollWidth<=globalThis.innerWidth),true,`${lang} mobile overflow`);
   }
@@ -38,14 +40,20 @@ try {
     await page.setViewportSize({width,height:900});
     await page.goto(`${server.base}/?lang=tr`);
     const field=page.getByLabel(copy.tr.label,{exact:true});
-    await field.selectOption('219');
+    await page.locator('.travelStayCategories').getByRole('button',{name:copy.tr.types[219],exact:true}).click();
+    assert.equal(await field.inputValue(),'219');
+    assert.equal(await page.locator('.travelStayCategories button[aria-pressed="true"]').innerText(),copy.tr.types[219]);
+    await page.locator('.travelSearchCard select').filter({has:page.locator('option[value="priceAsc"]')}).selectOption('priceAsc');
     await page.locator('.travelSearchCard button[type=submit]').click();
     await page.waitForURL('**/hotels?**');
     await page.locator('.travelHotelCard').first().waitFor();
     assert.equal(new URL(page.url()).searchParams.get('hotelTypeIds'),'219');
+    assert.equal(new URL(page.url()).searchParams.get('sort'),'priceAsc');
     assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),'219');
     assert.deepEqual(await page.locator('.travelAccommodationBadge').allTextContents(),Array(3).fill(copy.tr.types[219]));
     const sort=page.locator('.travelResultControls select').last();
+    assert.equal(await sort.inputValue(),'priceAsc');
+    assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
     await sort.selectOption('priceDesc');
     assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/100/);
     await sort.selectOption('priceAsc');
@@ -64,6 +72,18 @@ try {
     await page.locator('.travelResultControls button').click();
     assert.equal(await sort.inputValue(),'recommended');
     assert.equal(await field.inputValue(),'201');
+    // Every visible category uses the same isolated search and price controls.
+    for (const type of ['', '204', '219', '201', '203', '216', '213', '206']) {
+      await page.locator('.travelStayCategories').getByRole('button',{name:type ? copy.tr.types[type] : copy.tr.all,exact:true}).click();
+      assert.equal(await field.inputValue(),type);
+      await page.locator('.travelSearchCard button[type=submit]').click();
+      await page.waitForFunction(expected => globalThis.document.querySelector('.travelAccommodationBadge')?.textContent === expected, copy.tr.types[type || '204']);
+      assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),type || null);
+      await sort.selectOption('priceDesc');
+      assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/100/);
+      await sort.selectOption('priceAsc');
+      assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
+    }
     await page.screenshot({path:`/tmp/voyhaven-accommodation-${width}.png`,fullPage:true});
     console.log(`Passed ${width}px: type request, URL, metadata, pagination, nearby, both price orders and reset.`);
   }

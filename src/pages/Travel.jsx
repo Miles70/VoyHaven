@@ -16,6 +16,10 @@ import {
   ArrowRight,
   BedDouble,
   Globe2,
+  Building2,
+  House,
+  KeyRound,
+  Palmtree,
   CalendarDays,
   CarFront,
   CheckCircle2,
@@ -49,6 +53,17 @@ const services = [
   { key: "activities", icon: MapPinned },
 ];
 
+const stayCategories = [
+  { id: "", icon: Globe2 },
+  { id: "204", icon: Hotel },
+  { id: "219", icon: Building2 },
+  { id: "201", icon: KeyRound },
+  { id: "203", icon: BedDouble },
+  { id: "216", icon: House },
+  { id: "213", icon: House },
+  { id: "206", icon: Palmtree },
+];
+const hotelSorts = ["recommended", "priceAsc", "priceDesc", "rating"];
 const SHOWCASE_LIMIT = 21;
 // Replace The Marmara Antalya with a verified video hotel from the same country.
 const SHOWCASE_REPLACED_HOTEL_ID = "lp3917c";
@@ -372,7 +387,10 @@ function Travel({ hotelsOnly = false }) {
   );
   const [results, setResults] = useState([]);
   const [resultSelection, setResultSelection] = useState(null);
+  const [searchSort, setSearchSort] = useState(() => hotelSorts.includes(homeSearchParams.get("sort")) ? homeSearchParams.get("sort") : "recommended");
   const [resultFilters, setResultFilters] = useState({ ...defaultHotelFilters });
+  const searchFormRef = useRef(null);
+  const destinationInputRef = useRef(null);
   const [showcaseHotels, setShowcaseHotels] = useState([]);
   const [showcaseState, setShowcaseState] = useState("idle");
   const [showcaseError, setShowcaseError] = useState("");
@@ -678,7 +696,7 @@ function Travel({ hotelsOnly = false }) {
     setSearchState("loading");
     setSearchError("");
     setResults([]);
-    setResultFilters({ ...defaultHotelFilters });
+    setResultFilters({ ...defaultHotelFilters, sort: searchSort });
     setCatalogOffset(0);
     setHasMoreHotels(false);
     setLoadMoreError("");
@@ -754,7 +772,7 @@ function Travel({ hotelsOnly = false }) {
     event.preventDefault();
     if (!hotelsOnly && !nearbyCoordinates) {
       if (!cityName.trim() || !checkin || !checkout || checkout <= checkin) { runSearch(); return; }
-      navigate(`/hotels?${new URLSearchParams({ cityName: cityName.trim(), checkin, checkout, adults: String(adults), ...(accommodationType ? { hotelTypeIds: accommodationType } : {}), auto: "1" })}`);
+      navigate(`/hotels?${new URLSearchParams({ cityName: cityName.trim(), checkin, checkout, adults: String(adults), ...(accommodationType ? { hotelTypeIds: accommodationType } : {}), sort: searchSort, auto: "1" })}`);
       return;
     }
     runSearch();
@@ -954,7 +972,7 @@ function Travel({ hotelsOnly = false }) {
             </div>
 
             <div role="tabpanel" id="service-panel-hotels" aria-labelledby="service-tab-hotels" hidden={activeService !== "hotels"}>
-            <form className="travelSearchCard" onSubmit={handleSearch}>
+            <form ref={searchFormRef} className="travelSearchCard" onSubmit={handleSearch}>
               <div className="travelSearchHeading">
                 <span>{t(`${activeServiceKey}.eyebrow`)}</span>
                 <h2>{t(`${activeServiceKey}.title`)}</h2>
@@ -985,6 +1003,7 @@ function Travel({ hotelsOnly = false }) {
                     <MapPin size={18} />
                     <input
                       type="text"
+                      ref={destinationInputRef}
                       value={nearbyCoordinates ? t("travelPage.nearby.title") : cityName}
                       onChange={(event) => { setNearbyCoordinates(null); setCityName(event.target.value); }}
                       placeholder={t(`${activeServiceKey}.locationPlaceholder`)}
@@ -1000,6 +1019,16 @@ function Travel({ hotelsOnly = false }) {
                     <select aria-labelledby="travel-accommodation-label" value={accommodationType} onChange={event => setAccommodationType(event.target.value)} disabled={searchState === "loading" || locating}>
                       <option value="">{accommodationCopy.all}</option>
                       {accommodationTypeIds.map(id => <option key={id} value={id}>{accommodationCopy.types[id]}</option>)}
+                    </select>
+                  </div>
+                </label>
+
+                <label className="travelField travelField--wide">
+                  <span>{t("discovery.sort")}</span>
+                  <div>
+                    <ArrowRight size={18} aria-hidden="true" />
+                    <select value={searchSort} onChange={event => setSearchSort(event.target.value)} disabled={searchState === "loading" || locating}>
+                      {hotelSorts.map(sort => <option key={sort} value={sort}>{t(`discovery.${sort === "recommended" ? "defaultOrder" : sort}`)}</option>)}
                     </select>
                   </div>
                 </label>
@@ -1100,6 +1129,32 @@ function Travel({ hotelsOnly = false }) {
           <span className="travelNetworkEyebrow">VoyHaven · {t("network.eyebrow")}</span>
           <h2 id="travel-network-title">{t("network.description")}</h2>
           <p>{t("network.availability")}</p>
+        </div>
+      </section>
+
+      <section className="travelContainer travelStayDiscovery" aria-labelledby="travel-stay-title">
+        <div className="travelStayHeading">
+          <h2 id="travel-stay-title">{t("stayDiscovery.title")}</h2>
+          <p>{t("stayDiscovery.description")}</p>
+        </div>
+        <div className="travelStayCategories" role="group" aria-labelledby="travel-stay-title">
+          {stayCategories.map(({ id, icon: Icon }) => (
+            <button key={id || "all"} type="button" aria-pressed={accommodationType === id}
+              disabled={searchState === "loading" || locating}
+              onClick={() => {
+                setAccommodationType(id);
+                setActiveService("hotels");
+                setSearchError("");
+                requestAnimationFrame(() => {
+                  searchFormRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "center" });
+                  destinationInputRef.current?.focus({ preventScroll: true });
+                });
+              }}>
+              <span><Icon size={26} aria-hidden="true" /></span>
+              <strong>{id ? accommodationCopy.types[id] : accommodationCopy.all}</strong>
+              <ArrowRight size={16} className="travelStayArrow" aria-hidden="true" />
+            </button>
+          ))}
         </div>
       </section>
 

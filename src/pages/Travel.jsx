@@ -390,8 +390,6 @@ function Travel({ hotelsOnly = false }) {
   const [resultSelection, setResultSelection] = useState(null);
   const [searchSort, setSearchSort] = useState(() => hotelSorts.includes(homeSearchParams.get("sort")) ? homeSearchParams.get("sort") : "recommended");
   const [resultFilters, setResultFilters] = useState({ ...defaultHotelFilters });
-  const searchFormRef = useRef(null);
-  const destinationInputRef = useRef(null);
   const [showcaseHotels, setShowcaseHotels] = useState([]);
   const [showcaseState, setShowcaseState] = useState("idle");
   const [showcaseError, setShowcaseError] = useState("");
@@ -407,9 +405,10 @@ function Travel({ hotelsOnly = false }) {
   const [locating, setLocating] = useState(false);
   const [searchState, setSearchState] = useState("idle");
   useEffect(() => {
-    if (!["success", "error"].includes(searchState) || !scrollToNearbyResults.current) return;
+    if (!["success", "error", "choosing"].includes(searchState) || !scrollToNearbyResults.current) return;
     scrollToNearbyResults.current = false;
     const frame = requestAnimationFrame(() => {
+      if (searchState === "choosing") resultsRef.current?.querySelector(".travelResultDestination input")?.focus({ preventScroll: true });
       resultsRef.current?.scrollIntoView({
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
         block: "start",
@@ -942,7 +941,7 @@ function Travel({ hotelsOnly = false }) {
             </div>
 
             <div role="tabpanel" id="service-panel-hotels" aria-labelledby="service-tab-hotels" hidden={activeService !== "hotels"}>
-            <form ref={searchFormRef} className="travelSearchCard" onSubmit={handleSearch}>
+            <form className="travelSearchCard" onSubmit={handleSearch}>
               <div className="travelSearchHeading">
                 <span>{t(`${activeServiceKey}.eyebrow`)}</span>
                 <h2>{t(`${activeServiceKey}.title`)}</h2>
@@ -973,7 +972,6 @@ function Travel({ hotelsOnly = false }) {
                     <MapPin size={18} />
                     <input
                       type="text"
-                      ref={destinationInputRef}
                       value={nearbyCoordinates ? t("travelPage.nearby.title") : cityName}
                       onChange={(event) => { setNearbyCoordinates(null); setCityName(event.target.value); }}
                       placeholder={t(`${activeServiceKey}.locationPlaceholder`)}
@@ -1116,13 +1114,11 @@ function Travel({ hotelsOnly = false }) {
                 setActiveService("hotels");
                 setSearchError("");
                 if ((!nearbyCoordinates && !cityName.trim()) || !checkin || !checkout || checkout <= checkin) {
-                  runSearch(undefined, { hotelType: id, fromCategory: true });
-                  searchFormRef.current?.scrollIntoView({ behavior: "instant", block: "center" });
-                  destinationInputRef.current?.focus({ preventScroll: true });
-                  return;
-                }
-                if (!hotelsOnly && !nearbyCoordinates) {
-                  navigate(`/hotels?${new URLSearchParams({ cityName: cityName.trim(), checkin, checkout, adults: String(adults), ...(id ? { hotelTypeIds: id } : {}), sort: searchSort, auto: "1" })}`);
+                  scrollToNearbyResults.current = true;
+                  setResults([]);
+                  setResultSelection(null);
+                  setHasMoreHotels(false);
+                  setSearchState("choosing");
                   return;
                 }
                 runSearch(undefined, { hotelType: id, fromCategory: true });
@@ -1135,15 +1131,13 @@ function Travel({ hotelsOnly = false }) {
         </div>
       </section>
 
-      {!hotelsOnly && <DestinationDiscovery hotels={showcaseHotels} checkin={checkin} checkout={checkout} adults={adults} />}
-
-      {activeService === "hotels" && (results.length > 0 || ["success", "error"].includes(searchState)) && (
+      {activeService === "hotels" && (results.length > 0 || ["success", "error", "choosing"].includes(searchState)) && (
         <section ref={resultsRef} className="travelHotelResults" aria-live="polite">
           <div className="travelContainer">
             <div className="travelResultsHeading">
               <div>
                 <span>{t("travelPage.runtime.liveAvailability")}</span>
-                <h2>{resultSelection?.latitude !== undefined ? `${t("travelPage.nearby.title")} · ${resultSelection.radius / 1000} km` : `${resultSelection?.destination || cityName} ${t("travelPage.runtime.hotels")}`}</h2>
+                <h2>{searchState === "choosing" ? t("stayDiscovery.title") : resultSelection?.latitude !== undefined ? `${t("travelPage.nearby.title")} · ${resultSelection.radius / 1000} km` : `${resultSelection?.destination || cityName} ${t("travelPage.runtime.hotels")}`}</h2>
               </div>
               <p>{results.length} {t("travelPage.runtime.resultsSuffix")}</p>
             </div>
@@ -1151,8 +1145,8 @@ function Travel({ hotelsOnly = false }) {
             <HotelResultControls filters={resultFilters} onChange={filters => { setResultFilters(filters); setSearchSort(filters.sort); }} destination={cityName} onDestinationChange={setCityName} onDestinationSearch={() => {
               setNearbyCoordinates(null);
               runSearch({ destination: cityName.trim() }, { fromCategory: true });
-            }} currency={filterCurrency} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
-            {!visibleResults.length && <p className="travelFilterEmpty" role="status">{searchState === "error" ? searchError : t("discovery.empty")}</p>}
+            }} currency={filterCurrency || (results.length === 0 ? "USD" : null)} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
+            {!visibleResults.length && <p className="travelFilterEmpty" role="status">{searchState === "choosing" ? t("stayDiscovery.description") : searchState === "error" ? searchError : t("discovery.empty")}</p>}
             <div className="travelHotelGrid">
               {visibleResults.map((hotel) => (
                 <article className="travelHotelCard" key={hotel.hotelId}>
@@ -1326,6 +1320,8 @@ function Travel({ hotelsOnly = false }) {
           </div>
         </section>
       )}
+
+      {!hotelsOnly && <DestinationDiscovery hotels={showcaseHotels} checkin={checkin} checkout={checkout} adults={adults} />}
 
       <section className="travelRoutesSection" aria-live="polite">
         <div className="travelContainer">

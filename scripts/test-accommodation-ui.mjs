@@ -44,14 +44,19 @@ try {
     const field=page.getByLabel(copy.tr.label,{exact:true});
     const destination=page.locator('.travelSearchCard input[type=text]');
     assert.equal(await destination.inputValue(),'');
-    await destination.fill('Antalya');
-    await page.locator('.travelSearchCard select').filter({has:page.locator('option[value="priceAsc"]')}).selectOption('priceAsc');
+
     await page.locator('.travelStayCategories').getByRole('button',{name:copy.tr.types[219],exact:true}).click();
-    await page.waitForURL('**/hotels?**');
+    await page.locator('.travelResultDestination input').waitFor();
+    assert.equal(new URL(page.url()).pathname,'/');
+    assert.equal(await destination.inputValue(),'');
+    assert.equal(await page.locator('.travelHotelCard').count(),0);
+    const initialSort=page.locator('.travelResultControls select').last();
+    await initialSort.selectOption('priceAsc');
+    await page.locator('.travelResultDestination input').fill('Antalya');
+    await page.locator('.travelResultDestination input').press('Enter');
     await page.locator('.travelHotelCard').first().waitFor();
     assert.equal(await field.inputValue(),'219');
-    assert.equal(new URL(page.url()).searchParams.get('hotelTypeIds'),'219');
-    assert.equal(new URL(page.url()).searchParams.get('sort'),'priceAsc');
+    assert.equal(new URL(page.url()).pathname,'/');
     assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),'219');
     assert.deepEqual(await page.locator('.travelAccommodationBadge').allTextContents(),Array(3).fill(copy.tr.types[219]));
     await page.waitForFunction(() => { const top=globalThis.document.querySelector('.travelHotelResults').getBoundingClientRect().top; return top >= 0 && top < 250; });

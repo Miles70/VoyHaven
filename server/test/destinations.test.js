@@ -16,6 +16,7 @@ test('global search resolves countries and cities and preserves pagination bound
       if (url.searchParams.get('textQuery') === 'NotARealDestination') return Response.json({ data: [] });
       return Response.json({ data: [{ placeId: 'dubai-place', displayName: 'Dubai' }] });
     }
+    if (url.pathname.endsWith('/places/dubai-place')) return Response.json({ data: { addressComponents: [{ longText: 'Dubai', types: ['locality'] }, { shortText: 'AE', types: ['country'] }] } });
     if (url.pathname.endsWith('/hotels')) return Response.json({ data: [{ id: 'hotel-1' }], hotelIds: ['hotel-1'], total: 50 });
     throw new Error(`Unexpected upstream path ${url.pathname}`);
   };
@@ -32,9 +33,9 @@ test('global search resolves countries and cities and preserves pagination bound
       assert.equal(query.has('cityName'), false);
     }
     const city = await realFetch(`${base}?destination=Dubai`);
-    assert.deepEqual((await city.json()).location, { placeId: 'dubai-place' });
-    assert.equal(upstream.at(-1).searchParams.get('placeId'), 'dubai-place');
-    assert.equal(upstream.at(-1).searchParams.has('countryCode'), false);
+    assert.deepEqual((await city.json()).location, { countryCode: 'AE', cityName: 'Dubai' });
+    assert.equal(upstream.at(-1).searchParams.get('cityName'), 'Dubai');
+    assert.equal(upstream.at(-1).searchParams.get('countryCode'), 'AE');
     const more = await realFetch(`${base}?placeId=dubai-place&offset=20&limit=20`);
     assert.equal(more.status, 200);
     assert.equal(upstream.at(-1).searchParams.get('offset'), '20');

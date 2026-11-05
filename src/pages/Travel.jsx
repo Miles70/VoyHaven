@@ -1,3 +1,4 @@
+import { findAvailableHotelPage } from "../services/availableHotelPage.js";
 import { accommodationTypeIds, normalizeAccommodationType, attachAccommodationTypes } from "../../shared/accommodationTypes.js";
 import accommodationTranslations from "../i18n/accommodationTranslations.js";
 import HotelCatalogSearch from '../components/HotelCatalogSearch';
@@ -373,7 +374,7 @@ function Travel({ hotelsOnly = false }) {
   const showcaseRefreshingRef = useRef(false);
   const [activeService, setActiveService] = useState("hotels");
   const [cityName, setCityName] = useState(
-    () => homeSearchParams.get("cityName") || "Antalya",
+    () => homeSearchParams.get("cityName") || "",
   );
   const [checkin, setCheckin] = useState(
     () => homeSearchParams.get("checkin") || addDays(30),
@@ -406,7 +407,7 @@ function Travel({ hotelsOnly = false }) {
   const [locating, setLocating] = useState(false);
   const [searchState, setSearchState] = useState("idle");
   useEffect(() => {
-    if (searchState !== "success" || !scrollToNearbyResults.current) return;
+    if (!["success", "error"].includes(searchState) || !scrollToNearbyResults.current) return;
     scrollToNearbyResults.current = false;
     const frame = requestAnimationFrame(() => {
       resultsRef.current?.scrollIntoView({
@@ -691,6 +692,7 @@ function Travel({ hotelsOnly = false }) {
 
     trackTravel('hotel_search', { destination: location.destination || 'Konum yakını', checkin, checkout, adults });
     completedSearch.current = null;
+    setResultSelection({ ...location, checkin, checkout, adults });
     scrollToNearbyResults.current = location.latitude !== undefined || fromCategory || homeSearchParams.get("auto") === "1";
     setLoadMoreState("idle");
     setSearchState("loading");
@@ -704,37 +706,21 @@ function Travel({ hotelsOnly = false }) {
     setSelectedHotel(null);
 
     try {
-      const catalog = await listHotels({
-        ...location,
-        limit: 20,
-        offset: 0,
+      const { catalog, rates, nextOffset, hasMore } = await findAvailableHotelPage({
+        location, listCatalog: listHotels,
+        readRates: hotelIds => searchHotelRates({ hotelIds, checkin, checkout, adults }),
+        hasOffers: response => buildResults(response).length > 0,
       });
-      const hotelIds = (catalog?.hotelIds || []).slice(0, 20);
-
-      if (!hotelIds.length) {
-        throw new Error(t(location.latitude !== undefined ? "travelPage.nearby.empty" : "travelPage.runtime.cityNotFound"));
-      }
-
-      const rateResponse = await searchHotelRates({
-        hotelIds,
-        checkin,
-        checkout,
-        adults,
-      });
-      const availableHotels = withHotelDistances(attachAccommodationTypes(buildResults(rateResponse), catalog), catalog, location);
-
-      if (!availableHotels.length) {
-        throw new Error(t("travelPage.runtime.noAvailability"));
-      }
+      const availableHotels = withHotelDistances(attachAccommodationTypes(buildResults(rates), catalog), catalog, location);
+      if (!availableHotels.length && !hasMore) throw new Error(t("stayDiscovery.empty"));
 
       completedSearch.current = { ...location, ...catalog.location, checkin, checkout, adults };
       setResultSelection(completedSearch.current);
       setResults(availableHotels);
-      setCatalogOffset(hotelIds.length);
-      setHasMoreHotels(hotelIds.length < Number(catalog?.total || 0));
+      setCatalogOffset(nextOffset);
+      setHasMoreHotels(hasMore);
       setSearchState("success");
     } catch (error) {
-      scrollToNearbyResults.current = false;
       setSearchState("error");
       setSearchError(customerHotelError(error));
     }
@@ -795,29 +781,13 @@ function Travel({ hotelsOnly = false }) {
     setLoadMoreError("");
 
     try {
-      const catalog = await listHotels({
-        ...selection,
-        limit: 20,
-        offset: catalogOffset,
-      });
-      const hotelIds = (catalog?.hotelIds || []).slice(0, 20);
-      const nextOffset = catalogOffset + hotelIds.length;
-      if (completedSearch.current !== selection) return;
-
-      if (!hotelIds.length) {
-        setHasMoreHotels(false);
-        setLoadMoreState("success");
-        return;
-      }
-
-      const rateResponse = await searchHotelRates({
-        hotelIds,
-        checkin: selection.checkin,
-        checkout: selection.checkout,
-        adults: selection.adults,
+      const { catalog, rates, nextOffset, hasMore } = await findAvailableHotelPage({
+        location: selection, offset: catalogOffset, listCatalog: listHotels,
+        readRates: hotelIds => searchHotelRates({ hotelIds, checkin: selection.checkin, checkout: selection.checkout, adults: selection.adults }),
+        hasOffers: response => buildResults(response).length > 0,
       });
       if (completedSearch.current !== selection) return;
-      const nextHotels = withHotelDistances(attachAccommodationTypes(buildResults(rateResponse), catalog), catalog, selection);
+      const nextHotels = withHotelDistances(attachAccommodationTypes(buildResults(rates), catalog), catalog, selection);
 
       setResults((current) => {
         const knownIds = new Set(current.map((hotel) => hotel.hotelId));
@@ -827,7 +797,7 @@ function Travel({ hotelsOnly = false }) {
         ];
       });
       setCatalogOffset(nextOffset);
-      setHasMoreHotels(nextOffset < Number(catalog?.total || 0));
+      setHasMoreHotels(hasMore);
       setLoadMoreState("success");
     } catch (error) {
       if (completedSearch.current !== selection) return;
@@ -1145,7 +1115,7 @@ function Travel({ hotelsOnly = false }) {
                 setAccommodationType(id);
                 setActiveService("hotels");
                 setSearchError("");
-                if (!cityName.trim() || !checkin || !checkout || checkout <= checkin) {
+                if ((!nearbyCoordinates && !cityName.trim()) || !checkin || !checkout || checkout <= checkin) {
                   runSearch(undefined, { hotelType: id, fromCategory: true });
                   searchFormRef.current?.scrollIntoView({ behavior: "instant", block: "center" });
                   destinationInputRef.current?.focus({ preventScroll: true });
@@ -1167,7 +1137,7 @@ function Travel({ hotelsOnly = false }) {
 
       {!hotelsOnly && <DestinationDiscovery hotels={showcaseHotels} checkin={checkin} checkout={checkout} adults={adults} />}
 
-      {activeService === "hotels" && results.length > 0 && (
+      {activeService === "hotels" && (results.length > 0 || ["success", "error"].includes(searchState)) && (
         <section ref={resultsRef} className="travelHotelResults" aria-live="polite">
           <div className="travelContainer">
             <div className="travelResultsHeading">
@@ -1182,7 +1152,7 @@ function Travel({ hotelsOnly = false }) {
               setNearbyCoordinates(null);
               runSearch({ destination: cityName.trim() }, { fromCategory: true });
             }} currency={filterCurrency} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
-            {!visibleResults.length && <p className="travelFilterEmpty" role="status">{t("discovery.empty")}</p>}
+            {!visibleResults.length && <p className="travelFilterEmpty" role="status">{searchState === "error" ? searchError : t("discovery.empty")}</p>}
             <div className="travelHotelGrid">
               {visibleResults.map((hotel) => (
                 <article className="travelHotelCard" key={hotel.hotelId}>

@@ -1178,7 +1178,10 @@ function Travel({ hotelsOnly = false }) {
               <p>{results.length} {t("travelPage.runtime.resultsSuffix")}</p>
             </div>
 
-            <HotelResultControls filters={resultFilters} onChange={filters => { setResultFilters(filters); setSearchSort(filters.sort); }} currency={filterCurrency} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
+            <HotelResultControls filters={resultFilters} onChange={filters => { setResultFilters(filters); setSearchSort(filters.sort); }} destination={cityName} onDestinationChange={setCityName} onDestinationSearch={() => {
+              setNearbyCoordinates(null);
+              runSearch({ destination: cityName.trim() }, { fromCategory: true });
+            }} currency={filterCurrency} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
             {!visibleResults.length && <p className="travelFilterEmpty" role="status">{t("discovery.empty")}</p>}
             <div className="travelHotelGrid">
               {visibleResults.map((hotel) => (

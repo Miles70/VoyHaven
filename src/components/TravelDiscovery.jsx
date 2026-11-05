@@ -65,11 +65,18 @@ export function TravelQuestions() {
   );
 }
 
-export function HotelResultControls({ filters, onChange, currency, visibleCount, loadedCount, hasMore }) {
+export function HotelResultControls({ filters, onChange, currency, visibleCount, loadedCount, hasMore, destination, onDestinationChange, onDestinationSearch }) {
   const { t } = useLanguage();
   const update = (key) => (event) => onChange({ ...filters, [key]: event.target.value });
   return (
     <div className="travelResultControls">
+      <form className="travelResultDestination" onSubmit={event => { event.preventDefault(); onDestinationSearch(); }}>
+        <label>
+          <span>{t("travelPage.services.hotels.locationLabel")}</span>
+          <input type="search" required value={destination} onChange={event => onDestinationChange(event.target.value)} />
+        </label>
+        <button type="submit"><MapPin size={17} aria-hidden="true" />{t("travelPage.services.hotels.button")}</button>
+      </form>
       <div className="travelFilterFields">
         <label><span>{t("discovery.hotelName")}</span><input type="search" value={filters.name} onChange={update("name")} /></label>
         <label><span>{t("discovery.stars")}</span><select value={filters.stars} onChange={update("stars")}><option value="">{t("discovery.all")}</option>{[3, 4, 5].map((stars) => <option key={stars} value={stars}>{stars}★+</option>)}</select></label>

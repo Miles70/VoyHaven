@@ -1542,3 +1542,19 @@
   .travelFilterFields input,
   .travelFilterFields select { font-size: 16px; }
 }
+
+/* Network scale reflects catalog access, never date-specific bookable stock. */
+.travelNetwork { box-sizing:border-box; display:grid; grid-template-columns:minmax(260px,.85fr) minmax(0,1.15fr); align-items:center; gap:40px; margin-block:32px; padding:32px 40px; border:1px solid #236170; border-radius:24px; color:#f4fbff; background:radial-gradient(ellipse at top right,#117b8038,transparent 65%),linear-gradient(120deg,#091e36,#10394b); box-shadow:0 12px 32px #092c4012; }
+.travelNetworkStat { display:grid; grid-template-columns:auto minmax(0,1fr); column-gap:16px; align-items:center; }
+.travelNetworkIcon { grid-row:span 2; display:grid; place-items:center; width:60px; height:60px; border:1px solid #65dccc55; border-radius:18px; background:#60dfce12; color:#78e5d4; }
+.travelNetworkStat strong { font-size:clamp(1.8rem,3.4vw,2.7rem); line-height:1.15; letter-spacing:-.04em; text-align:start; }
+.travelNetworkStat > span:last-child { margin-top:6px; color:#c3dde7; font-size:.85rem; line-height:1.5; }
+.travelNetworkCopy { padding-inline-start:32px; border-inline-start:1px solid #b0e2e32b; }
+.travelNetworkEyebrow { color:#80e0d2; font-size:.75rem; font-weight:650; }
+.travelNetworkCopy h2 { margin:10px 0; color:#f4fbff; font-size:clamp(1.05rem,1.5vw,1.25rem); line-height:1.55; font-weight:600; }
+.travelNetworkCopy p { margin:0; color:#b2cbd8; font-size:.75rem; line-height:1.6; }
+@media(max-width:700px) {
+  .travelNetwork { grid-template-columns:minmax(0,1fr); width:calc(100% - 32px); gap:22px; padding:26px 22px; margin-block:24px; }
+  .travelNetworkCopy { padding-inline-start:0; padding-top:20px; border-inline-start:0; border-top:1px solid #b0e2e32b; }
+  .travelNetworkStat strong { font-size:clamp(1.6rem,7vw,2.4rem); overflow-wrap:anywhere; }
+}

@@ -40,7 +40,7 @@ try {
     await page.setViewportSize({width,height:900});
     await page.goto(`${server.base}/?lang=tr`);
     const field=page.getByLabel(copy.tr.label,{exact:true});
-    await page.locator('.travelStayCategories button').filter({hasText:copy.tr.types[219]}).click();
+    await page.locator('.travelStayCategories').getByRole('button',{name:copy.tr.types[219],exact:true}).click();
     assert.equal(await field.inputValue(),'219');
     assert.equal(await page.locator('.travelStayCategories button[aria-pressed="true"]').innerText(),copy.tr.types[219]);
     await page.locator('.travelSearchCard select').filter({has:page.locator('option[value="priceAsc"]')}).selectOption('priceAsc');
@@ -74,7 +74,7 @@ try {
     assert.equal(await field.inputValue(),'201');
     // Every visible category uses the same isolated search and price controls.
     for (const type of ['', '204', '219', '201', '203', '216', '213', '206']) {
-      await page.locator('.travelStayCategories button').filter({hasText:type ? copy.tr.types[type] : copy.tr.all}).click();
+      await page.locator('.travelStayCategories').getByRole('button',{name:type ? copy.tr.types[type] : copy.tr.all,exact:true}).click();
       assert.equal(await field.inputValue(),type);
       await page.locator('.travelSearchCard button[type=submit]').click();
       await page.waitForFunction(expected => globalThis.document.querySelector('.travelAccommodationBadge')?.textContent === expected, copy.tr.types[type || '204']);

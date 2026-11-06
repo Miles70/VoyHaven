@@ -23,7 +23,7 @@ try {
       payload={hotelIds:ids,total:6,data:ids.map(id=>({id,hotelTypeId:type})),location:{...(url.searchParams.has('latitude')?{latitude:36.9,longitude:30.7,radius:10000}:{}),hotelTypeIds:url.searchParams.get('hotelTypeIds')||undefined}};
     } else if(url.pathname==='/api/hotels/rates') {
       const body=r.request().postDataJSON();
-      payload={data:body.hotelIds.map((id,i)=>({hotelId:id,roomTypes:[{offerId:`offer-${id}`,suggestedSellingPrice:{amount:[100,9,35][i],currency:'USD'},rates:[]}]})),hotels:body.hotelIds.map(id=>({id,name:`Fixture ${id}`,stars:4}))};
+      payload={data:body.hotelIds.map((id,i)=>({hotelId:id,roomTypes:[{offerId:`offer-${id}`,suggestedSellingPrice:{amount:[100,9,35][i],currency:'USD'},rates:[]}]})),hotels:body.hotelIds.map(id=>({id,name:`Fixture ${id}`,stars:4,rating:8.5}))};
     }
     await r.fulfill({json:payload});
   });
@@ -44,22 +44,40 @@ try {
     const field=page.getByLabel(copy.tr.label,{exact:true});
     const destination=page.locator('.travelSearchCard input[type=text]');
     assert.equal(await destination.inputValue(),'');
+    const savedCheckout=await page.locator('.travelSearchCard input[type=date]').nth(1).inputValue();
+    await page.locator('.travelSearchCard input[type=date]').nth(1).fill('');
 
     await page.locator('.travelStayCategories').getByRole('button',{name:copy.tr.types[219],exact:true}).click();
-    await page.locator('.travelResultDestination input').waitFor();
+    await page.locator('.travelResultDestination input[type=search]').waitFor();
     assert.equal(new URL(page.url()).pathname,'/');
     assert.equal(await destination.inputValue(),'');
     assert.equal(await page.locator('.travelHotelCard').count(),0);
     const initialSort=page.locator('.travelResultControls select').last();
     await initialSort.selectOption('priceAsc');
-    await page.locator('.travelResultDestination input').fill('Antalya');
-    await page.locator('.travelResultDestination input').press('Enter');
+    await page.locator('.travelFilterFields input[type=number]').fill('50');
+    await page.locator('.travelFilterFields input[type=search]').fill('Fixture');
+    await page.locator('.travelFilterFields select').nth(0).selectOption('4');
+    await page.locator('.travelFilterFields select').nth(1).selectOption('8');
+    assert.equal(await page.locator('.travelResultDestination input[type=date]').count(),2);
+    assert.equal(await page.locator('.travelResultDestination input[type=date]').nth(1).inputValue(),'');
+    await page.locator('.travelResultDestination input[type=date]').nth(1).fill(savedCheckout);
+    await page.locator('.travelResultDestination input[type=search]').fill('Antalya');
+    await page.locator('.travelResultDestination input[type=search]').press('Enter');
     await page.locator('.travelHotelCard').first().waitFor();
     assert.equal(await field.inputValue(),'219');
     assert.equal(new URL(page.url()).pathname,'/');
     assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),'219');
-    assert.deepEqual(await page.locator('.travelAccommodationBadge').allTextContents(),Array(3).fill(copy.tr.types[219]));
     await page.waitForFunction(() => { const top=globalThis.document.querySelector('.travelHotelResults').getBoundingClientRect().top; return top >= 0 && top < 250; });
+    assert.equal(await page.locator('.travelHotelCard').count(),2);
+    assert.equal(await page.locator('.travelFilterFields input[type=number]').inputValue(),'50');
+    assert.equal(await page.locator('.travelFilterFields input[type=search]').inputValue(),'Fixture');
+    assert.equal(await page.locator('.travelFilterFields select').nth(0).inputValue(),'4');
+    assert.equal(await page.locator('.travelFilterFields select').nth(1).inputValue(),'8');
+    await page.locator('.travelFilterFields input[type=number]').fill('');
+    await page.locator('.travelFilterFields input[type=search]').fill('');
+    await page.locator('.travelFilterFields select').nth(0).selectOption('');
+    await page.locator('.travelFilterFields select').nth(1).selectOption('');
+    assert.deepEqual(await page.locator('.travelAccommodationBadge').allTextContents(),Array(3).fill(copy.tr.types[219]));
     const sort=page.locator('.travelResultControls select').last();
     assert.equal(await sort.inputValue(),'priceAsc');
     assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
@@ -77,7 +95,7 @@ try {
     assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/100/);
     await sort.selectOption('priceAsc');
     assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);
-    const cityField=page.locator('.travelResultDestination input');
+    const cityField=page.locator('.travelResultDestination input[type=search]');
     await cityField.fill('Barcelona');
     await cityField.press('Enter');
     await page.locator('.travelHotelCard').first().waitFor();

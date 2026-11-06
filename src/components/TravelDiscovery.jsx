@@ -65,7 +65,7 @@ export function TravelQuestions() {
   );
 }
 
-export function HotelResultControls({ filters, onChange, currency, visibleCount, loadedCount, hasMore, destination, onDestinationChange, onDestinationSearch }) {
+export function HotelResultControls({ filters, onChange, currency, visibleCount, loadedCount, hasMore, destination, onDestinationChange, onDestinationSearch, checkin, checkout, minimumCheckin, minimumCheckout, onCheckinChange, onCheckoutChange }) {
   const { t } = useLanguage();
   const update = (key) => (event) => onChange({ ...filters, [key]: event.target.value });
   return (
@@ -74,6 +74,14 @@ export function HotelResultControls({ filters, onChange, currency, visibleCount,
         <label>
           <span>{t("travelPage.services.hotels.locationLabel")}</span>
           <input type="search" required value={destination} onChange={event => onDestinationChange(event.target.value)} />
+        </label>
+        <label>
+          <span>{t("travelPage.search.start")}</span>
+          <input type="date" required value={checkin} min={minimumCheckin} onChange={event => onCheckinChange(event.target.value)} />
+        </label>
+        <label>
+          <span>{t("travelPage.search.end")}</span>
+          <input type="date" required value={checkout} min={minimumCheckout} onChange={event => onCheckoutChange(event.target.value)} />
         </label>
         <button type="submit"><MapPin size={17} aria-hidden="true" />{t("travelPage.services.hotels.button")}</button>
       </form>

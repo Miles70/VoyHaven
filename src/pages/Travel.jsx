@@ -389,7 +389,7 @@ function Travel({ hotelsOnly = false }) {
   const [results, setResults] = useState([]);
   const [resultSelection, setResultSelection] = useState(null);
   const [searchSort, setSearchSort] = useState(() => hotelSorts.includes(homeSearchParams.get("sort")) ? homeSearchParams.get("sort") : "recommended");
-  const [resultFilters, setResultFilters] = useState({ ...defaultHotelFilters });
+  const [resultFilters, setResultFilters] = useState({ ...defaultHotelFilters, sort: searchSort });
   const [showcaseHotels, setShowcaseHotels] = useState([]);
   const [showcaseState, setShowcaseState] = useState("idle");
   const [showcaseError, setShowcaseError] = useState("");
@@ -697,7 +697,6 @@ function Travel({ hotelsOnly = false }) {
     setSearchState("loading");
     setSearchError("");
     setResults([]);
-    setResultFilters({ ...defaultHotelFilters, sort: searchSort });
     setCatalogOffset(0);
     setHasMoreHotels(false);
     setLoadMoreError("");
@@ -1145,7 +1144,9 @@ function Travel({ hotelsOnly = false }) {
             <HotelResultControls filters={resultFilters} onChange={filters => { setResultFilters(filters); setSearchSort(filters.sort); }} destination={cityName} onDestinationChange={setCityName} onDestinationSearch={() => {
               setNearbyCoordinates(null);
               runSearch({ destination: cityName.trim() }, { fromCategory: true });
-            }} currency={filterCurrency || (results.length === 0 ? "USD" : null)} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
+            }} checkin={checkin} checkout={checkout} minimumCheckin={addDays(1)} minimumCheckout={minimumCheckout}
+            onCheckinChange={value => { setCheckin(value); if (checkout <= value) setCheckout(""); }} onCheckoutChange={setCheckout}
+            currency={filterCurrency || (results.length === 0 ? "USD" : null)} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
             {!visibleResults.length && <p className="travelFilterEmpty" role="status">{searchState === "choosing" ? t("stayDiscovery.description") : searchState === "error" ? searchError : t("discovery.empty")}</p>}
             <div className="travelHotelGrid">
               {visibleResults.map((hotel) => (

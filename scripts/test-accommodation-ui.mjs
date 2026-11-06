@@ -67,6 +67,7 @@ try {
     assert.equal(await field.inputValue(),'219');
     assert.equal(new URL(page.url()).pathname,'/');
     assert.equal(calls.at(-1).searchParams.get('hotelTypeIds'),'219');
+    await page.waitForFunction(() => { const top=globalThis.document.querySelector('.travelHotelResults').getBoundingClientRect().top; return top >= 0 && top < 250; });
     assert.equal(await page.locator('.travelHotelCard').count(),2);
     assert.equal(await page.locator('.travelFilterFields input[type=number]').inputValue(),'50');
     assert.equal(await page.locator('.travelFilterFields input[type=search]').inputValue(),'Fixture');
@@ -77,7 +78,6 @@ try {
     await page.locator('.travelFilterFields select').nth(0).selectOption('');
     await page.locator('.travelFilterFields select').nth(1).selectOption('');
     assert.deepEqual(await page.locator('.travelAccommodationBadge').allTextContents(),Array(3).fill(copy.tr.types[219]));
-    await page.waitForFunction(() => { const top=globalThis.document.querySelector('.travelHotelResults').getBoundingClientRect().top; return top >= 0 && top < 250; });
     const sort=page.locator('.travelResultControls select').last();
     assert.equal(await sort.inputValue(),'priceAsc');
     assert.match(await page.locator('.travelHotelPrice strong').first().innerText(),/9/);

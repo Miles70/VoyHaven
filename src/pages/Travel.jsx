@@ -370,6 +370,7 @@ function Travel({ hotelsOnly = false }) {
   const [homeSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const autoSearchStarted = useRef(false);
+  const searchRequestId = useRef(0);
   const travelVideoRef = useRef(null);
   const showcaseRefreshingRef = useRef(false);
   const [activeService, setActiveService] = useState("hotels");
@@ -673,21 +674,28 @@ function Travel({ hotelsOnly = false }) {
   }
 
   async function runSearch(locationOverride, { hotelType = accommodationType, fromCategory = false } = {}) {
-    const location = { ...(locationOverride || (nearbyCoordinates
+    let location = { ...(locationOverride || (nearbyCoordinates
       ? { ...nearbyCoordinates, radius: nearbyRadius }
       : { destination: cityName.trim() })), hotelTypeIds: hotelType || undefined };
+    // Discovery cards already carry a catalog city/country. Keep that exact scope
+    // when dates/type change, but discard it when the destination text changes.
+    const knownCountry = homeSearchParams.get("countryCode") || "";
+    if (location.destination === homeSearchParams.get("cityName") && /^[A-Z]{2}$/.test(knownCountry)) {
+      location = { countryCode: knownCountry, cityName: location.destination, hotelTypeIds: location.hotelTypeIds };
+    }
 
     if (activeService !== "hotels" && !fromCategory) {
       setSearchError(t("travelPage.runtime.comingSoon"));
       return;
     }
 
-    if ((location.latitude === undefined && !location.destination) || !checkin || !checkout || checkout <= checkin) {
+    if ((location.latitude === undefined && !location.destination && !location.cityName && !location.placeId) || !checkin || !checkout || checkout <= checkin) {
       setSearchError(t("travelPage.runtime.invalidSearch"));
       return;
     }
 
-    trackTravel('hotel_search', { destination: location.destination || 'Konum yakını', checkin, checkout, adults });
+    trackTravel('hotel_search', { destination: location.destination || location.cityName || 'Konum yakını', checkin, checkout, adults });
+    const requestId = ++searchRequestId.current;
     completedSearch.current = null;
     setResultSelection({ ...location, checkin, checkout, adults });
     scrollToNearbyResults.current = location.latitude !== undefined || fromCategory || homeSearchParams.get("auto") === "1";
@@ -707,6 +715,7 @@ function Travel({ hotelsOnly = false }) {
         readRates: hotelIds => searchHotelRates({ hotelIds, checkin, checkout, adults }),
         hasOffers: response => buildResults(response).length > 0,
       });
+      if (requestId !== searchRequestId.current) return;
       const availableHotels = withHotelDistances(attachAccommodationTypes(buildResults(rates), catalog), catalog, location);
       if (!availableHotels.length && !hasMore) throw new Error(t("stayDiscovery.empty"));
 
@@ -717,6 +726,7 @@ function Travel({ hotelsOnly = false }) {
       setHasMoreHotels(hasMore);
       setSearchState("success");
     } catch (error) {
+      if (requestId !== searchRequestId.current) return;
       setSearchState("error");
       setSearchError(customerHotelError(error));
     }

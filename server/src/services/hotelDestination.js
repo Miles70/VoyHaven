@@ -1,5 +1,5 @@
 import { supportedLanguages } from "../../../shared/languages.js";
-import { listNuiteeCountries, searchNuiteePlaces, getNuiteePlace } from './nuiteeApi.js';
+import { listNuiteeCountries, searchNuiteePlaces, getNuiteePlace, listNuiteeHotels } from './nuiteeApi.js';
 
 const languages = supportedLanguages;
 const normalize = (value) => String(value || '').toLowerCase().normalize('NFD')
@@ -59,6 +59,22 @@ export async function resolveHotelDestination(destination) {
       const cityName = city?.longText || city?.long_name || (isCity ? (typeof name === "object" ? name.text : name) : undefined);
       if (cityName && /^[A-Z]{2}$/.test(countryCode)) location = { countryCode, cityName };
     } catch { /* Place-ID search remains available if details cannot be resolved. */ }
+    // Map localities and hotel catalog cities can use different names worldwide.
+    // Verify catalog names before caching them; otherwise retain the verified place.
+    if (location.cityName && location.countryCode) {
+      const countryCode = location.countryCode;
+      const candidates = [...new Set([destination.trim(), location.cityName])];
+      location = { placeId: place.placeId };
+      for (const cityName of candidates) {
+        const catalog = await listNuiteeHotels({ countryCode, cityName, limit: 1, offset: 0 });
+        if (!Array.isArray(catalog?.data)) throw Object.assign(new Error('Hotel catalog is temporarily unavailable.'), { statusCode: 502 });
+        if (catalog.data.length) {
+          location = { countryCode, cityName };
+          break;
+        }
+      }
+    }
+
   }
   if (locations.size >= 200) locations.delete(locations.keys().next().value);
   locations.set(key, { location, expiresAt: Date.now() + 60 * 60 * 1000 });

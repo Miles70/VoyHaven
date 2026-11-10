@@ -17,7 +17,7 @@ export function DestinationDiscovery({ hotels, checkin, checkout, adults }) {
         </div>
         <div className="travelDestinationGrid">
           {destinations.map((destination) => (
-            <Link key={destination.key} className="travelDestinationCard" to={`/hotels?${new URLSearchParams({ cityName: destination.city, checkin, checkout, adults: String(adults), auto: "1" })}`}>
+            <Link key={destination.key} className="travelDestinationCard" to={`/hotels?${new URLSearchParams({ cityName: destination.city, ...(/^[A-Z]{2}$/.test(String(destination.country || "").toUpperCase()) ? { countryCode: String(destination.country).toUpperCase() } : {}), checkin, checkout, adults: String(adults), auto: "1" })}`}>
               <img src={destination.image} alt="" loading="lazy" />
               <div>
                 <span><MapPin size={16} aria-hidden="true" />{destination.city}</span>

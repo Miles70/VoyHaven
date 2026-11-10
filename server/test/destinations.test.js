@@ -68,3 +68,54 @@ test('global search resolves countries and cities and preserves pagination bound
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test('catalog city names win over map aliases, with canonical/place fallbacks and stable pagination', async () => {
+  const realFetch = globalThis.fetch;
+  const previousKey = process.env.NUITEE_API_KEY;
+  process.env.NUITEE_API_KEY = 'sand_test';
+  const queries = [];
+  globalThis.fetch = async (input, options) => {
+    const url = new URL(input);
+    if (url.hostname !== 'api.liteapi.travel') return realFetch(input, options);
+    if (url.pathname.endsWith('/countries')) return Response.json({ data: [{ code: 'TH', name: 'Thailand' }] });
+    if (url.pathname.endsWith('/places')) return Response.json({ data: [{ placeId: url.searchParams.get('textQuery'), displayName: url.searchParams.get('textQuery') }] });
+    if (url.pathname.includes('/places/')) {
+      const name = decodeURIComponent(url.pathname.split('/').at(-1));
+      const city = name === 'Patong Beach' ? 'Pa Tong' : name === 'Localized City' ? 'Catalog City' : 'Unknown Map City';
+      return Response.json({ data: { addressComponents: [{ longText: city, types: ['locality'] }, { shortText: 'TH', types: ['country'] }] } });
+    }
+    if (url.pathname.endsWith('/hotels')) {
+      queries.push(url);
+      const found = ['Patong Beach', 'Catalog City'].includes(url.searchParams.get('cityName')) || url.searchParams.has('placeId');
+      return Response.json({ data: found ? [{ id: 'catalog-hotel', city: url.searchParams.get('cityName') }] : [], hotelIds: found ? ['catalog-hotel'] : [], total: found ? 443 : 0 });
+    }
+    throw Error(`Unexpected upstream ${url.pathname}`);
+  };
+  const server = createApp().listen(0);
+  await new Promise(resolve => server.once('listening', resolve));
+  const base = `http://127.0.0.1:${server.address().port}/api/hotels`;
+  try {
+    const beach = await realFetch(`${base}?destination=Patong%20Beach&limit=20&hotelTypeIds=204`);
+    assert.equal(beach.status, 200);
+    assert.deepEqual((await beach.json()).location, { countryCode: 'TH', cityName: 'Patong Beach', hotelTypeIds: '204' });
+    assert.equal(queries.at(-1).searchParams.get('cityName'), 'Patong Beach');
+    assert.equal(queries.at(-1).searchParams.get('hotelTypeIds'), '204');
+    const before = queries.length;
+    await realFetch(`${base}?destination=Patong%20Beach&limit=20&offset=20&hotelTypeIds=219`);
+    assert.equal(queries.length, before + 1, 'cached verified scope must not be re-resolved on later pages');
+    assert.equal(queries.at(-1).searchParams.get('cityName'), 'Patong Beach');
+    assert.equal(queries.at(-1).searchParams.get('offset'), '20');
+    assert.equal(queries.at(-1).searchParams.get('hotelTypeIds'), '219');
+    const localized = await realFetch(`${base}?destination=Localized%20City`);
+    assert.deepEqual((await localized.json()).location, { countryCode: 'TH', cityName: 'Catalog City' });
+    const place = await realFetch(`${base}?destination=Uncatalogued%20District`);
+    assert.deepEqual((await place.json()).location, { placeId: 'Uncatalogued District' });
+    assert.equal(queries.at(-1).searchParams.get('placeId'), 'Uncatalogued District');
+    assert.equal(queries.at(-1).searchParams.has('countryCode'), false, 'do not silently broaden to the whole country');
+  } finally {
+    globalThis.fetch = realFetch;
+    if (previousKey === undefined) delete process.env.NUITEE_API_KEY;
+    else process.env.NUITEE_API_KEY = previousKey;
+    await new Promise(resolve => server.close(resolve));
+  }
+});

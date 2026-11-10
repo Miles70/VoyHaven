@@ -13,6 +13,7 @@ try {
   await markAnalyticsTest(context, { fixture: true });
   await context.route('**/*', route => new URL(route.request().url()).origin === server.base ? route.continue() : route.abort());
   const catalogCalls = [], rateCalls = [];
+  const searchCalls = () => catalogCalls.filter(url => destinations.some(([city]) => (url.searchParams.get("cityName") || url.searchParams.get("destination")) === city));
   await context.route('**/api/**', async route => {
     const url = new URL(route.request().url());
     let payload = { data: [], hotels: [] };
@@ -48,9 +49,9 @@ try {
     assert.equal(href.searchParams.get('countryCode'), country);
     await card.click();
     await page.locator('.travelHotelCard').first().waitFor();
-    assert.equal(catalogCalls.at(-1).searchParams.get('cityName'), city);
-    assert.equal(catalogCalls.at(-1).searchParams.get('countryCode'), country);
-    assert.equal(catalogCalls.at(-1).searchParams.get('offset'), '1', 'skip an unavailable first page');
+    assert.equal(searchCalls().at(-1).searchParams.get('cityName'), city);
+    assert.equal(searchCalls().at(-1).searchParams.get('countryCode'), country);
+    assert.equal(searchCalls().at(-1).searchParams.get('offset'), '1', 'skip an unavailable first page');
     assert.equal(await page.locator('.travelHotelCard').count(), 1);
   }
   for (const width of [390, 1280]) {
@@ -62,19 +63,19 @@ try {
     await dates.nth(0).fill('2099-06-01');
     await page.locator('.travelResultDestination button').click();
     await page.locator('.travelHotelCard').first().waitFor();
-    assert.equal(catalogCalls.at(-1).searchParams.get('cityName'), 'Patong Beach');
-    assert.equal(catalogCalls.at(-1).searchParams.get('countryCode'), 'TH');
+    assert.equal(searchCalls().at(-1).searchParams.get('cityName'), 'Patong Beach');
+    assert.equal(searchCalls().at(-1).searchParams.get('countryCode'), 'TH');
     assert.equal(rateCalls.at(-1).checkin, '2099-06-01');
     assert.equal(rateCalls.at(-1).checkout, '2099-06-03');
     await page.locator('.travelLoadMoreButton').click();
     await page.waitForFunction(() => globalThis.document.querySelectorAll('.travelHotelCard').length === 2);
-    assert.equal(catalogCalls.at(-1).searchParams.get('offset'), '2');
-    assert.equal(catalogCalls.at(-1).searchParams.get('countryCode'), 'TH');
+    assert.equal(searchCalls().at(-1).searchParams.get('offset'), '2');
+    assert.equal(searchCalls().at(-1).searchParams.get('countryCode'), 'TH');
     await page.locator('.travelResultDestination input[type=search]').fill('Barcelona');
     await page.locator('.travelResultDestination button').click();
     await page.locator('.travelHotelCard').first().waitFor();
-    assert.equal(catalogCalls.at(-1).searchParams.get('destination'), 'Barcelona');
-    assert.equal(catalogCalls.at(-1).searchParams.has('countryCode'), false);
+    assert.equal(searchCalls().at(-1).searchParams.get('destination'), 'Barcelona');
+    assert.equal(searchCalls().at(-1).searchParams.has('countryCode'), false);
     assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth), true);
   }
   assert.deepEqual(errors, []);

@@ -247,17 +247,17 @@ function HotelStaySearch({ checkin, checkout, adults, disabled, onSearch, t }) {
   const [start, setStart] = useState(checkin);
   const [end, setEnd] = useState(checkout);
   const [guests, setGuests] = useState(adults);
-  const tomorrow = dateAfter(null);
-  const minimumEnd = start ? dateAfter(start) : tomorrow;
+  const today = dateAfter(null, 0);
+  const minimumEnd = start ? dateAfter(start) : dateAfter(today);
 
   return (
     <form className="hotelStaySearch" onSubmit={(event) => {
       event.preventDefault();
-      if (start >= tomorrow && end > start) onSearch(start, end, guests);
+      if (start >= today && end > start) onSearch(start, end, guests);
     }}>
       <label>
         <span>{t("travelPage.search.start")}</span>
-        <input type="date" required value={start} min={tomorrow} disabled={disabled}
+        <input type="date" required value={start} min={today} disabled={disabled}
           onChange={(event) => {
             const value = event.target.value;
             setStart(value);

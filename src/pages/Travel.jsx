@@ -102,10 +102,10 @@ const SHOWCASE_REFRESH_MS = 10 * 60 * 1000;
 const DEFAULT_SHOWCASE_CITY = "Antalya";
 const DEFAULT_SHOWCASE_FALLBACK_CITIES = ["Belek", "Side", "Kemer", "Alanya"];
 
-function addDays(days) {
-  const date = new Date();
+function addDays(days, value) {
+  const date = value ? new Date(`${value}T12:00:00`) : new Date();
   date.setDate(date.getDate() + days);
-  return date.toISOString().slice(0, 10);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function money(amount, currency = "EUR") {
@@ -377,10 +377,10 @@ function Travel({ hotelsOnly = false }) {
     () => homeSearchParams.get("cityName") || "",
   );
   const [checkin, setCheckin] = useState(
-    () => homeSearchParams.get("checkin") || addDays(30),
+    () => homeSearchParams.get("checkin") || addDays(0),
   );
   const [checkout, setCheckout] = useState(
-    () => homeSearchParams.get("checkout") || addDays(32),
+    () => homeSearchParams.get("checkout") || addDays(1, homeSearchParams.get("checkin")),
   );
   const [accommodationType, setAccommodationType] = useState(() => normalizeAccommodationType(homeSearchParams.get("hotelTypeIds")));
   const [adults, setAdults] = useState(() =>
@@ -444,9 +444,7 @@ function Travel({ hotelsOnly = false }) {
 
   const minimumCheckout = useMemo(() => {
     if (!checkin) return addDays(1);
-    const date = new Date(`${checkin}T00:00:00.000Z`);
-    date.setDate(date.getDate() + 1);
-    return date.toISOString().slice(0, 10);
+    return addDays(1, checkin);
   }, [checkin]);
 
   useEffect(() => {
@@ -1007,7 +1005,7 @@ function Travel({ hotelsOnly = false }) {
                     <input
                       type="date"
                       value={checkin}
-                      min={addDays(1)}
+                      min={addDays(0)}
                       onChange={(event) => {
                         const value = event.target.value;
                         setCheckin(value);
@@ -1144,7 +1142,7 @@ function Travel({ hotelsOnly = false }) {
             <HotelResultControls filters={resultFilters} onChange={filters => { setResultFilters(filters); setSearchSort(filters.sort); }} destination={cityName} onDestinationChange={setCityName} onDestinationSearch={() => {
               setNearbyCoordinates(null);
               runSearch({ destination: cityName.trim() }, { fromCategory: true });
-            }} checkin={checkin} checkout={checkout} minimumCheckin={addDays(1)} minimumCheckout={minimumCheckout}
+            }} checkin={checkin} checkout={checkout} minimumCheckin={addDays(0)} minimumCheckout={minimumCheckout}
             onCheckinChange={value => { setCheckin(value); if (checkout <= value) setCheckout(""); }} onCheckoutChange={setCheckout}
             currency={filterCurrency || (results.length === 0 ? "USD" : null)} visibleCount={visibleResults.length} loadedCount={results.length} hasMore={hasMoreHotels} />
             {!visibleResults.length && <p className="travelFilterEmpty" role="status">{searchState === "choosing" ? t("stayDiscovery.description") : searchState === "error" ? searchError : t("discovery.empty")}</p>}

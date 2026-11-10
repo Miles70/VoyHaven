@@ -31,6 +31,12 @@ export function filterHotelResults(hotels, filters) {
   return visible;
 }
 
+// Reviewed exterior photo of Bellagio (lp1d30e), supplied by the hotel catalog.
+// Destination artwork stays stable when rate payloads or showcase order change.
+const destinationImages = new Map([
+  ["US:las vegas", "https://static.cupid.travel/hotels/193378702.jpg"],
+]);
+
 export function showcaseDestinations(hotels) {
   const cities = new Map();
   for (const hotel of hotels) {
@@ -38,7 +44,7 @@ export function showcaseDestinations(hotels) {
     const country = hotel.showcaseCountryCode || hotel.countryCode || hotel.country;
     if (!city || city === "Global" || !hotel.main_photo) continue;
     const key = `${String(country || "").toUpperCase()}:${searchText(city)}`;
-    if (!cities.has(key)) cities.set(key, { key, city, country, image: hotel.main_photo });
+    if (!cities.has(key)) cities.set(key, { key, city, country, image: destinationImages.get(key) || hotel.main_photo });
   }
   return [...cities.values()].slice(0, 6);
 }

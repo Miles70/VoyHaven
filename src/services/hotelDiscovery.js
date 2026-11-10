@@ -31,10 +31,18 @@ export function filterHotelResults(hotels, filters) {
   return visible;
 }
 
+const reviewedHotelImages = new Map([
+  ["lp1d30e", "https://static.cupid.travel/hotels/193378702.jpg"],
+]);
+
+export function hotelDisplayPhoto(hotelId, fallback = "") {
+  return reviewedHotelImages.get(hotelId) || fallback;
+}
+
 // Reviewed exterior photo of Bellagio (lp1d30e), supplied by the hotel catalog.
 // Destination artwork stays stable when rate payloads or showcase order change.
 const destinationImages = new Map([
-  ["US:las vegas", "https://static.cupid.travel/hotels/193378702.jpg"],
+  ["US:las vegas", hotelDisplayPhoto("lp1d30e")],
 ]);
 
 export function showcaseDestinations(hotels) {

@@ -4,7 +4,7 @@ import accommodationTranslations from "../i18n/accommodationTranslations.js";
 import HotelCatalogSearch from '../components/HotelCatalogSearch';
 import { trackTravel } from '../services/analytics';
 import { DestinationDiscovery, HotelResultControls, TravelQuestions } from "../components/TravelDiscovery";
-import { defaultHotelFilters, filterHotelResults, hotelCurrencies } from "../services/hotelDiscovery.js";
+import { defaultHotelFilters, filterHotelResults, hotelCurrencies, hotelDisplayPhoto } from "../services/hotelDiscovery.js";
 import Flights from "./Flights";
 import CategoryPage from "./CategoryPage";
 import VoyHavenLogo from "../components/Brand/VoyHavenLogo";
@@ -205,6 +205,7 @@ function buildResults(rateResponse) {
       const hotelData = hotelsById.get(hotelRate.hotelId) || {};
       return {
         ...hotelData,
+        main_photo: hotelDisplayPhoto(hotelRate.hotelId, hotelData.main_photo),
         hotelId: hotelRate.hotelId,
         offer: cheapest,
         offers,
@@ -575,10 +576,12 @@ function Travel({ hotelsOnly = false }) {
             knownIds.add(hotel.hotelId);
             collected.push({
               ...hotel,
-              main_photo:
+              main_photo: hotelDisplayPhoto(
+                hotel.hotelId,
                 hotel.hotelId === "lp22e91"
                   ? "https://static.cupid.travel/hotels/527859140.jpg"
                   : (indexedHotel.mainPhoto || hotel.main_photo || ""),
+              ),
               videoUrl: indexedHotel.videoUrl || hotel.videoUrl || "",
               showcaseCheckin: checkin,
               showcaseCheckout: checkout,

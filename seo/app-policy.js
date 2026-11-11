@@ -26,7 +26,7 @@ export function appPolicy(pathname, search = '', catalog = []) {
  if (pathname === '/travel') return { redirect: `/${search ? `?${params}` : ''}` };
  const hotelMatch = pathname.match(/^\/travel\/hotels\/(lp[a-z0-9]+)$/);
  if (empty && hotelMatch && catalog.includes(hotelMatch[1])) return { redirect: `/${lang}/travel/hotels/${hotelMatch[1]}${search ? `?${params}` : ''}` };
- const general = ['/', '/about', '/contact', '/support', '/privacy', '/terms', '/refund', '/cars', '/activities'];
+ const general = ['/', ...informationPaths, '/cars', '/activities'];
  const privatePage = /^\/(admin(?:\/.*)?|account|travel\/checkout|flights\/checkout)$/.test(pathname);
  const liveHotel = /^\/travel\/hotels\/[^/]+$/.test(pathname);
  const known = general.includes(pathname) || privatePage || liveHotel || ['/hotels', '/flights'].includes(pathname);
@@ -34,7 +34,7 @@ export function appPolicy(pathname, search = '', catalog = []) {
  const noIndex = privatePage || liveHotel || ['/hotels', '/flights', '/cars', '/activities'].includes(pathname) || userSearch || !known;
  const c = copy[lang];
  const about = aboutTranslations[lang] || aboutTranslations.en;
- const legal = ['/privacy', '/terms', '/refund'].includes(pathname) ? legalTranslations[lang]?.[pathname.slice(1)] : null;
+ const legal = ['/privacy', '/terms', '/refund', '/cookies', '/booking-conditions', '/payment-information'].includes(pathname) ? legalTranslations[lang]?.[pathname.slice(1)] : null;
  const information = legal ? [legal.title, legal.intro] : pathname === '/about' ? [about.seoTitle, about.seoDescription] : (generalSeo[lang] || generalSeo.en)[pathname];
  const title = information?.[0] || (!known ? '404' : pathname.startsWith('/flights') ? c.flights : pathname.startsWith('/hotels') || liveHotel ? c.hotels : c.homeTitle);
  const canonicalPath = liveHotel && hotelMatch && catalog.includes(hotelMatch[1]) ? `/${lang}/travel/hotels/${hotelMatch[1]}` : ['/hotels','/flights'].includes(pathname) ? `/${lang}${pathname}` : pathname === "/" ? `/${lang}` : pathname;

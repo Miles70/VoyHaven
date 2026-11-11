@@ -16,3 +16,27 @@ const localizedTranslations = Object.fromEntries(Object.entries(rows).map(([lang
 export default localizedTranslations;
 
 Object.assign(localizedTranslations, additionalTranslations("footerTranslations.js", "default"));
+
+const partnershipLabels = {
+  "en": "Advertising & partnerships",
+  "tr": "Reklam ve iş birliği",
+  "de": "Werbung & Kooperationen",
+  "fr": "Publicité et partenariats",
+  "ru": "Реклама и сотрудничество",
+  "ar": "الإعلانات والشراكات",
+  "es": "Publicidad y colaboraciones",
+  "pt": "Publicidade e parcerias",
+  "it": "Pubblicità e collaborazioni",
+  "zh": "广告与合作",
+  "nl": "Advertenties en samenwerkingen",
+  "nb": "Annonsering og samarbeid",
+  "sv": "Annonsering och samarbeten",
+  "da": "Annoncering og samarbejde",
+  "fi": "Mainonta ja yhteistyö",
+  "ja": "広告・パートナーシップ",
+  "ko": "광고 및 제휴",
+  "pl": "Reklama i współpraca"
+};
+for (const [language, label] of Object.entries(partnershipLabels)) {
+  localizedTranslations[language].partnerships = label;
+}

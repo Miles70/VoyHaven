@@ -84,7 +84,9 @@ function Footer() {
           <h3>VoyHaven</h3>
           <Link to={infoLink("/about")}>{labels.about}</Link>
           <Link to={infoLink("/contact")}>{labels.contact}</Link>
+          <a href="mailto:partners@voyhaven.com">{labels.partnerships}</a>
           <Link to={infoLink("/support")}>{labels.support}</Link>
+          <a href="mailto:support@voyhaven.com">support@voyhaven.com</a>
         </div>
 
         <div className="footerColumn">

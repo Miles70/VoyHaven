@@ -63,7 +63,7 @@ function InformationPage({ page }) {
   const supportText = supportCopy[language] || supportCopy.en;
 
   if (page === "about") return <AboutPage />;
-  if (["privacy", "terms", "refund"].includes(page)) return <LegalPage page={page} />;
+  if (["privacy", "terms", "refund", "cookies", "booking-conditions", "payment-information"].includes(page)) return <LegalPage page={page} />;
 
   return (
     <main className="informationPage container">

@@ -46,6 +46,9 @@ function App() {
             <Route path="/privacy" element={<InformationPage page="privacy" />} />
             <Route path="/terms" element={<InformationPage page="terms" />} />
             <Route path="/refund" element={<InformationPage page="refund" />} />
+            <Route path="/cookies" element={<InformationPage page="cookies" />} />
+            <Route path="/booking-conditions" element={<InformationPage page="booking-conditions" />} />
+            <Route path="/payment-information" element={<InformationPage page="payment-information" />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

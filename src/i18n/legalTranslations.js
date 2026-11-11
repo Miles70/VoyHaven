@@ -1,3 +1,4 @@
+import supplementalPolicies from "./supplementalPolicies.js";
 import { additionalTranslations } from "./extended/index.js";
 // Policy content and SEO share the same source in all supported languages.
 const legalTranslations = {
@@ -275,3 +276,7 @@ const legalTranslations = {
 export default legalTranslations;
 
 Object.assign(legalTranslations, additionalTranslations("legalTranslations.js", "default"));
+
+for (const [language, pages] of Object.entries(supplementalPolicies)) {
+  Object.assign(legalTranslations[language], pages);
+}

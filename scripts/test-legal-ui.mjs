@@ -22,7 +22,7 @@ try {
       await context.route('**/api/**', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ data: [], hotels: [] }) }));
       const page = await context.newPage(), errors = [];
       page.on('pageerror', error => errors.push(error.message));
-      for (const policy of ['privacy', 'terms', 'refund']) {
+      for (const policy of ['privacy', 'terms', 'refund', 'cookies', 'booking-conditions', 'payment-information']) {
         await page.goto(`http://127.0.0.1:5181/${policy}?lang=${language}`);
         await page.locator('.legalPage').waitFor();
         assert.equal(await page.locator('h1').count(), 1);
@@ -31,17 +31,17 @@ try {
         assert.equal(await page.locator('meta[name=description]').getAttribute('content'), copy[policy].intro);
         assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), `https://voyhaven.com/${policy}${language === 'en' ? '' : `?lang=${language}`}`);
         assert.equal(await page.locator('.legalPage').getAttribute('dir'), language === 'ar' ? 'rtl' : 'ltr');
-        assert.equal(await page.locator('.legalSection').count(), 6);
+        assert.equal(await page.locator('.legalSection').count(), copy[policy].sections.length);
         assert.equal(await page.locator('.legalEmail').getAttribute('href'), 'mailto:support@voyhaven.com');
         assert.equal(await page.locator('.legalSupport').getAttribute('href'), `/account?tab=support&lang=${language}`);
         assert.equal(await page.locator('.legalTabs [aria-current=page]').getAttribute('href'), `/${policy}?lang=${language}`);
         const footerLegal = page.locator('.footerColumn').filter({ has: page.getByRole('heading', { name: footerTranslations[language].legal, exact: true }) });
-        assert.equal(await footerLegal.locator('a').count(), 3);
+        assert.equal(await footerLegal.locator('a').count(), 5);
         for (const key of ['privacy', 'terms', 'refund']) assert.equal(await footerLegal.getByRole('link', { name: footerTranslations[language][key], exact: true }).getAttribute('href'), `/${key}?lang=${language}`);
         assert.ok(!/\bbeta\b|rotavoy/i.test(await page.locator('.legalPage').innerText()));
         await page.locator('.legalSidebar a').last().click();
-        assert.equal(new URL(page.url()).hash, `#${policy}-6`);
-        await page.waitForFunction(id => { const top = globalThis.document.getElementById(id).getBoundingClientRect().top; return top >= 0 && top < 450; }, `${policy}-6`);
+        assert.equal(new URL(page.url()).hash, `#${policy}-${copy[policy].sections.length}`);
+        await page.waitForFunction(id => { const top = globalThis.document.getElementById(id).getBoundingClientRect().top; return top >= 0 && top < 450; }, `${policy}-${copy[policy].sections.length}`);
         const sectionTop = await page.locator('.legalSection').last().evaluate(node => node.getBoundingClientRect().top);
         assert.ok(sectionTop >= 0 && sectionTop < 450, `${language} ${policy}: contents navigation`);
         const overflow = await page.evaluate(() => [...globalThis.document.querySelectorAll('.legalPage *')].filter(node => { const rect = node.getBoundingClientRect(); return rect.right > globalThis.innerWidth + 1 || rect.left < -1; }).map(node => node.className));

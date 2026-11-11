@@ -2,6 +2,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import { copy } from "../../../seo/copy.js";
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaYoutube } from "react-icons/fa6";
+import supplementalPolicies from "../../i18n/supplementalPolicies.js";
 import footerTranslations from "../../i18n/footerTranslations.js";
 import siteConfig from "../../config/site";
 import "./Footer.css";
@@ -50,6 +51,7 @@ function Footer() {
   const { language, t } = useLanguage();
   const seoCopy = copy[language];
   const labels = footerTranslations[language] || footerTranslations.en;
+  const policies = supplementalPolicies[language] || supplementalPolicies.en;
   const infoLink = path => `${path}?lang=${language}`;
   const currentYear = new Date().getFullYear();
 
@@ -78,6 +80,7 @@ function Footer() {
           <a href={`/${language}/flights`}>{seoCopy.routes}</a>
           <Link to={infoLink("/support")}>{labels.reservationSupport}</Link>
           <Link to={infoLink("/refund")}>{labels.cancellations}</Link>
+          <Link to={infoLink("/payment-information")}>{policies["payment-information"].title}</Link>
         </div>
 
         <div className="footerColumn">
@@ -94,6 +97,8 @@ function Footer() {
           <Link to={infoLink("/privacy")}>{labels.privacy}</Link>
           <Link to={infoLink("/terms")}>{labels.terms}</Link>
           <Link to={infoLink("/refund")}>{labels.refund}</Link>
+          <Link to={infoLink("/cookies")}>{policies.cookies.title}</Link>
+          <Link to={infoLink("/booking-conditions")}>{policies["booking-conditions"].title}</Link>
         </div>
       </div>
 

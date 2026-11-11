@@ -1,19 +1,21 @@
 import { Link } from 'react-router-dom';
-import { ShieldCheck, FileText, RotateCcw, ArrowUpRight } from 'lucide-react';
+import { ShieldCheck, FileText, RotateCcw, ArrowUpRight, Cookie, CalendarCheck, CreditCard } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import legalTranslations from '../i18n/legalTranslations.js';
+import { legalPolicyKeys } from '../i18n/supplementalPolicies.js';
 import './LegalPage.css';
 
-const icons = { privacy: ShieldCheck, terms: FileText, refund: RotateCcw };
+const icons = { privacy: ShieldCheck, terms: FileText, refund: RotateCcw, cookies: Cookie, 'booking-conditions': CalendarCheck, 'payment-information': CreditCard };
 const configuredEmail = String(import.meta.env.VITE_SUPPORT_EMAIL || '').trim();
-const supportEmail = /@(?:www\.)?rotavoy\.com$/i.test(configuredEmail) ? '' : configuredEmail;
+const supportEmail = /@(?:www\.)?rotavoy\.com$/i.test(configuredEmail) ? 'support@voyhaven.com' : configuredEmail || 'support@voyhaven.com';
 
 export default function LegalPage({ page }) {
   const { language } = useLanguage();
   const copy = legalTranslations[language] || legalTranslations.en;
   const policy = copy[page];
   const Icon = icons[page];
-  const updated = new Intl.DateTimeFormat(language, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date('2026-10-13T00:00:00Z'));
+  const updatedDate = policy.updated || '2026-10-13';
+  const updated = new Intl.DateTimeFormat(language, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${updatedDate}T00:00:00Z`));
 
   return (
     <main className="legalPage" dir={language === 'ar' ? 'rtl' : 'ltr'}>
@@ -23,9 +25,9 @@ export default function LegalPage({ page }) {
           <div className="legalHeroIcon"><Icon size={26} aria-hidden="true" /></div>
           <h1>{policy.title}</h1>
           <p className="legalIntro">{policy.intro}</p>
-          <p className="legalUpdated">{copy.updated} <time dateTime="2026-10-13">{updated}</time></p>
+          <p className="legalUpdated">{copy.updated} <time dateTime={updatedDate}>{updated}</time></p>
           <nav className="legalTabs" aria-label={copy.legal}>
-            {['privacy', 'terms', 'refund'].map(key => <Link key={key} to={`/${key}?lang=${language}`} aria-current={key === page ? 'page' : undefined}>{copy[key].title}</Link>)}
+            {[...legalPolicyKeys, 'payment-information'].map(key => <Link key={key} to={`/${key}?lang=${language}`} aria-current={key === page ? 'page' : undefined}>{copy[key].title}</Link>)}
           </nav>
         </div>
       </header>

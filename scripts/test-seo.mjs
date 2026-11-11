@@ -1,3 +1,4 @@
+import { informationPaths } from '../seo/information-locales.js';
 import { startSeoTestServer } from './seo-test-server.mjs';
 import { travelGuide } from "../seo/guides.js";
 import assert from 'node:assert/strict';
@@ -95,11 +96,11 @@ for (const path of paths) assert.ok(locations.includes(SITE_URL + path));
 assert.ok(locations.every(url => !/checkout|account|admin/.test(url)));
 for (const url of locations.filter(url => url.includes('?'))) {
  const parsed = new URL(url);
- assert.ok(['/about','/contact','/support','/privacy','/terms','/refund'].includes(parsed.pathname));
+ assert.ok(informationPaths.includes(parsed.pathname));
  assert.deepEqual([...parsed.searchParams.keys()], ['lang']);
  assert.ok(languages.includes(parsed.searchParams.get('lang')));
 }
-assert.equal(locations.length, pages.length + 6 * languages.length);
+assert.equal(locations.length, pages.length + informationPaths.length * languages.length);
 const published = hotels.map(h => h.id);
 const config = JSON.parse(await readFile('vercel.json', 'utf8'));
 // Old-domain forwarding is intentionally absent from the active project.
@@ -163,7 +164,7 @@ for (const lang of languages) {
 assert.equal(appPolicy('/missing').title, '404 | VoyHaven');
 
 for (const lang of languages) {
- for (const path of ['/about','/contact','/support','/privacy','/terms','/refund']) {
+ for (const path of informationPaths) {
   const r = await request(`${path}?lang=${lang}`);
   const canonical = SITE_URL + path + (lang === 'en' ? '' : `?lang=${lang}`);
   assert.ok(r.body.includes(`rel="canonical" href="${canonical}"`));

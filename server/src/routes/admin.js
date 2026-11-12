@@ -27,7 +27,7 @@ function literal(value) { return text(value, 100).replace(/[.*+?^${}()|[\]\\]/g,
 function actor(request) { return request.customer.email || request.customer.providerId; }
 async function audit(request, action, target) { await TravelAdminAudit.create({ actor: actor(request), action, target }); }
 export function bookingFilters(query) {
-  const filter = {};
+  const filter = { adminHiddenAt: { $exists: false } };
   if (query.status && statuses.includes(query.status)) filter.status = query.status;
   if (query.paymentStatus && ['unpaid', 'pending', 'paid', 'failed'].includes(query.paymentStatus)) filter.paymentStatus = query.paymentStatus;
   if (query.q) { const regex = new RegExp(literal(query.q), 'i'); filter.$or = [{ clientReference: regex }, { 'holder.email': regex }, { 'holder.firstName': regex }, { 'holder.lastName': regex }, { 'stay.hotelName': regex }]; }
@@ -42,8 +42,8 @@ export function adminBooking(booking) {
 adminRouter.get('/session', (request, response) => response.json({ admin: { displayName: request.customer.displayName, identity: actor(request) } }));
 adminRouter.get('/overview', async (request, response) => {
   const [bookingStatus, totals, customers, tickets, content, hotels] = await Promise.all([
-    TravelBooking.aggregate([{ $group: { _id: { status: '$status', paymentStatus: '$paymentStatus' }, count: { $sum: 1 } } }]),
-    TravelBooking.aggregate([{ $match: { paymentStatus: 'paid' } }, { $group: { _id: '$currency', gross: { $sum: '$total' }, count: { $sum: 1 } } }]),
+    TravelBooking.aggregate([{ $match: { adminHiddenAt: { $exists: false } } }, { $group: { _id: { status: '$status', paymentStatus: '$paymentStatus' }, count: { $sum: 1 } } }]),
+    TravelBooking.aggregate([{ $match: { paymentStatus: 'paid', adminHiddenAt: { $exists: false } } }, { $group: { _id: '$currency', gross: { $sum: '$total' }, count: { $sum: 1 } } }]),
     Customer.countDocuments(), TravelSupportTicket.countDocuments({ status: { $ne: 'resolved' } }), TravelContent.countDocuments(), HotelVideoIndex.countDocuments(),
   ]);
   response.json({ bookingStatus, totals, customers, tickets, content, hotels });
@@ -55,7 +55,7 @@ adminRouter.get('/bookings', async (request, response) => {
 });
 adminRouter.get('/bookings/:reference', async (request, response) => {
   const reference = text(request.params.reference, 150);
-  const [booking, note] = await Promise.all([TravelBooking.findOne({ clientReference: reference }).lean(), TravelBookingNote.findOne({ clientReference: reference }).lean()]);
+  const [booking, note] = await Promise.all([TravelBooking.findOne({ clientReference: reference, adminHiddenAt: { $exists: false } }).lean(), TravelBookingNote.findOne({ clientReference: reference }).lean()]);
   if (!booking) return response.status(404).json({ message: 'Rezervasyon bulunamadı.' });
   response.json({ booking: adminBooking(booking), note: note?.note || '' });
 });
@@ -68,20 +68,11 @@ adminRouter.delete('/bookings/:reference', async (request, response) => {
   const session = await mongoose.startSession();
   try {
     await session.withTransaction(async () => {
+      // Hide only in admin views. Customer access and payment reconciliation remain live.
       const booking = await TravelBooking.findOneAndUpdate({
-        clientReference: reference,
-        status: { $ne: 'processing' },
-        paymentStatus: { $ne: 'pending' },
-        $or: [
-          { 'cryptoVerification.expiresAt': { $exists: false } },
-          { 'cryptoVerification.expiresAt': null },
-          { 'cryptoVerification.expiresAt': { $lte: archivedAt } },
-        ],
-      }, { $set: { archivedAt, archiveBatch: batchId } }, { session, new: true, timestamps: false });
-      if (!booking) {
-        const exists = await TravelBooking.findOne({ clientReference: reference }).session(session).lean();
-        throw Object.assign(new Error(exists ? 'Rezervasyon işlemi, açık ödeme oturumu veya ödeme doğrulaması sürüyor. Ödeme süreci sonuçlandıktan sonra tekrar dene.' : 'Rezervasyon bulunamadı veya zaten silindi.'), { statusCode: exists ? 409 : 404 });
-      }
+        clientReference: reference, adminHiddenAt: { $exists: false },
+      }, { $set: { adminHiddenAt: archivedAt, adminArchiveBatch: batchId } }, { session, new: true, timestamps: false });
+      if (!booking) throw Object.assign(new Error('Rezervasyon bulunamadı veya zaten silindi.'), { statusCode: 404 });
       await AdminDataReset.create([{ batchId, kind: 'booking', clientReference: reference, actor: actor(request), cutoff: archivedAt, counts: { analytics: 0, bookings: 1 } }], { session });
       await TravelAdminAudit.create([{ actor: actor(request), action: 'booking.archive', target: reference }], { session });
     });

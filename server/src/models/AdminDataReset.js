@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 export const AdminDataReset = mongoose.model('AdminDataReset', new mongoose.Schema({
   batchId: { type: String, unique: true, required: true },
-  kind: { type: String, enum: ['reset', 'visitor'], default: 'reset' }, visitorId: String,
+  kind: { type: String, enum: ['reset', 'visitor', 'booking'], default: 'reset' }, visitorId: String, clientReference: String,
   actor: String, cutoff: Date, counts: { analytics: Number, bookings: Number, customers: Number, accounts: Number, tickets: Number, notes: Number, audits: Number },
   restoredAt: Date,
 }, { timestamps: true }));

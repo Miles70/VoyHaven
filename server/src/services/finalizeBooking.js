@@ -13,7 +13,12 @@ async function applyResult(b, result) {
   b.status = confirmedProviderBooking(result, kind) ? 'confirmed' : 'processing';
   if (b.status === 'confirmed' || ['completed', 'succeeded'].includes(data.paymentStatus)) b.paymentStatus = 'paid';
   if (b.status === 'confirmed') { b.paymentExpiresAt = null; b.failureReason = ''; }
-  if (b.status === 'confirmed' || b.paymentStatus === 'paid') { b.adminHiddenAt = undefined; b.adminArchiveBatch = undefined; }
+  if (b.status === 'confirmed' || b.paymentStatus === 'paid') {
+    b.adminHiddenAt = undefined; b.adminArchiveBatch = undefined;
+    // A concurrent admin removal may have set these paths after this document
+    // was read. Force $unset even when the in-memory values were already absent.
+    b.markModified?.('adminHiddenAt'); b.markModified?.('adminArchiveBatch');
+  }
   await b.save(); return b;
 }
 export async function refreshBooking(b) {

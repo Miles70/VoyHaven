@@ -17,6 +17,8 @@ const travelBookingSchema = new mongoose.Schema(
     kind: { type: String, enum: ["hotel", "flight"], default: "hotel", index: true },
     rateTerms: { type: mongoose.Schema.Types.Mixed, default: {} },
     flight: { type: mongoose.Schema.Types.Mixed, default: {} },
+    adminHiddenAt: { type: Date, index: true },
+    adminArchiveBatch: { type: String, index: true },
     accessTokenHash: { type: String, default: "" },
     bookingAttemptAt: { type: Date, default: null },
     cryptoVerification: { type: new mongoose.Schema({ token: String, expiresAt: Date }, { _id: false }), default: undefined },

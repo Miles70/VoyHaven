@@ -32,7 +32,7 @@ test('single booking removal requires admin confirmation, archives exactly one r
   mongoose.startSession = async () => ({ withTransaction: async fn => fn(), endSession: async () => { sessionsEnded++; } });
   TravelBooking.findOneAndUpdate = async (filter, update) => {
     const record = records.get(filter.clientReference);
-    if (!record || record.archivedAt || record.status === 'processing' || record.paymentStatus === 'pending' || record.cryptoVerification?.expiresAt > new Date()) return null;
+    if (!record || record.adminHiddenAt) return null;
     writes++; Object.assign(record, update.$set); return { ...record };
   };
   TravelBooking.findOne = filter => ({ session: () => ({ lean: async () => {
@@ -49,8 +49,8 @@ test('single booking removal requires admin confirmation, archives exactly one r
   TravelAdminAudit.create = async rows => { audits.push(...rows); return rows; };
   TravelBooking.collection.updateMany = async filter => {
     let count = 0;
-    for (const row of records.values()) if (row.archiveBatch === filter.archiveBatch) {
-      delete row.archivedAt; delete row.archiveBatch; count++;
+    for (const row of records.values()) if (row.adminArchiveBatch === filter.$or?.[0]?.adminArchiveBatch) {
+      delete row.adminHiddenAt; delete row.adminArchiveBatch; count++;
     }
     return { modifiedCount: count };
   };
@@ -67,16 +67,14 @@ test('single booking removal requires admin confirmation, archives exactly one r
     assert.equal(writes, 0);
     authorized = true;
     assert.equal((await remove('TRV-DEMO-PAID', 'different-reference')).status, 400);
-    for (const reference of ['TRV-DEMO-CARD', 'TRV-DEMO-PROCESSING', 'TRV-DEMO-VERIFYING']) assert.equal((await remove(reference)).status, 409);
-    assert.equal(writes, 0);
     assert.equal((await remove('TRV-MISSING')).status, 404);
     const response = await remove('TRV-DEMO-PAID');
     assert.equal(response.status, 200);
     assert.equal(response.headers.get('cache-control'), 'private, no-store');
     const result = await response.json();
     assert.equal(result.clientReference, 'TRV-DEMO-PAID');
-    assert.ok(records.get(result.clientReference).archivedAt);
-    assert.equal(records.get('TRV-DEMO-OTHER').archivedAt, undefined);
+    assert.ok(records.get(result.clientReference).adminHiddenAt);
+    assert.equal(records.get('TRV-DEMO-OTHER').adminHiddenAt, undefined);
     assert.equal(records.get(result.clientReference).status, 'confirmed');
     assert.equal(records.get(result.clientReference).paymentStatus, 'paid');
     assert.deepEqual(batches.get(result.batchId).counts, { analytics: 0, bookings: 1 });
@@ -88,10 +86,19 @@ test('single booking removal requires admin confirmation, archives exactly one r
       method: 'POST', headers: { Authorization: `Bearer admin_${'a'.repeat(43)}`, 'Content-Type': 'application/json' }, body: '{}',
     });
     assert.equal(restored.status, 200);
-    assert.equal(records.get('TRV-DEMO-PAID').archivedAt, undefined);
+    assert.equal(records.get('TRV-DEMO-PAID').adminHiddenAt, undefined);
     assert.equal(records.get('TRV-DEMO-PAID').status, 'confirmed');
     assert.equal(records.get('TRV-DEMO-PAID').paymentStatus, 'paid');
     assert.equal(audits.at(-1).action, 'data.restore');
+    for (const reference of ['TRV-DEMO-CARD', 'TRV-DEMO-PROCESSING', 'TRV-DEMO-VERIFYING']) {
+      const priorStatus = records.get(reference).status;
+      const priorPayment = records.get(reference).paymentStatus;
+      assert.equal((await remove(reference)).status, 200);
+      assert.ok(records.get(reference).adminHiddenAt);
+      assert.equal(records.get(reference).archivedAt, undefined);
+      assert.equal(records.get(reference).status, priorStatus);
+      assert.equal(records.get(reference).paymentStatus, priorPayment);
+    }
     assert.ok(sessionsEnded >= 5);
   } finally {
     await new Promise(resolve => server.close(resolve));
@@ -102,4 +109,15 @@ test('single booking removal requires admin confirmation, archives exactly one r
     TravelBooking.collection.updateMany = originals.restore; TravelAnalytics.collection.updateMany = originals.analytics;
     if (previous === undefined) delete process.env.VOYHAVEN_ADMIN_PASSWORD; else process.env.VOYHAVEN_ADMIN_PASSWORD = previous;
   }
+});
+
+test('admin-hidden records remain reachable for customer payment finalization', async () => {
+  const original = TravelBooking.collection.findOne;
+  const filters = [];
+  TravelBooking.collection.findOne = async filter => { filters.push(filter); return null; };
+  try {
+    await TravelBooking.findOne({ clientReference: 'TRV-DEMO-CARD' });
+    assert.equal(filters[0].adminHiddenAt, undefined);
+    assert.deepEqual(filters[0].archivedAt, { $exists: false });
+  } finally { TravelBooking.collection.findOne = original; }
 });

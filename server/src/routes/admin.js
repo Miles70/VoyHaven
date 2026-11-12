@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+import { AdminDataReset } from '../models/AdminDataReset.js';
 import { adminDataResetRouter } from './adminDataReset.js';
 import { createAnalyticsProof } from '../services/analyticsTraffic.js';
 import { analyticsV2 } from '../services/analyticsReport.js';
@@ -57,6 +59,36 @@ adminRouter.get('/bookings/:reference', async (request, response) => {
   if (!booking) return response.status(404).json({ message: 'Rezervasyon bulunamadı.' });
   response.json({ booking: adminBooking(booking), note: note?.note || '' });
 });
+
+adminRouter.delete('/bookings/:reference', async (request, response) => {
+  const reference = text(request.params.reference, 150);
+  if (!reference || request.body?.confirmation !== reference) throw bad('Silinecek rezervasyonu doğrula.');
+  const batchId = crypto.randomUUID();
+  const archivedAt = new Date();
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const booking = await TravelBooking.findOneAndUpdate({
+        clientReference: reference,
+        status: { $ne: 'processing' },
+        paymentStatus: { $ne: 'pending' },
+        $or: [
+          { 'cryptoVerification.expiresAt': { $exists: false } },
+          { 'cryptoVerification.expiresAt': null },
+          { 'cryptoVerification.expiresAt': { $lte: archivedAt } },
+        ],
+      }, { $set: { archivedAt, archiveBatch: batchId } }, { session, new: true, timestamps: false });
+      if (!booking) {
+        const exists = await TravelBooking.findOne({ clientReference: reference }).session(session).lean();
+        throw Object.assign(new Error(exists ? 'Rezervasyon işlemi, açık ödeme oturumu veya ödeme doğrulaması sürüyor. Ödeme süreci sonuçlandıktan sonra tekrar dene.' : 'Rezervasyon bulunamadı veya zaten silindi.'), { statusCode: exists ? 409 : 404 });
+      }
+      await AdminDataReset.create([{ batchId, kind: 'booking', clientReference: reference, actor: actor(request), cutoff: archivedAt, counts: { analytics: 0, bookings: 1 } }], { session });
+      await TravelAdminAudit.create([{ actor: actor(request), action: 'booking.archive', target: reference }], { session });
+    });
+  } finally { await session.endSession(); }
+  response.json({ ok: true, clientReference: reference, batchId });
+});
+
 adminRouter.put('/bookings/:reference/note', async (request, response) => {
   const reference = text(request.params.reference, 150);
   if (!await TravelBooking.exists({ clientReference: reference })) return response.status(404).json({ message: 'Rezervasyon bulunamadı.' });

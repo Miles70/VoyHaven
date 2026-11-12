@@ -8,3 +8,5 @@
 
 
 .adminLoginForm{display:grid;gap:12px;text-align:left;margin:24px 0}.adminLoginForm label{font-weight:600}.adminLoginForm input{box-sizing:border-box;width:100%;min-height:48px;padding:12px 14px;border:1px solid var(--admin-border);border-radius:10px;background:var(--admin-bg);color:var(--admin-text);font:inherit;font-size:16px}.adminLoginForm input:focus-visible{outline:2px solid #0b63f6;outline-offset:2px}.adminLoginForm .adminPrimary{margin:4px 0 0;min-height:48px}.adminLoginError{color:#c23629}.adminGateSurface[data-theme=dark] .adminLoginError{color:#ffb4a8}
+
+.adminBookingActions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.travelAdmin .adminDanger{color:#b42318;border-color:#eab4ae;background:#fff5f3}.travelAdmin[data-theme=dark] .adminDanger{color:#ffb4a8;border-color:#88524d;background:#432728}.adminDeletePanel{border-color:#d88c80}.adminDeletePanel:focus{outline:3px solid var(--admin-accent);outline-offset:3px}

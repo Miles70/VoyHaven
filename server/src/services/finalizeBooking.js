@@ -13,6 +13,7 @@ async function applyResult(b, result) {
   b.status = confirmedProviderBooking(result, kind) ? 'confirmed' : 'processing';
   if (b.status === 'confirmed' || ['completed', 'succeeded'].includes(data.paymentStatus)) b.paymentStatus = 'paid';
   if (b.status === 'confirmed') { b.paymentExpiresAt = null; b.failureReason = ''; }
+  if (b.status === 'confirmed' || b.paymentStatus === 'paid') { b.adminHiddenAt = undefined; b.adminArchiveBatch = undefined; }
   await b.save(); return b;
 }
 export async function refreshBooking(b) {
@@ -34,7 +35,7 @@ export async function refreshBooking(b) {
 export async function finalizeBooking(b) {
   if (b.status === 'confirmed') return b;
   if (b.bookingAttemptAt) return refreshBooking(b);
-  const claimed = await TravelBooking.findOneAndUpdate({ _id: b._id, bookingAttemptAt: null, status: { $in: ['awaiting_payment', 'processing'] } }, { $set: { bookingAttemptAt: new Date(), status: 'processing' } }, { new: true });
+  const claimed = await TravelBooking.findOneAndUpdate({ _id: b._id, bookingAttemptAt: null, status: { $in: ['awaiting_payment', 'processing'] } }, { $set: { bookingAttemptAt: new Date(), status: 'processing' }, $unset: { adminHiddenAt: '', adminArchiveBatch: '' } }, { new: true });
   if (!claimed) return TravelBooking.findById(b._id);
   try {
     const result = claimed.kind === 'flight' ? await bookNuiteeFlight(claimed.prebookId, claimed.payment.transactionId)

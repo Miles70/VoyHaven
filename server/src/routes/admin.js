@@ -71,6 +71,7 @@ adminRouter.delete('/bookings/:reference', async (request, response) => {
       const booking = await TravelBooking.findOneAndUpdate({
         clientReference: reference,
         status: { $ne: 'processing' },
+        paymentStatus: { $ne: 'pending' },
         $or: [
           { 'cryptoVerification.expiresAt': { $exists: false } },
           { 'cryptoVerification.expiresAt': null },
@@ -79,7 +80,7 @@ adminRouter.delete('/bookings/:reference', async (request, response) => {
       }, { $set: { archivedAt, archiveBatch: batchId } }, { session, new: true, timestamps: false });
       if (!booking) {
         const exists = await TravelBooking.findOne({ clientReference: reference }).session(session).lean();
-        throw Object.assign(new Error(exists ? 'Rezervasyon veya ödeme doğrulaması sürüyor. İşlem tamamlandıktan sonra tekrar dene.' : 'Rezervasyon bulunamadı veya zaten silindi.'), { statusCode: exists ? 409 : 404 });
+        throw Object.assign(new Error(exists ? 'Rezervasyon işlemi, açık ödeme oturumu veya ödeme doğrulaması sürüyor. Ödeme süreci sonuçlandıktan sonra tekrar dene.' : 'Rezervasyon bulunamadı veya zaten silindi.'), { statusCode: exists ? 409 : 404 });
       }
       await AdminDataReset.create([{ batchId, kind: 'booking', clientReference: reference, actor: actor(request), cutoff: archivedAt, counts: { analytics: 0, bookings: 1 } }], { session });
       await TravelAdminAudit.create([{ actor: actor(request), action: 'booking.archive', target: reference }], { session });

@@ -57,7 +57,7 @@ adminDataResetRouter.get('/', async (request, response) => {
   const cutoff = new Date();
   const [analytics, bookings, batches] = await Promise.all([
     TravelAnalytics.countDocuments({ createdAt: { $lte: cutoff } }),
-    TravelBooking.find({ createdAt: { $lte: cutoff } }).sort({ createdAt: -1 }).limit(101).select('clientReference status paymentStatus createdAt updatedAt holder.firstName holder.lastName').lean(),
+    TravelBooking.find({ createdAt: { $lte: cutoff }, adminHiddenAt: { $exists: false } }).sort({ createdAt: -1 }).limit(101).select('clientReference status paymentStatus createdAt updatedAt holder.firstName holder.lastName').lean(),
     archiveHistory('reset'),
   ]);
   const operational = Object.fromEntries(await Promise.all(Object.entries(operationalModels).map(async ([key, model]) => [key, await model.countDocuments({ createdAt: { $lte: cutoff } })])));
@@ -70,7 +70,7 @@ adminDataResetRouter.post('/', async (request, response) => {
   let counts;
   try {
     await session.withTransaction(async () => {
-      const filter = { clientReference: { $in: references }, createdAt: { $lte: cutoff }, updatedAt: { $lte: cutoff } };
+      const filter = { adminHiddenAt: { $exists: false }, clientReference: { $in: references }, createdAt: { $lte: cutoff }, updatedAt: { $lte: cutoff } };
       const bookings = await TravelBooking.find(filter).session(session).lean();
       if (bookings.length !== references.length || bookings.some(b => b.status === 'processing' || b.cryptoVerification?.expiresAt > new Date())) throw fail('Rezervasyonlar değişti veya işlem sürüyor. Önizlemeyi yenile.');
       if (bookings.some(b => b.paymentStatus === 'paid') && request.body.includePaidTests !== true) throw fail('Ödendi görünen kayıtların da test olduğunu doğrula.');
@@ -111,7 +111,11 @@ adminDataResetRouter.post('/:batchId/restore', async (request, response) => {
         if (documents.length) await model.collection.insertMany(documents, { session });
       }
       // Raw collection updates intentionally bypass the active-record middleware.
-      for (const model of (batch.kind === 'visitor' ? [TravelAnalytics] : [TravelAnalytics, TravelBooking])) await model.collection.updateMany({ archiveBatch: batch.batchId }, { $unset: { archivedAt: '', archiveBatch: '' } }, { session });
+      if (batch.kind === 'booking') {
+        await TravelBooking.collection.updateMany({ $or: [{ adminArchiveBatch: batch.batchId }, { archiveBatch: batch.batchId }] }, { $unset: { adminHiddenAt: '', adminArchiveBatch: '', archivedAt: '', archiveBatch: '' } }, { session });
+      } else {
+        for (const model of (batch.kind === 'visitor' ? [TravelAnalytics] : [TravelAnalytics, TravelBooking])) await model.collection.updateMany({ archiveBatch: batch.batchId }, { $unset: { archivedAt: '', archiveBatch: '' } }, { session });
+      }
       batch.restoredAt = new Date(); await batch.save({ session });
       await TravelAdminAudit.create([{ actor: actor(request), action: 'data.restore', target: batch.batchId }], { session });
     });

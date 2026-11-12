@@ -4,7 +4,7 @@ import { createServer } from 'vite';
 import { chromium } from 'playwright';
 import { markAnalyticsTest } from './analytics-test-context.mjs';
 
-const server = await createServer({ server: { host: '127.0.0.1', port: 5183, strictPort: true }, define: { 'import.meta.env.VITE_API_BASE_URL': JSON.stringify('') } });
+const server = await createServer({ server: { host: '127.0.0.1', port: 5183, strictPort: true }, define: { 'import.meta.env.VITE_API_BASE_URL': JSON.stringify(''), 'import.meta.env.VITE_REOWN_PROJECT_ID': JSON.stringify('00000000000000000000000000000000') } });
 let browser;
 try {
   await server.listen();

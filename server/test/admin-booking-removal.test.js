@@ -22,6 +22,7 @@ test('single booking removal requires admin confirmation, archives exactly one r
   const records = new Map([
     ['TRV-DEMO-PAID', { clientReference: 'TRV-DEMO-PAID', status: 'confirmed', paymentStatus: 'paid' }],
     ['TRV-DEMO-OTHER', { clientReference: 'TRV-DEMO-OTHER', status: 'failed', paymentStatus: 'unpaid' }],
+    ['TRV-DEMO-CARD', { clientReference: 'TRV-DEMO-CARD', status: 'awaiting_payment', paymentStatus: 'pending', payment: { method: 'card' }, paymentExpiresAt: new Date(Date.now() + 60000) }],
     ['TRV-DEMO-PROCESSING', { clientReference: 'TRV-DEMO-PROCESSING', status: 'processing' }],
     ['TRV-DEMO-VERIFYING', { clientReference: 'TRV-DEMO-VERIFYING', status: 'awaiting_payment', cryptoVerification: { expiresAt: new Date(Date.now() + 60000) } }],
   ]);
@@ -31,7 +32,7 @@ test('single booking removal requires admin confirmation, archives exactly one r
   mongoose.startSession = async () => ({ withTransaction: async fn => fn(), endSession: async () => { sessionsEnded++; } });
   TravelBooking.findOneAndUpdate = async (filter, update) => {
     const record = records.get(filter.clientReference);
-    if (!record || record.archivedAt || record.status === 'processing' || record.cryptoVerification?.expiresAt > new Date()) return null;
+    if (!record || record.archivedAt || record.status === 'processing' || record.paymentStatus === 'pending' || record.cryptoVerification?.expiresAt > new Date()) return null;
     writes++; Object.assign(record, update.$set); return { ...record };
   };
   TravelBooking.findOne = filter => ({ session: () => ({ lean: async () => {
@@ -66,7 +67,7 @@ test('single booking removal requires admin confirmation, archives exactly one r
     assert.equal(writes, 0);
     authorized = true;
     assert.equal((await remove('TRV-DEMO-PAID', 'different-reference')).status, 400);
-    for (const reference of ['TRV-DEMO-PROCESSING', 'TRV-DEMO-VERIFYING']) assert.equal((await remove(reference)).status, 409);
+    for (const reference of ['TRV-DEMO-CARD', 'TRV-DEMO-PROCESSING', 'TRV-DEMO-VERIFYING']) assert.equal((await remove(reference)).status, 409);
     assert.equal(writes, 0);
     assert.equal((await remove('TRV-MISSING')).status, 404);
     const response = await remove('TRV-DEMO-PAID');
